@@ -11,9 +11,9 @@ export default function CameraViewORC() {
   const ocrCanvasRef = useRef(null);
   const workerRef = useRef(null);
 
-  const CROP_TOP = 0.15;
-  const CROP_BOTTOM = 0.31;
-  const CROP_LEFT = 0.8;
+  const CROP_TOP = 0.2;
+  const CROP_BOTTOM = 0.8;
+  const CROP_LEFT = 0.1;
   const CROP_RIGHT = 0.9;
   const sizeFactor = 3.2;
 
