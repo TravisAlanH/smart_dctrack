@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { ReuseDataStateStore } from "../../../store/Store";
 import { createWorker } from "tesseract.js";
 
@@ -17,6 +17,17 @@ export default function CameraViewORC() {
   const ocrCanvasRef = useRef(null);
   const workerRef = useRef(null);
 
+  const [isPortrait, setIsPortrait] = useState(false);
+
+  useEffect(() => {
+    function update() {
+      setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   useEffect(() => {
     async function startCam() {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -27,7 +38,6 @@ export default function CameraViewORC() {
     startCam();
   }, []);
 
-  // full video, no crop logic
   useEffect(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -54,22 +64,34 @@ export default function CameraViewORC() {
 
       ctx.clearRect(0, 0, cw, ch);
 
-      // scale full video into canvas, no cropping
-      const scale = Math.max(cw / vw, ch / vh);
-      const drawW = vw * scale;
-      const drawH = vh * scale;
+      if (isPortrait) {
+        const scale = Math.max(ch / vw, cw / vh);
+        const drawW = vh * scale;
+        const drawH = vw * scale;
+        const dx = (cw - drawW) * 0.5;
+        const dy = (ch - drawH) * 0.5;
 
-      const dx = (cw - drawW) * 0.5;
-      const dy = (ch - drawH) * 0.5;
-
-      ctx.drawImage(video, dx, dy, drawW, drawH);
+        ctx.save();
+        ctx.translate(cw / 2, ch / 2);
+        ctx.rotate((-90 * Math.PI) / 180);
+        ctx.translate(-ch / 2, -cw / 2);
+        ctx.drawImage(video, dx, dy, drawW, drawH);
+        ctx.restore();
+      } else {
+        const scale = Math.max(cw / vw, ch / vh);
+        const drawW = vw * scale;
+        const drawH = vh * scale;
+        const dx = (cw - drawW) * 0.5;
+        const dy = (ch - drawH) * 0.5;
+        ctx.drawImage(video, dx, dy, drawW, drawH);
+      }
 
       req = requestAnimationFrame(draw);
     }
 
     draw();
     return () => cancelAnimationFrame(req);
-  }, []);
+  }, [isPortrait]);
 
   useEffect(() => {
     async function setupWorker() {
@@ -100,13 +122,12 @@ export default function CameraViewORC() {
     }
 
     const upscale = 2;
-
     const ocrCanvas = ocrCanvasRef.current;
+
     ocrCanvas.width = w * upscale;
     ocrCanvas.height = h * upscale;
 
     const octx = ocrCanvas.getContext("2d");
-
     octx.drawImage(canvas, x, y, w, h, 0, 0, w * upscale, h * upscale);
 
     const img = octx.getImageData(0, 0, ocrCanvas.width, ocrCanvas.height);
@@ -139,6 +160,7 @@ export default function CameraViewORC() {
   return (
     <div className="w-full h-full relative bg-black overflow-hidden">
       <canvas ref={canvasRef} className="w-full h-full block" style={{ pointerEvents: "none" }} />
+
       <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
 
       <div
@@ -151,10 +173,12 @@ export default function CameraViewORC() {
           border: "3px solid red",
           pointerEvents: "none",
           zIndex: 5,
+          transform: isPortrait ? "rotate(90deg)" : "none",
+          transformOrigin: "center center",
         }}
       />
 
-      {/* Top slider adjusts WIDTH */}
+      {/* Top slider */}
       <div
         style={{
           position: "absolute",
@@ -182,7 +206,7 @@ export default function CameraViewORC() {
         />
       </div>
 
-      {/* Right slider adjusts HEIGHT */}
+      {/* Right slider */}
       <div
         style={{
           position: "absolute",
@@ -213,7 +237,7 @@ export default function CameraViewORC() {
         />
       </div>
 
-      {/* Action panel with glass background */}
+      {/* Glass panel */}
       <div
         style={{
           position: "absolute",
@@ -236,7 +260,7 @@ export default function CameraViewORC() {
         <input type="text" value={cameraText} className="px-5 py-3 font-bold rounded border border-slate-300 bg-white" />
       </div>
 
-      {/* Close button OUTSIDE the panel */}
+      {/* Close button */}
       <button
         onClick={() => {
           document.getElementById("CameraModal").style.display = "none";

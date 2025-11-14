@@ -20,11 +20,11 @@ export default function CameraView({ classifier }) {
   const setModel = ReuseDataStateStore((s) => s.setModel);
 
   const RU_MAP = {
-    1: { heightVH: "100%", cropTop: 0.3, cropBottom: 0.7 },
-    2: { heightVH: "100%", cropTop: 0.25, cropBottom: 0.75 },
-    3: { heightVH: "100%", cropTop: 0.2, cropBottom: 0.8 },
-    4: { heightVH: "100%", cropTop: 0.15, cropBottom: 0.85 },
-    5: { heightVH: "100%", cropTop: 0.2, cropBottom: 0.8 },
+    1: { heightVH: "100%" },
+    2: { heightVH: "100%" },
+    3: { heightVH: "100%" },
+    4: { heightVH: "100%" },
+    5: { heightVH: "100%" },
   };
 
   const RATIO_MAP = {
@@ -37,17 +37,13 @@ export default function CameraView({ classifier }) {
 
   const [ru, setRU] = useState(1);
 
-  // padding in normalized units
-  // 0.02 = two percent of the canvas height or width
   const PAD = 0.04;
-
   const ratio = RATIO_MAP[ru];
   const cropHeight = ratio.h / ratio.w;
 
   let top = 0.5 - cropHeight / 2;
   let bottom = 0.5 + cropHeight / 2;
 
-  // apply padding
   top = top - PAD;
   bottom = bottom + PAD;
 
@@ -59,6 +55,17 @@ export default function CameraView({ classifier }) {
   const cropLeft = left;
   const cropRight = right;
 
+  const [isPortrait, setIsPortrait] = useState(false);
+
+  useEffect(() => {
+    function update() {
+      setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   useEffect(() => {
     async function loadNet() {
       if (!netRef.current) {
@@ -68,7 +75,6 @@ export default function CameraView({ classifier }) {
     loadNet();
   }, []);
 
-  //MARK: LOAD_TRAINED_DATA
   useEffect(() => {
     const raw = localStorage.getItem("trainedKNN");
     if (!raw) return;
@@ -80,8 +86,8 @@ export default function CameraView({ classifier }) {
       Object.keys(parsed).forEach((label) => {
         const arr = parsed[label].data;
         const size = arr.length / 1024;
-        const tensor = tf.tensor2d(arr, [size, 1024]);
-        restored.setClass(label, tensor);
+        const t = tf.tensor2d(arr, [size, 1024]);
+        restored.setClass(label, t);
       });
 
       classifierRef.current = restored;
@@ -123,13 +129,27 @@ export default function CameraView({ classifier }) {
 
       ctx.clearRect(0, 0, cw, ch);
 
-      const scale = Math.max(cw / vw, ch / vh);
-      const drawW = vw * scale;
-      const drawH = vh * scale;
-      const dx = (cw - drawW) * 0.5;
-      const dy = (ch - drawH) * 0.5;
+      if (isPortrait) {
+        const scale = Math.max(ch / vw, cw / vh);
+        const drawW = vh * scale;
+        const drawH = vw * scale;
+        const dx = (cw - drawW) * 0.5;
+        const dy = (ch - drawH) * 0.5;
 
-      ctx.drawImage(video, dx, dy, drawW, drawH);
+        ctx.save();
+        ctx.translate(cw / 2, ch / 2);
+        ctx.rotate((-90 * Math.PI) / 180);
+        ctx.translate(-ch / 2, -cw / 2);
+        ctx.drawImage(video, dx, dy, drawW, drawH);
+        ctx.restore();
+      } else {
+        const scale = Math.max(cw / vw, ch / vh);
+        const drawW = vw * scale;
+        const drawH = vh * scale;
+        const dx = (cw - drawW) * 0.5;
+        const dy = (ch - drawH) * 0.5;
+        ctx.drawImage(video, dx, dy, drawW, drawH);
+      }
 
       const crop = extractCrop();
       const norm = normalizeCrop(crop);
@@ -140,12 +160,31 @@ export default function CameraView({ classifier }) {
 
     draw();
     return () => cancelAnimationFrame(req);
-  }, [ru]);
+  }, [ru, isPortrait]);
 
   function extractCrop() {
     const full = canvasRef.current;
     const cw = full.width;
     const ch = full.height;
+
+    if (isPortrait) {
+      const x = cw * cropLeft;
+      const y = ch * cropTop;
+      const w = cw * (cropRight - cropLeft);
+      const h = ch * (cropBottom - cropTop);
+
+      if (!cropCanvasRef.current) {
+        cropCanvasRef.current = document.createElement("canvas");
+      }
+
+      const crop = cropCanvasRef.current;
+      crop.width = w;
+      crop.height = h;
+
+      const ctx = crop.getContext("2d");
+      ctx.drawImage(full, x, y, w, h, 0, 0, w, h);
+      return crop;
+    }
 
     const x = cw * cropLeft;
     const y = ch * cropTop;
@@ -204,22 +243,18 @@ export default function CameraView({ classifier }) {
     const label = `${make}|||${model}`;
     classifierRef.current.addExample(embedding, label);
 
-    //MARK: SAVE_TRAINED_DATA
     try {
       const ds = classifierRef.current.getClassifierDataset();
       const out = {};
 
       Object.keys(ds).forEach((label) => {
-        const tensor = ds[label];
-        const arr = tensor.dataSync();
+        const t = ds[label];
+        const arr = t.dataSync();
         out[label] = { data: Array.from(arr) };
       });
 
-      console.log("Saved trained data", out);
       localStorage.setItem("trainedKNN", JSON.stringify(out));
-    } catch (e) {
-      console.error("Save failed", e);
-    }
+    } catch (e) {}
   }
 
   useEffect(() => {
@@ -272,21 +307,23 @@ export default function CameraView({ classifier }) {
           border: "3px solid red",
           pointerEvents: "none",
           zIndex: 10,
+          transform: isPortrait ? "rotate(90deg)" : "none",
+          transformOrigin: "center center",
         }}
       />
-      {/* Action panel */}
+
       <div
         style={{
           position: "absolute",
           bottom: "6px",
-          left: "50%",
-          transform: "translateX(-50%)",
+          left: "10px", // anchor to left
           zIndex: 20,
           display: "flex",
           gap: "10px",
           background: "rgba(255,255,255,0.85)",
           padding: "10px",
           borderRadius: "8px",
+          backdropFilter: "blur(6px)",
         }}
       >
         <button onClick={runPredict} className="px-4 py-2 bg-slate-200 font-bold">
@@ -314,7 +351,6 @@ export default function CameraView({ classifier }) {
         </button>
       </div>
 
-      {/* Close button OUTSIDE background panel */}
       <button
         onClick={() => {
           document.getElementById("CameraModal").style.display = "none";
@@ -324,7 +360,7 @@ export default function CameraView({ classifier }) {
           position: "absolute",
           bottom: "12px",
           right: "12px",
-          zIndex: 15,
+          zIndex: 25,
           background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(6px)",
           padding: "10px 16px",
