@@ -13,6 +13,10 @@ let initState = {
     PredictTrigger: 0,
     Make: "",
     Model: "",
+    ORCCropTop: 0.2,
+    ORCCropBottom: 0.8,
+    ORCCropLeft: 0.1,
+    ORCCropRight: 0.9,
   },
   DataState: {
     TextData: "",
@@ -72,6 +76,31 @@ export const ReuseDataStateStore = create(
     setModel: (string) => {
       set((state) => ({
         data: { ...state.data, Model: string },
+      }));
+    },
+    // Add these inside your store's create() block
+
+    setTrainMake: (string) => {
+      set((state) => ({
+        data: { ...state.data, TrainMake: string },
+      }));
+    },
+
+    setTrainModel: (string) => {
+      set((state) => ({
+        data: { ...state.data, TrainModel: string },
+      }));
+    },
+
+    setORCCrop: (top, bottom, left, right) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          ORCCropTop: top,
+          ORCCropBottom: bottom,
+          ORCCropLeft: left,
+          ORCCropRight: right,
+        },
       }));
     },
   }))

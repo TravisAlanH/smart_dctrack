@@ -34,10 +34,10 @@ export default function AssetTrainer() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <CameraView classifier={classifierRef.current} net={netRef.current} />
-
-      <TrainPanel classifier={classifierRef.current} onTrain={handleTrain} version={version} />
+      {/* 
+      <TrainPanel classifier={classifierRef.current} onTrain={handleTrain} version={version} /> */}
     </div>
   );
 }

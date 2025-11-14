@@ -7,5 +7,7 @@
   background-color: #242424;
 }
 
-transform: rotate(90deg) translateX(-50%);
-transform-origin: center center;
+input[orient="vertical"] {
+  writing-mode: vertical-rl;
+  appearance: slider-vertical;
+}
