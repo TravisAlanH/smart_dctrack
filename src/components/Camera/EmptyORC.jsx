@@ -15,6 +15,7 @@ export default function CameraViewORC() {
   const CROP_BOTTOM = 0.8;
   const CROP_LEFT = 0.1;
   const CROP_RIGHT = 0.9;
+  const sizeFactor = 3.2;
 
   useEffect(() => {
     async function startCam() {
@@ -26,7 +27,7 @@ export default function CameraViewORC() {
     startCam();
   }, []);
 
-  // full video, no crop logic
+  // Draw without forced rotation
   useEffect(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -37,7 +38,6 @@ export default function CameraViewORC() {
     function draw() {
       const vw = video.videoWidth;
       const vh = video.videoHeight;
-
       if (!vw || !vh) {
         req = requestAnimationFrame(draw);
         return;
@@ -53,10 +53,11 @@ export default function CameraViewORC() {
 
       ctx.clearRect(0, 0, cw, ch);
 
-      // scale full video into canvas, no cropping
+      // Keep full video visible
       const scale = Math.max(cw / vw, ch / vh);
-      const drawW = vw * scale;
-      const drawH = vh * scale;
+
+      const drawW = vw * scale * sizeFactor;
+      const drawH = vh * scale * sizeFactor;
 
       const dx = (cw - drawW) * 0.5;
       const dy = (ch - drawH) * 0.5;
@@ -98,6 +99,7 @@ export default function CameraViewORC() {
       ocrCanvasRef.current = document.createElement("canvas");
     }
 
+    // upscale by 2 for better recognition
     const upscale = 2;
 
     const ocrCanvas = ocrCanvasRef.current;
@@ -106,8 +108,10 @@ export default function CameraViewORC() {
 
     const octx = ocrCanvas.getContext("2d");
 
+    // draw cropped region upscaled
     octx.drawImage(canvas, x, y, w, h, 0, 0, w * upscale, h * upscale);
 
+    // grayscale
     const img = octx.getImageData(0, 0, ocrCanvas.width, ocrCanvas.height);
     const data = img.data;
 
@@ -117,6 +121,8 @@ export default function CameraViewORC() {
       const b = data[i + 2];
 
       const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      // simple threshold
       const value = gray > 140 ? 255 : 0;
 
       data[i] = value;
@@ -136,7 +142,7 @@ export default function CameraViewORC() {
   }, [triggerOcr]);
 
   return (
-    <div className="w-full h-full relative bg-black overflow-hidden">
+    <div className="w-full h-[15vh] relative bg-black overflow-hidden">
       <canvas ref={canvasRef} className="w-full h-full block" />
       <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
 

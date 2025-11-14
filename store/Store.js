@@ -10,6 +10,9 @@ let initState = {
     CameraText: "",
     OcrTrigger: 0,
     CameraStatus: 0,
+    PredictTrigger: 0,
+    Make: "",
+    Model: "",
   },
   DataState: {
     TextData: "",
@@ -51,9 +54,24 @@ export const ReuseDataStateStore = create(
         data: { ...state.data, OcrTrigger: num },
       }));
     },
+    setPredictTrigger: (num) => {
+      set((state) => ({
+        data: { ...state.data, PredictTrigger: num },
+      }));
+    },
     setCameraStatus: (num) => {
       set((state) => ({
         data: { ...state.data, CameraStatus: num },
+      }));
+    },
+    setMake: (string) => {
+      set((state) => ({
+        data: { ...state.data, Make: string },
+      }));
+    },
+    setModel: (string) => {
+      set((state) => ({
+        data: { ...state.data, Model: string },
       }));
     },
   }))
