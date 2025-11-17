@@ -5,6 +5,7 @@ import "./App.css";
 import CameraHome from "./components/Camera/CameraHome";
 import { ReuseDataStateStore } from "../store/Store";
 import CameraModal from "./components/Camera/CameraModal/CameraModal";
+import { header } from "./components/Helpers/HeadersAsObjects";
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
 function App() {
@@ -18,6 +19,10 @@ function App() {
   const setModel = ReuseDataStateStore((s) => s.setModel);
   const make = ReuseDataStateStore((s) => s.data.Make);
   const model = ReuseDataStateStore((s) => s.data.Model);
+
+  console.log(header["Cabinets"]);
+
+  const [Assets, setAssets] = useState(header["Cabinets"]);
 
   const handleManual = (e) => {
     setCameraText(e.target.value);
@@ -55,7 +60,7 @@ function App() {
             document.getElementById("CameraModal").style.display = "block";
           }}
         >
-          orce
+          ORC
         </button>
         <button
           className="bg-slate-200 rounded-md px-3 "
@@ -66,8 +71,17 @@ function App() {
         >
           IMG
         </button>
+        <button
+          className="bg-slate-200 rounded-md px-3 "
+          onClick={() => {
+            setOpenCameraSet(2);
+            document.getElementById("CameraModal").style.display = "block";
+          }}
+        >
+          Asset
+        </button>
       </div>
-
+      {/* 
       <div className="w-full flex flex-col gap-2 px-4 mt-4">
         <label className="text-lg font-semibold">Prediction</label>
         <div className="flex flex-row">
@@ -102,8 +116,23 @@ function App() {
 
         <button onClick={runCameraOcr} className="bg-blue-600 text-white px-4 py-2 rounded text-lg">
           Read From Camera
-        </button>
+        </button> */}
+      {/* </div> */}
+      <div className="w-full h-[95%] flex flex-col mt-4">
+        {Object.keys(Assets).map((header, index) => {
+          console.log(header);
+          return <ORCinput key={index} header={header} />;
+        })}
       </div>
+    </div>
+  );
+}
+
+function ORCinput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-col gap-2 px-4 mt-4">
+      {/* <label className="text-lg font-semibold">{header}</label> */}
+      <input type="text" placeholder={header} className="border border-gray-400 rounded px-2 py-1 text-lg" />
     </div>
   );
 }

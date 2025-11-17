@@ -8,11 +8,14 @@ let initState = {
   ReuseDataState: {
     LocationCode: "",
     CameraText: "",
+    CameraPermission: false,
+    CameraIndex: 0,
     OcrTrigger: 0,
     CameraStatus: 0,
     PredictTrigger: 0,
     Make: "",
     Model: "",
+    AssetTag: "",
     ORCCropTop: 0.2,
     ORCCropBottom: 0.8,
     ORCCropLeft: 0.1,
@@ -91,7 +94,6 @@ export const ReuseDataStateStore = create(
         data: { ...state.data, TrainModel: string },
       }));
     },
-
     setORCCrop: (top, bottom, left, right) => {
       set((state) => ({
         data: {
@@ -101,6 +103,21 @@ export const ReuseDataStateStore = create(
           ORCCropLeft: left,
           ORCCropRight: right,
         },
+      }));
+    },
+    setAssetTag: (string) => {
+      set((state) => ({
+        data: { ...state.data, AssetTag: string },
+      }));
+    },
+    setCameraPermission: (bool) => {
+      set((state) => ({
+        data: { ...state.data, CameraPermission: bool },
+      }));
+    },
+    setCameraIndex: (num) => {
+      set((state) => ({
+        data: { ...state.data, CameraIndex: num },
       }));
     },
   }))
