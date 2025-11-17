@@ -19,6 +19,11 @@ export default function CameraViewORC() {
 
   const [isPortrait, setIsPortrait] = useState(false);
 
+  const blockTouch = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   useEffect(() => {
     function update() {
       setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
@@ -178,8 +183,9 @@ export default function CameraViewORC() {
         }}
       />
 
-      {/* Top slider */}
       <div
+        onTouchStart={blockTouch}
+        onTouchMove={blockTouch}
         style={{
           position: "absolute",
           top: "5%",
@@ -187,6 +193,9 @@ export default function CameraViewORC() {
           transform: "translateX(-50%)",
           width: "60%",
           zIndex: 20,
+          paddingTop: "20px",
+          paddingBottom: "20px",
+          touchAction: "none",
         }}
       >
         <input
@@ -206,8 +215,9 @@ export default function CameraViewORC() {
         />
       </div>
 
-      {/* Right slider */}
       <div
+        onTouchStart={blockTouch}
+        onTouchMove={blockTouch}
         style={{
           position: "absolute",
           top: "50%",
@@ -217,6 +227,9 @@ export default function CameraViewORC() {
           display: "flex",
           alignItems: "center",
           zIndex: 20,
+          paddingLeft: "20px",
+          paddingRight: "20px",
+          touchAction: "none",
         }}
       >
         <input
@@ -237,7 +250,6 @@ export default function CameraViewORC() {
         />
       </div>
 
-      {/* Glass panel */}
       <div
         style={{
           position: "absolute",
@@ -260,7 +272,6 @@ export default function CameraViewORC() {
         <input type="text" value={cameraText} className="px-5 py-3 font-bold rounded border border-slate-300 bg-white" />
       </div>
 
-      {/* Close button */}
       <button
         onClick={() => {
           document.getElementById("CameraModal").style.display = "none";

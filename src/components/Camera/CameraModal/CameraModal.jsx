@@ -23,7 +23,7 @@ export default function CameraModal() {
   }, []);
 
   return (
-    <div id="CameraModal" className="modal h-full">
+    <div id="CameraModal" className="modal">
       <div className="modal-content">
         {!rotated && (
           <div
