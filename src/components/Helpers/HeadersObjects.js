@@ -73,7 +73,6 @@ export const sheet_headers = {
     "Serial Number",
     "Cabinet **",
     "U Position **",
-
     "Chassis **",
     "Chassis Face **",
     "Slot Position **",

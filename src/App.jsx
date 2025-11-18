@@ -5,7 +5,8 @@ import "./App.css";
 import CameraHome from "./components/Camera/CameraHome";
 import { ReuseDataStateStore } from "../store/Store";
 import CameraModal from "./components/Camera/CameraModal/CameraModal";
-import { header } from "./components/Helpers/HeadersAsObjects";
+import { header, headerTypes, headerDescriptions } from "./components/Helpers/HeadersAsObjects";
+
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
 function App() {
@@ -22,7 +23,8 @@ function App() {
 
   console.log(header["Cabinets"]);
 
-  const [Assets, setAssets] = useState(header["Cabinets"]);
+  const [ObjectFull, setObjectFull] = useState(header["Cabinets"]);
+  const [ObjectType, setObjectType] = useState("Cabinets");
 
   const handleManual = (e) => {
     setCameraText(e.target.value);
@@ -118,23 +120,120 @@ function App() {
           Read From Camera
         </button> */}
       {/* </div> */}
-      <div className="w-full h-[95%] flex flex-col mt-4">
-        {Object.keys(Assets).map((header, index) => {
-          console.log(header);
-          return <ORCinput key={index} header={header} />;
+      <div className="w-full flex flex-col gap-2 px-4">
+        <select className="px-2 py-1">
+          <option>Select Object</option>
+          {Object.keys(header).map((option, index) => {
+            return (
+              <option
+                key={index}
+                value={option}
+                onClick={() => {
+                  setObjectFull(header[option]);
+                  setObjectType(option);
+                }}
+              >
+                {option}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
+        {Object.keys(ObjectFull).map((header, index) => {
+          console.log(headerTypes[ObjectType][header]);
+          switch (headerTypes[ObjectType][header]) {
+            case "Operation":
+              return <OperationInput key={index} header={header} />;
+            case "Object":
+              return <ObjectInput key={index} header={header} />;
+            case "Number":
+              return <NumberInput key={index} header={header} />;
+            case "ORC":
+              return <ORCInput key={index} header={header} />;
+            case "IMG":
+              return <IMGInput key={index} header={header} />;
+            case "QR":
+              return <QRInput key={index} header={header} />;
+            default:
+              console.log("default");
+              return <InputBasic key={index} header={header} />;
+          }
         })}
       </div>
     </div>
   );
 }
 
-function ORCinput({ header }) {
+function InputBasic({ header }) {
   return (
-    <div key={header} className="w-full flex flex-col gap-2 px-4 mt-4">
-      {/* <label className="text-lg font-semibold">{header}</label> */}
+    <div key={header} className="w-full flex flex-col gap-2 px-4">
       <input type="text" placeholder={header} className="border border-gray-400 rounded px-2 py-1 text-lg" />
     </div>
   );
 }
+
+function OperationInput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-col gap-2 px-4">
+      <select className="px-2 py-1">
+        <option value="Add">Add</option>
+        <option value="Edit">Edit</option>
+        <option value="Delete">Delete</option>
+      </select>
+    </div>
+  );
+}
+
+function ObjectInput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-col gap-2 px-4">
+      <input type="text" value={header} className="border border-gray-400 rounded px-2 py-1 text-lg" />
+    </div>
+  );
+}
+
+function NumberInput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-col gap-2 px-4">
+      <input type="number" value={0} className="border border-gray-400 rounded px-2 py-1 text-lg" />
+    </div>
+  );
+}
+
+function ORCInput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-row gap-2 px-4">
+      <input type="text" value={header} className="border border-gray-400 rounded px-2 py-1 text-lg w-[80%]" />
+      <button className="bg-blue-600 text-white w-[20%] rounded text-lg">Read</button>
+    </div>
+  );
+}
+
+function IMGInput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-row gap-2 px-4">
+      <input type="text" value={header} className="border border-gray-400 rounded px-2 py-1 text-lg w-[80%]" />
+      <button className="bg-blue-600 text-white w-[20%] rounded text-lg">Predict</button>
+    </div>
+  );
+}
+
+function QRInput({ header }) {
+  return (
+    <div key={header} className="w-full flex flex-row gap-2 px-4">
+      <input type="text" value={header} className="border border-gray-400 rounded px-2 py-1 text-lg w-[80%]" />
+      <button className="bg-blue-600 text-white  w-[20%] rounded text-lg">Scan QR Code</button>
+    </div>
+  );
+}
+
+// • Operation
+// • Object
+// • String
+// • Number
+// • ORC
+// • IMG
+// • QR
 
 export default App;
