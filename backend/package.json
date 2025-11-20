@@ -8,6 +8,7 @@
     "axios": "^1.6.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "cd .. && npm run build"
   }
 }
