@@ -51,8 +51,9 @@ const root = process.cwd();
 // Serve frontend correctly
 app.use(express.static(path.join(root, "backend/dist")));
 
+app.use(express.static(path.join(__dirname, "dist")));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(root, "backend/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "dist/index.html"));
 });
 // IMPORTANT FIX ENDS HERE
 
