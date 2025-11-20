@@ -6,20 +6,26 @@ import path from "path";
 const app = express();
 app.use(express.json());
 
-// Proxy to dcTrack
+// Fix for __dirname in ES modules
+const __dirname = process.cwd();
+
+/*
+  Proxy Route
+  Accepts: /api/v2/dcimoperations/items?returnDetails=false
+  Rewrites to: https://<host-from-header>/v2/dcimoperations/items?returnDetails=false
+*/
 app.post("/api/*", async (req, res) => {
   try {
-    // host sent from frontend inside header "x-dctrack-host"
     const host = req.headers["x-dctrack-host"];
-
     if (!host) {
-      return res.status(400).json({ error: "Missing dcTrack host" });
+      return res.status(400).json({ error: "Missing dcTrack host header" });
     }
 
-    // remove "/api" prefix and rebuild real dcTrack URL
     const apiPath = req.originalUrl;
+
+    // Build full dcTrack URL
     const target = `https://${host}${apiPath}`;
-    console.log(target);
+    console.log("Forwarding to:", target);
 
     const agent = new https.Agent({ rejectUnauthorized: false });
 
@@ -34,13 +40,17 @@ app.post("/api/*", async (req, res) => {
 
     res.status(response.status).json(response.data);
   } catch (err) {
+    console.log("Backend error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Serve frontend in production
-const __dirname = process.cwd();
+/*
+  Production mode
+  Serve Vite build folder (dist)
+*/
 app.use(express.static(path.join(__dirname, "dist")));
+
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
