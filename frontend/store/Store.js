@@ -3,6 +3,8 @@ import { devtools } from "zustand/middleware";
 import { headerEndpoints } from "../src/components/Helpers/Endpoints";
 import axios from "axios";
 
+const BACKEND = import.meta.env.DEV ? "http://localhost:10000" : import.meta.env.VITE_BACKEND_URL;
+
 let initState = {
   NAMESTATE: {
     NAMEDATA: {},
@@ -221,7 +223,7 @@ export const APIStore = create(
 
       const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
 
-      const apiURL = `/api${url}?returnDetails=false`;
+      const apiURL = `${BACKEND}/api${url}?returnDetails=false`;
 
       axios
         .post(apiURL, cleanPayload, {

@@ -1,19 +1,20 @@
 import express from "express";
 import axios from "axios";
 import https from "https";
-import path from "path";
+import cors from "cors";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://localhost:5173"],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "x-dctrack-host"],
+  })
+);
+
 app.use(express.json());
 
-// Fix for __dirname in ES modules
-const __dirname = process.cwd();
-
-/*
-  Proxy Route
-  Accepts: /api/v2/dcimoperations/items?returnDetails=false
-  Rewrites to: https://<host-from-header>/v2/dcimoperations/items?returnDetails=false
-*/
 app.post("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -21,12 +22,7 @@ app.post("/api/*", async (req, res) => {
       return res.status(400).json({ error: "Missing dcTrack host header" });
     }
 
-    const apiPath = req.originalUrl;
-
-    // Build full dcTrack URL
-    const target = `https://${host}${apiPath}`;
-    console.log("Forwarding to:", target);
-
+    const target = `https://${host}${req.originalUrl}`;
     const agent = new https.Agent({ rejectUnauthorized: false });
 
     const response = await axios.post(target, req.body, {
@@ -40,21 +36,9 @@ app.post("/api/*", async (req, res) => {
 
     res.status(response.status).json(response.data);
   } catch (err) {
-    console.log("Backend error:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// IMPORTANT FIX STARTS HERE
-const root = process.cwd();
-
-// Serve frontend correctly
-app.use(express.static(path.join(root, "backend/dist")));
-
-app.use(express.static(path.join(__dirname, "dist")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist/index.html"));
-});
-// IMPORTANT FIX ENDS HERE
-
-app.listen(10000, () => console.log("Backend listening on 10000"));
+const port = process.env.PORT || 10000;
+app.listen(port, () => console.log("Backend running on " + port));
