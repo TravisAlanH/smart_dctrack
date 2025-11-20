@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import jsQR from "jsqr";
-import { ReuseDataStateStore } from "../../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../../store/Store";
 
 export default function QRScanBox() {
   const videoRef = useRef(null);
@@ -15,6 +15,10 @@ export default function QRScanBox() {
   const hasPermission = ReuseDataStateStore((s) => s.data.CameraPermission);
   const setHasPermission = ReuseDataStateStore((s) => s.setCameraPermission);
   const [boxStyle, setBoxStyle] = useState({});
+
+  const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
+  const objectType = ReuseDataStateStore((s) => s.data.CameraRequiredToProcess.type);
+  const label = ReuseDataStateStore((s) => s.data.CameraRequiredToProcess.field);
 
   async function loadDevices() {
     const list = await navigator.mediaDevices.enumerateDevices();
@@ -155,8 +159,10 @@ export default function QRScanBox() {
     const img = bctx.getImageData(0, 0, size, size);
     const code = jsQR(img.data, img.width, img.height);
 
-    if (code) setAssetTag(code.data);
-    else setAssetTag("No match");
+    if (code) {
+      setAssetTag(code.data);
+      setAPIPayloadHolder({ type: objectType, field: label, value: code.data });
+    } else setAssetTag("No match");
   }
 
   return (

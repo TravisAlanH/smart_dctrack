@@ -13,7 +13,7 @@
     "@tensorflow-models/knn-classifier": "^1.2.6",
     "@tensorflow-models/mobilenet": "^2.1.1",
     "@tensorflow/tfjs": "^4.22.0",
-    "axios": "^1.13.1",
+    "axios": "^1.13.2",
     "firebase": "^12.5.0",
     "jsqr": "^1.4.0",
     "react": "^19.1.1",

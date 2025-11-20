@@ -20,6 +20,10 @@ export default function CameraViewTF() {
   const hasPermission = ReuseDataStateStore((s) => s.data.CameraPermission);
   const setHasPermission = ReuseDataStateStore((s) => s.setCameraPermission);
 
+  const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
+  const objectType = ReuseDataStateStore((s) => s.data.CameraRequiredToProcess.type);
+  const label = ReuseDataStateStore((s) => s.data.CameraRequiredToProcess.field);
+
   const make = ReuseDataStateStore((s) => s.data.Make);
   const model = ReuseDataStateStore((s) => s.data.Model);
   const setMake = ReuseDataStateStore((s) => s.setMake);
@@ -180,7 +184,9 @@ export default function CameraViewTF() {
 
     const parts = raw.split("|||");
     setMake(parts[0] || "");
+    setAPIPayloadHolder({ type: objectType, field: "Make ", value: parts[0] || "" });
     setModel(parts[1] || "");
+    setAPIPayloadHolder({ type: objectType, field: "Model ", value: parts[1] || "" });
   }
 
   async function runTrain() {

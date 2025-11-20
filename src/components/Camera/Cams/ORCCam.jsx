@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { ReuseDataStateStore } from "../../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../../store/Store";
 import { createWorker } from "tesseract.js";
 
 export default function ORCCam() {
@@ -12,6 +12,10 @@ export default function ORCCam() {
   const ORCCropRight = ReuseDataStateStore((s) => s.data.ORCCropRight);
   const hasPermission = ReuseDataStateStore((s) => s.data.CameraPermission);
   const setHasPermission = ReuseDataStateStore((s) => s.setCameraPermission);
+
+  const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
+  const objectType = ReuseDataStateStore((s) => s.data.CameraRequiredToProcess.type);
+  const label = ReuseDataStateStore((s) => s.data.CameraRequiredToProcess.field);
 
   const setORCCRop = ReuseDataStateStore((s) => s.setORCCrop);
 
@@ -169,6 +173,7 @@ export default function ORCCam() {
     await worker.terminate();
 
     setCameraText(out.data.text.trim());
+    setAPIPayloadHolder({ type: objectType, field: label, value: out.data.text.trim() });
   }
 
   if (!hasPermission) {
