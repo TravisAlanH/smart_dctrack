@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import CameraModal from "../Camera/CameraModal/CameraModal";
 import { header, headerTypes, headerDescriptions } from "../Helpers/HeadersAsObjects";
 import { apiUrls } from "../Helpers/Endpoints";
-import { headerEndpoints } from "../Helpers/Endpoints";
+import { headerEndpoints, required_master } from "../Helpers/Endpoints";
+import ToggleSwitch from "../Interactions/ToggleSwitch";
+import { loadRequiredMaster } from "../Helpers/RequiredMaster";
 
+//#region MAIN_COMPONENT
 function Audit({ setShow }) {
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
@@ -12,12 +15,28 @@ function Audit({ setShow }) {
   const setAuditURL = APIStore((s) => s.setAuditUrl);
   const setPayload = APIStore((s) => s.setAuditPayload);
   const sendAPIPush = APIStore((s) => s.sendAPIPush);
+  const resetAPUIPayloadHolder = APIStore((s) => s.resetAPUIPayloadHolder);
 
   const [objectFields, setObjectFields] = useState("");
   const [objectType, setObjectType] = useState("");
 
   const setCameraStatus = ReuseDataStateStore((s) => s.setCameraStatus);
   const setCameraRequiredToProcess = ReuseDataStateStore((s) => s.setCameraRequiredToProcess);
+
+  const [showRequired, setShowRequired] = useState(true);
+
+  const [trueRequredMaster, setTrueRequiredMaster] = useState(loadRequiredMaster(required_master));
+
+  const requireWatcher = ReuseDataStateStore((s) => s.data.RequireToggleWatcher);
+
+  useEffect(() => {
+    setTrueRequiredMaster(loadRequiredMaster(required_master));
+  }, [requireWatcher]);
+
+  useEffect(() => {
+    setShow(0);
+    setTrueRequiredMaster(loadRequiredMaster(required_master));
+  }, []);
 
   function handleFormSubmit(e) {
     e.preventDefault();
@@ -30,33 +49,14 @@ function Audit({ setShow }) {
     setPayload(APIPayloadHolder);
     sendAPIPush();
   }
-
+  //#region RETURN
   return (
     <div className="App w-screen h-screen flex flex-col">
-      <CameraModal />
-      {/* 
-      <div className="w-full h-[5%] flex flex-row justify-center items-center text-2xl font-bold gap-3">
-        <button
-          className="bg-slate-200 rounded-md px-3"
-          onClick={() => (document.getElementById("CameraModal").style.display = "block")}
-        >
-          ORC
-        </button>
-        <button
-          className="bg-slate-200 rounded-md px-3"
-          onClick={() => (document.getElementById("CameraModal").style.display = "block")}
-        >
-          IMG
-        </button>
-        <button
-          className="bg-slate-200 rounded-md px-3"
-          onClick={() => (document.getElementById("CameraModal").style.display = "block")}
-        >
-          Asset
-        </button>
-      </div> */}
+      <div className="flex flex-row justify-end">
+        <ToggleSwitch label={"Show Required"} checked={showRequired} onChange={setShowRequired} />
+      </div>
 
-      {/* <APIPushActionBar setShow={setShow} /> */}
+      <CameraModal />
 
       <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
         {objectFields === "" ? (
@@ -67,11 +67,14 @@ function Audit({ setShow }) {
               setObjectType={setObjectType}
               setURL={setAuditURL}
               setAPIPayloadHolder={setAPIPayloadHolder}
+              resetAPUIPayloadHolder={resetAPUIPayloadHolder}
             />
           </div>
         ) : (
           <form className="w-full h-[95%] flex flex-col gap-3 mt-4" onSubmit={handleFormSubmit}>
             {Object.keys(objectFields).map((label, index) => {
+              if (showRequired && !trueRequredMaster[label]) return null;
+
               const type = headerTypes[objectType][label];
 
               const props = {
@@ -81,12 +84,12 @@ function Audit({ setShow }) {
                 setMessage,
                 APIPayloadHolder,
                 setAPIPayloadHolder,
+                trueRequredMaster,
               };
 
               switch (type) {
                 case "Operation":
                   return <OperationInput key={index} {...props} />;
-
                 case "Object":
                   return (
                     <ObjectInput
@@ -95,12 +98,11 @@ function Audit({ setShow }) {
                       setObjectFields={setObjectFields}
                       setObjectType={setObjectType}
                       setURL={setAuditURL}
+                      resetAPUIPayloadHolder={resetAPUIPayloadHolder}
                     />
                   );
-
                 case "Number":
                   return <NumberInput key={index} {...props} />;
-
                 case "ORC":
                   return (
                     <OcrInput
@@ -110,7 +112,6 @@ function Audit({ setShow }) {
                       setCameraRequiredToProcess={setCameraRequiredToProcess}
                     />
                   );
-
                 case "IMG":
                   return (
                     <ImgInput
@@ -120,7 +121,6 @@ function Audit({ setShow }) {
                       setCameraRequiredToProcess={setCameraRequiredToProcess}
                     />
                   );
-
                 case "QR":
                   return (
                     <QrInput
@@ -130,7 +130,6 @@ function Audit({ setShow }) {
                       setCameraRequiredToProcess={setCameraRequiredToProcess}
                     />
                   );
-
                 default:
                   return <TextInput key={index} {...props} />;
               }
@@ -141,37 +140,42 @@ function Audit({ setShow }) {
     </div>
   );
 }
+//#endregion MAIN_COMPONENT
 
+//#region STYLE_CONSTANTS
 const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
 const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
 const labelStyle = "px-2 text-sm";
+const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
 const inputStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
 const buttonStyle = "bg-blue-600 text-white w-[20%] rounded text-lg";
 const selectStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
 const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
+//#endregion STYLE_CONSTANTS
 
-function TextInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder, APIPayloadHolder }) {
+//#region TEXT_INPUT
+function TextInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
-      <label className={labelStyle}>{label}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
-          required={label.includes("*")}
+          required={trueRequredMaster[label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
           type="text"
           placeholder={label}
           className={inputStyle}
-          value={APIPayloadHolder[headerEndpoints[objectType][label]]}
+          value={APIPayloadHolder[headerEndpoints[objectType][label]] || ""}
         />
         <button
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
-            setMessage({ type: "info", text, label });
+            setMessage({ type: "info_header", text, label });
             setShow(1);
           }}
         >
@@ -181,17 +185,20 @@ function TextInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder
     </div>
   );
 }
+//#endregion TEXT_INPUT
 
-function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder, APIPayloadHolder }) {
+//#region NUMBER_INPUT
+function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
-      <label className={labelStyle}>{label}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="number"
           placeholder={label}
           className={inputStyle}
+          required={trueRequredMaster[label]}
           value={APIPayloadHolder[headerEndpoints[objectType][label]]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
@@ -202,7 +209,7 @@ function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHold
           className={descriptionButtonStyle}
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
-            setMessage({ type: "info", text, label });
+            setMessage({ type: "info_header", text, label });
             setShow(1);
           }}
         >
@@ -212,7 +219,9 @@ function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHold
     </div>
   );
 }
+//#endregion NUMBER_INPUT
 
+//#region ORC_INPUT
 function OcrInput({
   label,
   objectType,
@@ -222,16 +231,18 @@ function OcrInput({
   APIPayloadHolder,
   setCameraStatus,
   setCameraRequiredToProcess,
+  trueRequredMaster,
 }) {
   return (
     <div className={boxStyle}>
-      <label className={labelStyle}>{label}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="text"
           placeholder={label}
           className={inputStyle}
+          required={trueRequredMaster[label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
@@ -253,7 +264,7 @@ function OcrInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
-            setMessage({ type: "info", text, label });
+            setMessage({ type: "info_header", text, label });
             setShow(1);
           }}
         >
@@ -263,7 +274,9 @@ function OcrInput({
     </div>
   );
 }
+//#endregion ORC_INPUT
 
+//#region IMG_INPUT
 function ImgInput({
   label,
   objectType,
@@ -273,16 +286,18 @@ function ImgInput({
   APIPayloadHolder,
   setCameraStatus,
   setCameraRequiredToProcess,
+  trueRequredMaster,
 }) {
   return (
     <div className={boxStyle}>
-      <label className={labelStyle}>{label}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="text"
           placeholder={label}
           className={inputStyle}
+          required={trueRequredMaster[label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
@@ -304,7 +319,7 @@ function ImgInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
-            setMessage({ type: "info", text, label });
+            setMessage({ type: "info_header", text, label });
             setShow(1);
           }}
         >
@@ -314,7 +329,9 @@ function ImgInput({
     </div>
   );
 }
+//#endregion IMG_INPUT
 
+//#region QR_INPUT
 function QrInput({
   label,
   objectType,
@@ -324,16 +341,18 @@ function QrInput({
   APIPayloadHolder,
   setCameraStatus,
   setCameraRequiredToProcess,
+  trueRequredMaster,
 }) {
   return (
     <div className={boxStyle}>
-      <label className={labelStyle}>{label}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="text"
           placeholder={label}
           className={inputStyle}
+          required={trueRequredMaster[label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
@@ -355,7 +374,7 @@ function QrInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
-            setMessage({ type: "info", text, label });
+            setMessage({ type: "info_header", text, label });
             setShow(1);
           }}
         >
@@ -365,7 +384,9 @@ function QrInput({
     </div>
   );
 }
+//#endregion QR_INPUT
 
+//#region OPERATION_INPUT
 function OperationInput() {
   return (
     <div className={boxStyle}>
@@ -380,8 +401,10 @@ function OperationInput() {
     </div>
   );
 }
+//#endregion OPERATION_INPUT
 
-function ObjectInput({ setObjectFields, setObjectType, setURL, setAPIPayloadHolder }) {
+//#region OBJECT_INPUT
+function ObjectInput({ setObjectFields, setObjectType, setURL, setAPIPayloadHolder, resetAPUIPayloadHolder }) {
   return (
     <div className={boxStyle}>
       <label className={labelStyle}>Object</label>
@@ -395,8 +418,7 @@ function ObjectInput({ setObjectFields, setObjectType, setURL, setAPIPayloadHold
             setObjectFields(header[type]);
             setObjectType(type);
             setURL(apiUrls[type]);
-
-            // add objectType into APIPayloadHolder for API calls
+            resetAPUIPayloadHolder();
             setAPIPayloadHolder({
               type: type,
               field: "Object ",
@@ -415,5 +437,6 @@ function ObjectInput({ setObjectFields, setObjectType, setURL, setAPIPayloadHold
     </div>
   );
 }
+//#endregion OBJECT_INPUT
 
 export default Audit;

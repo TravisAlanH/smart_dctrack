@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore } from "../../../../store/Store";
+import SlideSetCabLoc from "./SlideSetCabLoc";
 
 export default function SlideMessage() {
   const msg = APIStore((s) => s.data.ResponseMessage);
@@ -45,11 +46,19 @@ export default function SlideMessage() {
       return "Server failed to process request.";
     }
 
-    if (m.type === "info" && m.text) {
+    if (m.type === "info_header" && m.text) {
       return (
         <div>
           <div className="font-bold">{m.label}</div>
           <div>{m.text}</div>
+        </div>
+      );
+    }
+    console.log("MESSAGE", m.type);
+    if (m.type === "setCabLocInfo" && m.text) {
+      return (
+        <div>
+          <SlideSetCabLoc />
         </div>
       );
     }

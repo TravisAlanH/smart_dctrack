@@ -28,6 +28,7 @@ let initState = {
       type: "",
       field: "",
     },
+    RequireToggleWatcher: false,
   },
   DataState: {
     TextData: "",
@@ -42,6 +43,11 @@ let initState = {
       payload: {},
     },
     APIPayloadHolder: {},
+    LocationsOnInstance: {},
+    CabinetsInLocation: {},
+    AssetsInCabinet: {},
+    CurrnetLocationID: null,
+    CurrentCabinetID: null,
   },
 };
 
@@ -147,6 +153,14 @@ export const ReuseDataStateStore = create(
         },
       }));
     },
+    setRequireToggleWatcher: () => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          RequireToggleWatcher: !state.data.RequireToggleWatcher,
+        },
+      }));
+    },
   }))
 );
 
@@ -163,60 +177,6 @@ export const APIStore = create(
         data: { ...state.data, ResponseCode: code },
       }));
     },
-    // sendAPIPush: () => {
-    //   const { url, payload } = get().data.auditRequest;
-    //   const baseURL = get().data.BaseURL;
-
-    //   // !
-
-    //   const config = {
-    //     method: "post",
-    //     maxBodyLength: Infinity,
-    //     url: `https://${baseURL}${url}?returnDetails=false`,
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //       Authorization: "Basic YWRtaW46c3VuYmlyZA==",
-    //     },
-    //     data: JSON.stringify(payload),
-    //   };
-
-    //   axios
-    //     .request(config)
-    //     .then((res) => {
-    //       const statusCode = res.status;
-    //       const messageObj = res;
-
-    //       get().setResponseCode(statusCode);
-    //       get().setResponseMessage(messageObj);
-    //     })
-    //     .catch((err) => {
-    //       const statusCode = err.code || err.response?.status || "ERR";
-    //       const messageObj = err;
-
-    //       get().setResponseCode(statusCode);
-    //       get().setResponseMessage(messageObj);
-    //     });
-    // },
-
-    // sendAPIPush: () => {
-    //   const { url, payload } = get().data.auditRequest;
-
-    //   const apiURL = `/api${url}?returnDetails=false`;
-
-    //   axios
-    //     .post(apiURL, payload)
-    //     .then((res) => {
-    //       get().setResponseCode(res.status);
-    //       get().setResponseMessage(res);
-    //     })
-    //     .catch((err) => {
-    //       const status = err.code || err.response?.status || "ERR";
-    //       get().setResponseCode(status);
-    //       get().setResponseMessage(err);
-    //     });
-    // },
-
     sendAPIPush: () => {
       const { url, payload, BaseURL } = get().data.auditRequest;
       const serverHost = get().data.BaseURL;
@@ -241,6 +201,83 @@ export const APIStore = create(
           get().setResponseMessage(err);
         });
     },
+    pullAllAssetFromCabinet: async (cabinetId) => {
+      const serverHost = get().data.BaseURL;
+
+      const url = `/v2/items/cabinetItems/${cabinetId}`;
+      const apiURL = `${BACKEND}/api${url}`;
+
+      try {
+        const res = await axios.get(apiURL, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+        set((state) => ({
+          data: { ...state.data, AssetsInCabinet: res.data },
+        }));
+        return res.data;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        get().setResponseCode(status);
+        get().setResponseMessage(err);
+        return null;
+      }
+    },
+
+    pullCabinetData: async (locationId) => {
+      const serverHost = get().data.BaseURL;
+
+      const url = "/v2/capacity/cabinets/list/search";
+
+      const payload = {
+        ruHeight: 1,
+        locationIds: [locationId],
+      };
+
+      const apiURL = `${BACKEND}/api${url}`;
+
+      try {
+        const res = await axios.post(apiURL, payload, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+        set((state) => ({
+          data: { ...state.data, CabinetsInLocation: res.data },
+        }));
+        return res.data;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        get().setResponseCode(status);
+        get().setResponseMessage(err);
+        return null;
+      }
+    },
+    pullLocationData: async () => {
+      const serverHost = get().data.BaseURL;
+
+      const url = "/v1/locations";
+      const apiURL = `${BACKEND}/api${url}`;
+
+      try {
+        const res = await axios.get(apiURL, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+
+        set((state) => ({
+          data: { ...state.data, LocationsOnInstance: res.data },
+        }));
+        return res.data;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        get().setResponseCode(status);
+        get().setResponseMessage(err);
+        return null;
+      }
+    },
 
     setAuditUrl: (url) => {
       set((state) => ({
@@ -258,11 +295,17 @@ export const APIStore = create(
         },
       }));
     },
+    resetAPUIPayloadHolder: () => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          APIPayloadHolder: {},
+        },
+      }));
+    },
     setAPIPayloadHolder: (data) => {
       const state = get().data;
-      console.log(data.field);
       const endpoints = headerEndpoints[data.type];
-      console.log(endpoints);
       const key = endpoints[data.field];
 
       set(() => ({
@@ -273,6 +316,17 @@ export const APIStore = create(
             [key]: data.value,
           },
         },
+      }));
+      console.log("APIPayloadHolder", state.APIPayloadHolder);
+    },
+    setCurrentLocationID: (id) => {
+      set((state) => ({
+        data: { ...state.data, CurrnetLocationID: id },
+      }));
+    },
+    setCurrentCabinetID: (id) => {
+      set((state) => ({
+        data: { ...state.data, CurrentCabinetID: id },
       }));
     },
   }))

@@ -15,6 +15,37 @@ app.use(
 
 app.use(express.json());
 
+app.get("/api/*", async (req, res) => {
+  try {
+    const host = req.headers["x-dctrack-host"];
+    if (!host) {
+      return res.status(400).json({ error: "Missing dcTrack host header" });
+    }
+
+    const target = `https://${host}${req.originalUrl}`;
+    const agent = new https.Agent({ rejectUnauthorized: false });
+
+    console.log("Forwarding GET to:", target);
+
+    const response = await axios.get(target, {
+      httpsAgent: agent,
+      headers: {
+        Authorization: "Basic YWRtaW46c3VuYmlyZA==",
+        Accept: "application/json",
+      },
+    });
+
+    res.status(response.status).json(response.data);
+  } catch (err) {
+    console.log("BACKEND GET ERROR:", err.message);
+    res.status(500).json({
+      error: err.message,
+      backendStatus: err.response?.status,
+      backendData: err.response?.data,
+    });
+  }
+});
+
 app.post("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];

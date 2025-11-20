@@ -10,18 +10,20 @@ import Footer from "./components/Footer/Footer";
 import Audit from "./components/Screens/Audit";
 import ActionBar from "./components/ActionBar/ActionBar";
 import SlideContent from "./components/ActionBar/SlideContent/SlideContent";
+import Cabinet from "./components/Screens/Cabinet";
 
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
 function App() {
   const [show, setShow] = React.useState(0);
+  const [pageView, setPageView] = React.useState(0);
+
+  const Pages = [<Audit setShow={setShow} />, <Cabinet setShow={setShow} />];
 
   return (
     <div className="w-screen h-screen overflow-hidden relative">
       {/* Scroll area */}
-      <div className="absolute top-0 left-0 w-full h-[calc(100vh-11rem)] overflow-auto">
-        <Audit setShow={setShow} />
-      </div>
+      <div className="absolute top-0 left-0 w-full h-[calc(100vh-11rem)] overflow-auto">{Pages[pageView]}</div>
 
       {/* Slide box */}
       <div
@@ -43,7 +45,7 @@ function App() {
 
       {/* Footer */}
       <div className="absolute bottom-0 left-0 w-full h-32">
-        <Footer />
+        <Footer setPageView={setPageView} />
       </div>
     </div>
   );
