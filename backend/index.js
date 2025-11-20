@@ -7,7 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://localhost:5173"],
+    origin: ["http://localhost:5173", "https://localhost:5173", "https://audittool-frontend.onrender.com"],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "x-dctrack-host"],
   })
