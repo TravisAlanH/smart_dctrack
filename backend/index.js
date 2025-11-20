@@ -24,7 +24,7 @@ app.post("/api/*", async (req, res) => {
 
     const target = `https://${host}${req.originalUrl}`;
     const agent = new https.Agent({ rejectUnauthorized: false });
-
+    console.log("Forwarding request to:", target);
     const response = await axios.post(target, req.body, {
       httpsAgent: agent,
       headers: {
@@ -35,8 +35,20 @@ app.post("/api/*", async (req, res) => {
     });
 
     res.status(response.status).json(response.data);
+    console.log("Response status:", response.status);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.log("BACKEND ERROR:");
+    console.log("message:", err.message);
+    console.log("code:", err.code);
+    console.log("response data:", err.response?.data);
+    console.log("response status:", err.response?.status);
+    console.log("stack:", err.stack);
+
+    res.status(500).json({
+      error: err.message,
+      backendStatus: err.response?.status,
+      backendData: err.response?.data,
+    });
   }
 });
 
