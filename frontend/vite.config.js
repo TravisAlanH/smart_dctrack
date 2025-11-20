@@ -8,9 +8,5 @@ export default defineConfig({
   },
   server: {
     host: true,
-    https: {
-      key: "server.key",
-      cert: "server.crt",
-    },
   },
 });
