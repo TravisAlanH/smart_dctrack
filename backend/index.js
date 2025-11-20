@@ -45,15 +45,15 @@ app.post("/api/*", async (req, res) => {
   }
 });
 
-/*
-  Production mode
-  Serve Vite build folder (dist)
-*/
-app.use(express.static(path.join(__dirname, "dist")));
+// IMPORTANT FIX STARTS HERE
+const root = process.cwd();
+
+// Serve frontend correctly
+app.use(express.static(path.join(root, "backend/dist")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.join(root, "backend/dist", "index.html"));
 });
+// IMPORTANT FIX ENDS HERE
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Backend listening on " + PORT));
+app.listen(10000, () => console.log("Backend listening on 10000"));
