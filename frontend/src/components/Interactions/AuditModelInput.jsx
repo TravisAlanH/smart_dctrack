@@ -14,9 +14,14 @@ function AuditMakeInput({
   setCameraRequiredToProcess,
   trueRequredMaster,
 }) {
-  const pullAllMakesFromInstance = APIStore((s) => s.pullAllMakesFromInstance);
-  const makeList = APIStore((s) => s.data.MakeDatafromInstance.make);
+  const pullAllModelsFromMake = APIStore((s) => s.pullAllModelsFromMake);
+  const modelList = APIStore((s) => s.data.ModelDataFromInstance);
+  const setSelectedModel = ReuseDataStateStore((s) => s.setSelectedModel);
   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
+  console.log(modelList);
+  //   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
+  const selectedMake = ReuseDataStateStore((s) => s.data.SelectedMake);
+  console.log(selectedMake);
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -24,27 +29,16 @@ function AuditMakeInput({
 
   const inputRef = useRef(null);
 
-  // Fetch from server when user enters 3+ characters
   useEffect(() => {
-    if (query.length >= 3) {
-      pullAllMakesFromInstance(query);
-    } else {
-      setResults([]);
-      setShowDrop(false);
-    }
-  }, [query, pullAllMakesFromInstance]);
+    pullAllModelsFromMake();
+  }, [selectedMake, pullAllModelsFromMake]);
 
-  // Filter after store updates
   useEffect(() => {
-    if (query.length < 3) return;
-
-    const low = query.toLowerCase();
-
-    const filtered = makeList.filter((x) => x.value.toLowerCase().includes(low)).sort((a, b) => a.value.localeCompare(b.value));
-
-    setResults(filtered);
-    setShowDrop(filtered.length > 0);
-  }, [makeList, query]);
+    if (query.length < 2) return;
+    pullAllModelsFromMake();
+    setShowDrop(true);
+    setResults(modelList);
+  }, [query, pullAllModelsFromMake]);
 
   const selectedValue = APIPayloadHolder[headerEndpoints[objectType][label]] || "";
 
@@ -77,7 +71,7 @@ function AuditMakeInput({
               field: label,
               value: text,
             });
-            setSelectedMake(text);
+            setSelectedModel(text);
           }}
           onFocus={() => {
             if (results.length > 0) setShowDrop(true);
@@ -94,7 +88,7 @@ function AuditMakeInput({
               zIndex: 50,
               background: "white",
               border: "1px solid #ccc",
-              maxHeight: "12rem",
+              maxHeight: "15rem",
               overflowY: "auto",
             }}
           >
@@ -105,14 +99,22 @@ function AuditMakeInput({
                   padding: "0.5rem",
                   cursor: "pointer",
                 }}
+                className="flex flex-row justify-between mx-2 border-y"
                 onClick={() => {
-                  setQuery(item.value);
+                  setQuery(item.model);
                   setAPIPayloadHolder({
                     type: objectType,
-                    field: label,
-                    value: item.value,
+                    field: "Make ",
+                    value: item.make,
                   });
-                  setSelectedMake(item.value);
+                  setAPIPayloadHolder({
+                    type: objectType,
+                    field: "Model ",
+                    value: item.model,
+                  });
+                  setSelectedModel(item.model);
+                  setSelectedMake(item.make);
+
                   setShowDrop(false);
 
                   if (inputRef.current) {
@@ -120,7 +122,8 @@ function AuditMakeInput({
                   }
                 }}
               >
-                {item.value}
+                <span>{item.model}</span>
+                <span>{item.make}</span>
               </div>
             ))}
           </div>

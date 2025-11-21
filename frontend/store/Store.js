@@ -30,6 +30,8 @@ let initState = {
     },
     RequireToggleWatcher: false,
     ShowEmptyUPToggleWatcher: true,
+    SelectedMake: "",
+    SelectedModel: "",
   },
   DataState: {
     TextData: "",
@@ -50,6 +52,7 @@ let initState = {
     CurrnetLocationID: null,
     CurrentCabinetID: null,
     MakeDatafromInstance: { make: [] },
+    ModelDatafromInstance: { model: [] },
   },
 };
 
@@ -168,6 +171,22 @@ export const ReuseDataStateStore = create(
         data: {
           ...state.data,
           ShowEmptyUPToggleWatcher: bool,
+        },
+      }));
+    },
+    setSelectedMake: (make) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          SelectedMake: make,
+        },
+      }));
+    },
+    setSelectedModel: (model) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          SelectedModel: model,
         },
       }));
     },
@@ -304,10 +323,12 @@ export const APIStore = create(
 
         const list = res.data?.make ?? [];
 
+        const top10 = list.slice(0, 10);
+
         set((state) => ({
           data: {
             ...state.data,
-            MakeDatafromInstance: { make: list },
+            MakeDatafromInstance: { make: top10 },
           },
         }));
 
@@ -318,6 +339,57 @@ export const APIStore = create(
         return null;
       }
     },
+    pullAllModelsFromMake: async () => {
+      console.log("model");
+      const serverHost = get().data.BaseURL;
+
+      const selectedMake = ReuseDataStateStore.getState().data.SelectedMake;
+      const selectedModel = ReuseDataStateStore.getState().data.SelectedModel;
+
+      // if (!selectedMake) {
+      //   get().setResponseMessage("No make selected");
+      //   return null;
+      // }
+
+      const url = `/v2/quicksearch/models?pageNumber=1&pageSize=10`;
+      const apiURL = `${BACKEND}/api${url}`;
+
+      const payload = {
+        columns: [
+          {
+            name: "make",
+            filter: { contains: selectedMake },
+          },
+          { name: "model", filter: { contains: selectedModel } },
+        ],
+
+        selectedColumns: [{ name: "make" }, { name: "model" }],
+        customFieldByLabel: false,
+      };
+
+      try {
+        const res = await axios.post(apiURL, payload, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+        console.log(res);
+        set((state) => ({
+          data: {
+            ...state.data,
+            ModelDataFromInstance: res.data?.searchResults?.models || [],
+          },
+        }));
+
+        return res.data;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        get().setResponseCode(status);
+        get().setResponseMessage(err);
+        return null;
+      }
+    },
+
     setAuditUrl: (url) => {
       set((state) => ({
         data: {
