@@ -285,9 +285,9 @@ export const required_master = {
 
   "Asset Tag": false,
   "Serial Number": false,
-  "Chassis ": true,
-  "Chassis Face ": true,
-  "Slot Position ": true,
+  "Chassis ": false,
+  "Chassis Face ": false,
+  "Slot Position ": false,
   "Is VM Host": false,
   "VM Cluster": false,
 

@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import { headerEndpoints } from "../src/components/Helpers/Endpoints";
 import axios from "axios";
 
-const BACKEND = import.meta.env.DEV ? "http://localhost:10000" : import.meta.env.VITE_BACKEND_URL;
+const BACKEND = import.meta.env.DEV ? "http://192.168.68.51:10000" : import.meta.env.VITE_BACKEND_URL;
 
 let initState = {
   NAMESTATE: {
@@ -29,6 +29,7 @@ let initState = {
       field: "",
     },
     RequireToggleWatcher: false,
+    ShowEmptyUPToggleWatcher: true,
   },
   DataState: {
     TextData: "",
@@ -48,6 +49,7 @@ let initState = {
     AssetsInCabinet: {},
     CurrnetLocationID: null,
     CurrentCabinetID: null,
+    MakeDatafromInstance: { make: [] },
   },
 };
 
@@ -158,6 +160,14 @@ export const ReuseDataStateStore = create(
         data: {
           ...state.data,
           RequireToggleWatcher: !state.data.RequireToggleWatcher,
+        },
+      }));
+    },
+    setShowEmptyUPToggleWatcher: (bool) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          ShowEmptyUPToggleWatcher: bool,
         },
       }));
     },
@@ -278,7 +288,36 @@ export const APIStore = create(
         return null;
       }
     },
+    pullAllMakesFromInstance: async (query) => {
+      const serverHost = get().data.BaseURL;
 
+      const term = query || "";
+      const url = `/v2/dcimoperations/search/makes/${encodeURIComponent(term)}`;
+      const apiURL = `${BACKEND}/api${url}`;
+
+      try {
+        const res = await axios.get(apiURL, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+
+        const list = res.data?.make ?? [];
+
+        set((state) => ({
+          data: {
+            ...state.data,
+            MakeDatafromInstance: { make: list },
+          },
+        }));
+
+        return list;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        console.log(status);
+        return null;
+      }
+    },
     setAuditUrl: (url) => {
       set((state) => ({
         data: {

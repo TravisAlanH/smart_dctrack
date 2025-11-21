@@ -6,6 +6,7 @@ import { apiUrls } from "../Helpers/Endpoints";
 import { headerEndpoints, required_master } from "../Helpers/Endpoints";
 import ToggleSwitch from "../Interactions/ToggleSwitch";
 import { loadRequiredMaster } from "../Helpers/RequiredMaster";
+import AuditMakeInput from "../Interactions/AuditMakeInput";
 
 //#region MAIN_COMPONENT
 function Audit({ setShow }) {
@@ -130,6 +131,8 @@ function Audit({ setShow }) {
                       setCameraRequiredToProcess={setCameraRequiredToProcess}
                     />
                   );
+                case "IMGMake":
+                  return <AuditMakeInput key={index} {...props} />;
                 default:
                   return <TextInput key={index} {...props} />;
               }

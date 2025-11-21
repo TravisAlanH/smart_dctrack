@@ -5,6 +5,7 @@ export default function Footer({ setPageView }) {
   const pullCabinetData = APIStore((s) => s.pullCabinetData);
   const pullLocationData = APIStore((s) => s.pullLocationData);
   const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
+  const pullAllMakesFromInstance = APIStore((s) => s.pullAllMakesFromInstance);
 
   const buttonStyle = "bg-blue-600 text-white rounded px-3 py-1";
 
@@ -30,17 +31,17 @@ export default function Footer({ setPageView }) {
           >
             Cab to Log
           </button>
-        </div>
+        </div> */}
         <div>
           <button
             className={buttonStyle}
             onClick={() => {
-              pullAllAssetFromCabinet(316);
+              pullAllMakesFromInstance();
             }}
           >
-            Assets to Log
+            Makes to Log
           </button>
-        </div> */}
+        </div>
         <div>
           <button
             className={buttonStyle}

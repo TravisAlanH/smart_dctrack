@@ -3,6 +3,7 @@ import { ReuseDataStateStore } from "../../../store/Store";
 
 function ToggleSwitch({ checked, onChange, label }) {
   const setRequiredToggleWatcher = ReuseDataStateStore((s) => s.setRequireToggleWatcher);
+  const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
   return (
     <label className="flex items-center gap-2 cursor-pointer select-none">
       {label && <span>{label}</span>}
@@ -10,7 +11,9 @@ function ToggleSwitch({ checked, onChange, label }) {
         className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${checked ? "bg-green-500" : "bg-gray-300"}`}
         onClick={() => {
           onChange(!checked);
-          setRequiredToggleWatcher();
+          if (label !== "Hide Empty") {
+            setRequiredToggleWatcher();
+          }
         }}
       >
         <div
