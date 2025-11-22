@@ -43,8 +43,22 @@ export default function SlideMessage({ setShow }) {
       return "Request completed.";
     }
 
-    if (m >= 400 && m < 500) {
-      return "Client request failed.";
+    if (m.response.data.backendData.httpCode === 400) {
+      const data = m.response.data.backendData;
+      return (
+        <div>
+          <div className="font-bold">{data.message}</div>
+          <div className="">
+            <span>{`${data.httpStatus} : ${data.httpCode}`}</span>
+            {data.errorList.map((err, idx) => (
+              <div className="text-sm" key={idx}>
+                - {err}
+              </div>
+            ))}
+          </div>
+          <div>{m.text}</div>
+        </div>
+      );
     }
 
     if (m >= 500) {
