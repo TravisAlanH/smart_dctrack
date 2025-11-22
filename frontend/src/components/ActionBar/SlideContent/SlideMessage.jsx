@@ -1,9 +1,14 @@
 import React from "react";
-import { APIStore } from "../../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../../store/Store";
 import SlideSetCabLoc from "./SlideSetCabLoc";
 
-export default function SlideMessage() {
+export default function SlideMessage({ setShow }) {
   const msg = APIStore((s) => s.data.ResponseMessage);
+  const [deleteHold, setDeleteHold] = React.useState("");
+  const deleteAsset = APIStore((s) => s.deleteAsset);
+  const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
+  const cabinetId = APIStore((s) => s.data.CurrentCabinetID);
+  const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
 
   const lable = "font-bold w-20";
 
@@ -59,6 +64,47 @@ export default function SlideMessage() {
       return (
         <div>
           <SlideSetCabLoc />
+        </div>
+      );
+    }
+    if (m.type === "Delete Asset" && m.text) {
+      console.log(m);
+      const Name = m.label.tiName;
+      const deteteDisablesStyle = "bg-gray-600 text-white rounded px-3 py-1 mx-2 cursor-not-allowed";
+      const deleteEnabledStyle = "bg-red-600 text-white rounded px-3 py-1 mx-2";
+      return (
+        <div>
+          <div className="flex flex-row justify-center pt-3">
+            <span>Type "</span>
+            <span className="font-bold">{Name}</span>
+            <span>" as it appears to delete </span>
+          </div>
+          <div className="flex flex-row justify-center pt-2"></div>
+          <input
+            type="text"
+            value={deleteHold}
+            className="text-black"
+            onChange={(e) => {
+              setDeleteHold(e.target.value);
+            }}
+          />
+          <button
+            className={deleteHold === Name ? deleteEnabledStyle : deteteDisablesStyle}
+            disabled={deleteHold !== Name}
+            onClick={async () => {
+              if (deleteHold !== Name) return;
+
+              await deleteAsset(m.label.id);
+
+              if (cabinetId) {
+                await pullAllAssetFromCabinet(cabinetId);
+              }
+              setShow(0);
+              setCabinetActionBar(0);
+            }}
+          >
+            Confirm Delete
+          </button>
         </div>
       );
     }

@@ -1,11 +1,13 @@
 import React from "react";
-import { APIStore } from "../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 
-export default function Footer({ setPageView }) {
+export default function Footer() {
   const pullCabinetData = APIStore((s) => s.pullCabinetData);
   const pullLocationData = APIStore((s) => s.pullLocationData);
   const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
   const pullAllMakesFromInstance = APIStore((s) => s.pullAllMakesFromInstance);
+  const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
+  const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
   const buttonStyle = "bg-blue-600 text-white rounded px-3 py-1";
 
@@ -56,6 +58,10 @@ export default function Footer({ setPageView }) {
           <button
             className={buttonStyle}
             onClick={() => {
+              if (currentCabinetID !== null) {
+                pullAllAssetFromCabinet(currentCabinetID);
+              }
+
               setPageView(1);
             }}
           >

@@ -33,7 +33,7 @@ export default function SlideContent({ setShow }) {
           Close
         </button>
       </div>
-      <SlideMessage />
+      <SlideMessage setShow={setShow} />
     </div>
   );
 }

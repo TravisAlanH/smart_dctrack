@@ -17,6 +17,8 @@ let initState = {
     OcrTrigger: 0,
     CameraStatus: 0,
     PredictTrigger: 0,
+    pageView: 0,
+    cabinetActionBar: 0,
     Make: "",
     Model: "",
     AssetTag: "",
@@ -32,6 +34,9 @@ let initState = {
     ShowEmptyUPToggleWatcher: true,
     SelectedMake: "",
     SelectedModel: "",
+    SelectedInCabinetAsset: {},
+    objectFields: "",
+    objectType: "",
   },
   DataState: {
     TextData: "",
@@ -81,6 +86,31 @@ export const DataStateStore = create(
 export const ReuseDataStateStore = create(
   devtools((set) => ({
     data: initState.ReuseDataState,
+    setPageView: (num) => {
+      set((state) => ({
+        data: { ...state.data, pageView: num },
+      }));
+    },
+    setCabinetActionBar: (num) => {
+      set((state) => ({
+        data: { ...state.data, cabinetActionBar: num },
+      }));
+    },
+    setSelectedInCabinetAsset: (data) => {
+      set((state) => ({
+        data: { ...state.data, SelectedInCabinetAsset: data },
+      }));
+    },
+    setObjectFields: (data) => {
+      set((state) => ({
+        data: { ...state.data, objectFields: data },
+      }));
+    },
+    setObjectType: (type) => {
+      set((state) => ({
+        data: { ...state.data, objectType: type },
+      }));
+    },
     setCameraText: (string) => {
       set((state) => ({
         data: { ...state.data, CameraText: string },
@@ -253,7 +283,27 @@ export const APIStore = create(
         return null;
       }
     },
+    deleteAsset: async (assetId) => {
+      const serverHost = get().data.BaseURL;
 
+      const url = `/v2/dcimoperations/items/${assetId}`;
+      const apiURL = `${BACKEND}/api${url}`;
+
+      try {
+        const res = await axios.delete(apiURL, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+
+        return res.data;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        get().setResponseCode(status);
+        get().setResponseMessage(err);
+        return null;
+      }
+    },
     pullCabinetData: async (locationId) => {
       const serverHost = get().data.BaseURL;
 
@@ -276,6 +326,35 @@ export const APIStore = create(
           data: { ...state.data, CabinetsInLocation: res.data },
         }));
         return res.data;
+      } catch (err) {
+        const status = err.code || err.response?.status || "ERR";
+        get().setResponseCode(status);
+        get().setResponseMessage(err);
+        return null;
+      }
+    },
+    GETAssetDataByID: async (payload) => {
+      const serverHost = get().data.BaseURL;
+
+      const url = "/v2/dcimoperations/items/";
+
+      const apiURL = `${BACKEND}/api${url}${payload.id}`;
+
+      try {
+        const res = await axios.get(apiURL, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        });
+        // set((state) => ({
+        //   data: { ...state.data, CabinetsInLocation: res.data },
+        // }));
+        console.log(res.data.item);
+        if (payload.action === "update") {
+          set((state) => ({
+            data: { ...state.data, APIPayloadHolder: res.data.item },
+          }));
+        }
       } catch (err) {
         const status = err.code || err.response?.status || "ERR";
         get().setResponseCode(status);
@@ -429,6 +508,15 @@ export const APIStore = create(
         },
       }));
       console.log("APIPayloadHolder", state.APIPayloadHolder);
+    },
+    setEditAPIPayloadHolder: (data) => {
+      const state = get().data;
+      set(() => ({
+        data: {
+          ...state,
+          APIPayloadHolder: data,
+        },
+      }));
     },
     setCurrentLocationID: (id) => {
       set((state) => ({

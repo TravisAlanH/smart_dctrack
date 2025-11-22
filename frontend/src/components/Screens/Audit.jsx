@@ -18,9 +18,12 @@ function Audit({ setShow }) {
   const setPayload = APIStore((s) => s.setAuditPayload);
   const sendAPIPush = APIStore((s) => s.sendAPIPush);
   const resetAPUIPayloadHolder = APIStore((s) => s.resetAPUIPayloadHolder);
+  const objectFields = ReuseDataStateStore((s) => s.data.objectFields);
+  const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
+  const objectType = ReuseDataStateStore((s) => s.data.objectType);
+  const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
 
-  const [objectFields, setObjectFields] = useState("");
-  const [objectType, setObjectType] = useState("");
+  console.log(objectFields);
 
   const setCameraStatus = ReuseDataStateStore((s) => s.setCameraStatus);
   const setCameraRequiredToProcess = ReuseDataStateStore((s) => s.setCameraRequiredToProcess);
@@ -51,6 +54,7 @@ function Audit({ setShow }) {
     setPayload(APIPayloadHolder);
     sendAPIPush();
   }
+
   //#region RETURN
   return (
     <div className="App w-screen h-screen flex flex-col">
@@ -61,7 +65,7 @@ function Audit({ setShow }) {
       <CameraModal />
 
       <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
-        {objectFields === "" ? (
+        {objectFields == "" ? (
           <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
             <OperationInput />
             <ObjectInput
@@ -73,10 +77,11 @@ function Audit({ setShow }) {
             />
           </div>
         ) : (
+          //#region AUIT_FORM
           <form className="w-full h-[95%] flex flex-col gap-3 mt-4" onSubmit={handleFormSubmit}>
             {Object.keys(objectFields).map((label, index) => {
               if (showRequired && !trueRequredMaster[label]) return null;
-
+              console.log("ob t", objectType);
               const type = headerTypes[objectType][label];
 
               const props = {

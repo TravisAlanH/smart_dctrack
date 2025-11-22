@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import ToggleSwtich from "../Interactions/ToggleSwitch";
 
-export default function Cabinet({ setShow }) {
+export default function Cabinet({ setShow, pageView }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const currentLocationID = APIStore((s) => s.data.CurrnetLocationID);
   const cabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
@@ -12,11 +12,13 @@ export default function Cabinet({ setShow }) {
 
   const ShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.data.ShowEmptyUPToggleWatcher);
   const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
+  const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
+  const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
 
   React.useEffect(() => {
     const missing = !currentLocationID || !currentCabinetID;
 
-    if (missing) {
+    if (missing && pageView === 1) {
       setMessage({
         type: "setCabLocInfo",
         text: "Please select a location and cabinet to view cabinet details.",
@@ -27,7 +29,7 @@ export default function Cabinet({ setShow }) {
       setMessage({});
       setShow(0);
     }
-  }, [currentLocationID, currentCabinetID, setMessage, setShow]);
+  }, [currentLocationID, currentCabinetID, setMessage, setShow, pageView]);
 
   React.useEffect(() => {
     if (currentCabinetID) {
@@ -84,7 +86,15 @@ export default function Cabinet({ setShow }) {
 
             // render only the starting RU
             if (startMap[ruNum]) {
-              return <FilledUPosition key={ru} ru={ru} item={startMap[ruNum]} />;
+              return (
+                <FilledUPosition
+                  key={ru}
+                  ru={ru}
+                  item={startMap[ruNum]}
+                  setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+                  setCabinetActionBar={setCabinetActionBar}
+                />
+              );
             }
 
             if (ShowEmptyUPToggleWatcher) {
@@ -119,7 +129,7 @@ function EmptyUPosition({ ru }) {
   );
 }
 
-function FilledUPosition({ ru, item }) {
+function FilledUPosition({ ru, item, setSelectedInCabinetAsset, setCabinetActionBar }) {
   const height = `${item.tiRackUnits * 2.5}rem`;
   const lableHeight = `${item.tiRackUnits * 2.5}rem`;
 
@@ -139,7 +149,15 @@ function FilledUPosition({ ru, item }) {
       </div>
       <div className={innerBoxStyle}>
         <span type="text" className={inputStyle}>{`${item.tiName} ${item.cmbMake} ${item.cmbModel}`}</span>
-        <button className="border px-2 bg-green-500 rounded-md h-8">Act</button>
+        <button
+          className="border px-2 bg-green-500 rounded-md h-8"
+          onClick={() => {
+            setSelectedInCabinetAsset(item);
+            setCabinetActionBar(1);
+          }}
+        >
+          Act
+        </button>
       </div>
     </div>
   );

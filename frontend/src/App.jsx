@@ -15,17 +15,21 @@ import Cabinet from "./components/Screens/Cabinet";
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
 function App() {
+  const pageView = ReuseDataStateStore((s) => s.data.pageView);
   const [show, setShow] = React.useState(0);
-  const [pageView, setPageView] = React.useState(0);
-
-  const Pages = [<Audit setShow={setShow} />, <Cabinet setShow={setShow} />];
 
   return (
     <div className="w-screen h-screen overflow-hidden relative">
-      {/* Scroll area */}
-      <div className="absolute top-0 left-0 w-full h-[calc(100vh-11rem)] overflow-auto">{Pages[pageView]}</div>
+      <div className="absolute top-0 left-0 w-full h-[calc(100vh-11rem)] overflow-auto">
+        <div className={pageView === 0 ? "block" : "hidden"}>
+          <Audit setShow={setShow} />
+        </div>
 
-      {/* Slide box */}
+        <div className={pageView === 1 ? "block" : "hidden"}>
+          <Cabinet setShow={setShow} pageView={pageView} />
+        </div>
+      </div>
+
       <div
         className={
           show === 1
@@ -38,14 +42,12 @@ function App() {
         </div>
       </div>
 
-      {/* Action bar */}
       <div className="absolute bottom-32 left-0 w-full h-12">
         <ActionBar setShow={setShow} />
       </div>
 
-      {/* Footer */}
       <div className="absolute bottom-0 left-0 w-full h-32">
-        <Footer setPageView={setPageView} />
+        <Footer />
       </div>
     </div>
   );
