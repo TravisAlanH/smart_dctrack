@@ -51,6 +51,7 @@ let initState = {
       payload: {},
     },
     APIPayloadHolder: {},
+    APIAction: "ADD",
     LocationsOnInstance: {},
     CabinetsInLocation: {},
     AssetsInCabinet: {},
@@ -226,6 +227,11 @@ export const ReuseDataStateStore = create(
 export const APIStore = create(
   devtools((set, get) => ({
     data: initState.APIStore,
+    setAPIAction: (action) => {
+      set((state) => ({
+        data: { ...state.data, APIAction: action },
+      }));
+    },
     setResponseMessage: (obj) => {
       set((state) => ({
         data: { ...state.data, ResponseMessage: obj },
@@ -252,14 +258,46 @@ export const APIStore = create(
         })
         .then((res) => {
           get().setResponseCode(res.status);
-          get().setResponseMessage(res);
+          get().setResponseMessage({ type: "APIResponse", data: res });
         })
         .catch((err) => {
-          const status = err.code || err.response?.status || "ERR";
+          const status = err.response.data.backendData.httpCode || err.code || "ERR";
+          console.log(err);
           get().setResponseCode(status);
-          get().setResponseMessage(err);
+          get().setResponseMessage({ type: "APIResponse", data: err });
         });
     },
+    EditAPIPush: (id) => {
+      const { payload } = get().data.auditRequest;
+      const serverHost = get().data.BaseURL;
+
+      // remove helper keys
+      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
+
+      // add optional proceed on warning
+      cleanPayload["_tiProceedOnWarning"] = true;
+
+      const apiURL = `${BACKEND}/api/v2/dcimoperations/items/${id}?returnDetails=true`;
+
+      axios
+        .put(apiURL, cleanPayload, {
+          headers: {
+            "x-dctrack-host": serverHost,
+          },
+        })
+        .then((res) => {
+          get().setResponseCode(res.status);
+          get().setResponseMessage({ type: "APIResponse", data: res });
+        })
+        .catch((err) => {
+          console.log(err);
+          const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({ type: "APIResponse", data: err });
+        });
+    },
+
     pullAllAssetFromCabinet: async (cabinetId) => {
       const serverHost = get().data.BaseURL;
 
@@ -277,9 +315,11 @@ export const APIStore = create(
         }));
         return res.data;
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
+        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
         get().setResponseCode(status);
-        get().setResponseMessage(err);
+        get().setResponseMessage({ type: "APIResponse", data: err });
+        console.log(err);
         return null;
       }
     },
@@ -298,9 +338,11 @@ export const APIStore = create(
 
         return res.data;
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
+        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
         get().setResponseCode(status);
-        get().setResponseMessage(err);
+        get().setResponseMessage({ type: "APIResponse", data: err });
+        console.log(err);
         return null;
       }
     },
@@ -327,9 +369,11 @@ export const APIStore = create(
         }));
         return res.data;
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
+        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
         get().setResponseCode(status);
-        get().setResponseMessage(err);
+        get().setResponseMessage({ type: "APIResponse", data: err });
+        console.log(err);
         return null;
       }
     },
@@ -356,9 +400,11 @@ export const APIStore = create(
           }));
         }
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
+        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
         get().setResponseCode(status);
-        get().setResponseMessage(err);
+        get().setResponseMessage({ type: "APIResponse", data: err });
+        console.log(err);
         return null;
       }
     },
@@ -380,9 +426,11 @@ export const APIStore = create(
         }));
         return res.data;
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
+        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
         get().setResponseCode(status);
-        get().setResponseMessage(err);
+        get().setResponseMessage({ type: "APIResponse", data: err });
+        console.log(err);
         return null;
       }
     },
@@ -413,8 +461,7 @@ export const APIStore = create(
 
         return list;
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
-        console.log(status);
+        console.log(err);
         return null;
       }
     },
@@ -462,9 +509,11 @@ export const APIStore = create(
 
         return res.data;
       } catch (err) {
-        const status = err.code || err.response?.status || "ERR";
+        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+
         get().setResponseCode(status);
-        get().setResponseMessage(err);
+        get().setResponseMessage({ type: "APIResponse", data: err });
+        console.log(err);
         return null;
       }
     },

@@ -8,7 +8,7 @@ const app = express();
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://192.168.68.51:5173"],
-    methods: ["GET", "POST", "DELETE"],
+    methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "x-dctrack-host"],
   })
 );
@@ -107,6 +107,38 @@ app.delete("/api/*", async (req, res) => {
   } catch (err) {
     console.log("BACKEND DELETE ERROR:", err.message);
 
+    res.status(500).json({
+      error: err.message,
+      backendStatus: err.response?.status,
+      backendData: err.response?.data,
+    });
+  }
+});
+
+app.put("/api/*", async (req, res) => {
+  try {
+    const host = req.headers["x-dctrack-host"];
+    if (!host) {
+      return res.status(400).json({ error: "Missing dcTrack host header" });
+    }
+
+    const target = `https://${host}${req.originalUrl}`;
+    const agent = new https.Agent({ rejectUnauthorized: false });
+
+    console.log("Forwarding PUT to:", target);
+
+    const response = await axios.put(target, req.body, {
+      httpsAgent: agent,
+      headers: {
+        Authorization: "Basic YWRtaW46c3VuYmlyZA==",
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    res.status(response.status).json(response.data);
+  } catch (err) {
+    console.log("BACKEND PUT ERROR:", err.message);
     res.status(500).json({
       error: err.message,
       backendStatus: err.response?.status,

@@ -22,6 +22,9 @@ function Audit({ setShow }) {
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const objectType = ReuseDataStateStore((s) => s.data.objectType);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
+  const APIAction = APIStore((s) => s.data.APIAction);
+  const EditAPIPush = APIStore((s) => s.EditAPIPush);
+  const SelectedInCabinetAsset = ReuseDataStateStore((s) => s.data.SelectedInCabinetAsset);
 
   console.log(objectFields);
 
@@ -52,7 +55,11 @@ function Audit({ setShow }) {
     for (const [key, val] of formData.entries()) out[key] = val;
 
     setPayload(APIPayloadHolder);
-    sendAPIPush();
+    if (APIAction === "ADD") {
+      sendAPIPush();
+    } else if (APIAction === "EDIT") {
+      EditAPIPush(SelectedInCabinetAsset.id);
+    }
   }
 
   //#region RETURN
@@ -67,7 +74,7 @@ function Audit({ setShow }) {
       <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
         {objectFields == "" ? (
           <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
-            <OperationInput />
+            <OperationInput APIAction={APIAction} />
             <ObjectInput
               setObjectFields={setObjectFields}
               setObjectType={setObjectType}
@@ -92,11 +99,12 @@ function Audit({ setShow }) {
                 APIPayloadHolder,
                 setAPIPayloadHolder,
                 trueRequredMaster,
+                objectType,
               };
 
               switch (type) {
                 case "Operation":
-                  return <OperationInput key={index} {...props} />;
+                  return <OperationInput APIAction={APIAction} />;
                 case "Object":
                   return (
                     <ObjectInput
@@ -398,16 +406,12 @@ function QrInput({
 //#endregion QR_INPUT
 
 //#region OPERATION_INPUT
-function OperationInput() {
+function OperationInput({ APIAction }) {
   return (
     <div className={boxStyle}>
       <label className={labelStyle}>Operation</label>
       <div className={innerBoxStyle}>
-        <select name="Operation" className={selectStyle}>
-          <option value="Add">Add</option>
-          <option value="Edit">Edit</option>
-          <option value="Delete">Delete</option>
-        </select>
+        <input type="text" className={inputStyle} value={APIAction} readOnly />
       </div>
     </div>
   );
@@ -415,12 +419,13 @@ function OperationInput() {
 //#endregion OPERATION_INPUT
 
 //#region OBJECT_INPUT
-function ObjectInput({ setObjectFields, setObjectType, setURL, setAPIPayloadHolder, resetAPUIPayloadHolder }) {
+function ObjectInput({ objectType, setObjectFields, setObjectType, setURL, setAPIPayloadHolder, resetAPUIPayloadHolder }) {
   return (
     <div className={boxStyle}>
       <label className={labelStyle}>Object</label>
       <div className={innerBoxStyle}>
         <select
+          value={objectType}
           className={selectStyle}
           onChange={(e) => {
             const type = e.target.value;

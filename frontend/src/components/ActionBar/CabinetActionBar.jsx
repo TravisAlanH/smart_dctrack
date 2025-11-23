@@ -10,6 +10,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
   const GETAssetDataByID = APIStore((s) => s.GETAssetDataByID);
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
+  const setAPIAction = APIStore((s) => s.setAPIAction);
 
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
@@ -24,6 +25,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
       setPageView={setPageView}
       setObjectFields={setObjectFields}
       setObjectType={setObjectType}
+      setAPIAction={setAPIAction}
     />,
   ];
 
@@ -39,6 +41,7 @@ function AssetActions({
   setPageView,
   setObjectFields,
   setObjectType,
+  setAPIAction,
 }) {
   return (
     <div className="flex flex-row">
@@ -51,13 +54,14 @@ function AssetActions({
               id: SelectedInCabinetAsset.id,
               action: "update",
             };
+            setAPIAction("EDIT");
             GETAssetDataByID(payload);
             setObjectFields(header["Devices"]);
             setObjectType("Devices");
             setPageView(0);
           }}
         >
-          Asset Data
+          Edit
         </button>
       </div>
       <div>
