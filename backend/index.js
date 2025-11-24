@@ -1,13 +1,15 @@
 import express from "express";
 import axios from "axios";
 import https from "https";
+import fs from "fs";
 import cors from "cors";
 
 const app = express();
 
+// CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://192.168.68.51:5173"],
+    origin: ["https://192.168.68.51:5173", "http://localhost:5173", "http://127.0.0.1:5173"],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "x-dctrack-host"],
   })
@@ -15,6 +17,7 @@ app.use(
 
 app.use(express.json());
 
+// GET
 app.get("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -46,6 +49,7 @@ app.get("/api/*", async (req, res) => {
   }
 });
 
+// POST
 app.post("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -55,7 +59,9 @@ app.post("/api/*", async (req, res) => {
 
     const target = `https://${host}${req.originalUrl}`;
     const agent = new https.Agent({ rejectUnauthorized: false });
-    console.log("Forwarding request to:", target);
+
+    console.log("Forwarding POST to:", target);
+
     const response = await axios.post(target, req.body, {
       httpsAgent: agent,
       headers: {
@@ -66,15 +72,8 @@ app.post("/api/*", async (req, res) => {
     });
 
     res.status(response.status).json(response.data);
-    console.log("Response status:", response.status);
   } catch (err) {
-    console.log("BACKEND ERROR:");
-    console.log("message:", err.message);
-    console.log("code:", err.code);
-    console.log("response data:", err.response?.data);
-    console.log("response status:", err.response?.status);
-    console.log("stack:", err.stack);
-
+    console.log("BACKEND POST ERROR:", err.message);
     res.status(500).json({
       error: err.message,
       backendStatus: err.response?.status,
@@ -83,6 +82,7 @@ app.post("/api/*", async (req, res) => {
   }
 });
 
+// DELETE
 app.delete("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -106,7 +106,6 @@ app.delete("/api/*", async (req, res) => {
     res.status(response.status).json(response.data);
   } catch (err) {
     console.log("BACKEND DELETE ERROR:", err.message);
-
     res.status(500).json({
       error: err.message,
       backendStatus: err.response?.status,
@@ -115,6 +114,7 @@ app.delete("/api/*", async (req, res) => {
   }
 });
 
+// PUT
 app.put("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -147,10 +147,20 @@ app.put("/api/*", async (req, res) => {
   }
 });
 
+// Webhook
 app.post("/dctrack-webhook", (req, res) => {
   console.log("Webhook received:", req.body);
   res.status(200).send("OK");
 });
 
+// HTTPS server
+const serverOptions = {
+  key: fs.readFileSync("server.key"),
+  cert: fs.readFileSync("server.crt"),
+};
+
 const port = process.env.PORT || 10000;
-app.listen(port, () => console.log("Backend running on " + port));
+
+https.createServer(serverOptions, app).listen(port, () => {
+  console.log("Backend running on https://" + "192.168.68.51" + ":" + port);
+});

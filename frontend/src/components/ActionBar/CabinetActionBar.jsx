@@ -15,7 +15,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
   const Bars = [
-    null,
+    <EMPTYACTIONBAR />,
     <AssetActions
       setMessage={setMessage}
       setCabinetActionBar={setCabinetActionBar}
@@ -91,4 +91,8 @@ function AssetActions({
       </div>
     </div>
   );
+}
+
+function EMPTYACTIONBAR() {
+  return <div className="bg-transparent"></div>;
 }

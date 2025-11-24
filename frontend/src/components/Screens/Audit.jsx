@@ -25,6 +25,7 @@ function Audit({ setShow }) {
   const APIAction = APIStore((s) => s.data.APIAction);
   const EditAPIPush = APIStore((s) => s.EditAPIPush);
   const SelectedInCabinetAsset = ReuseDataStateStore((s) => s.data.SelectedInCabinetAsset);
+  const setAPIAction = APIStore((s) => s.setAPIAction);
 
   console.log(objectFields);
 
@@ -62,14 +63,29 @@ function Audit({ setShow }) {
     }
   }
 
+  const ButtonStyle = "bg-blue-600 text-white rounded text-lg px-3 py-1";
+
   //#region RETURN
   return (
     <div className="App w-screen h-screen flex flex-col">
-      <div className="flex flex-row justify-end">
+      <div className="flex flex-row gap-3 justify-end">
         <ToggleSwitch label={"Show Required"} checked={showRequired} onChange={setShowRequired} />
+        <div>
+          <button
+            className={ButtonStyle}
+            onClick={() => {
+              setAPIAction("ADD");
+              setObjectFields("");
+              setObjectType("");
+            }}
+          >
+            Reset
+          </button>
+        </div>
       </div>
-
-      <CameraModal />
+      <div className="z-20">
+        <CameraModal />
+      </div>
 
       <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
         {objectFields == "" ? (
@@ -81,6 +97,7 @@ function Audit({ setShow }) {
               setURL={setAuditURL}
               setAPIPayloadHolder={setAPIPayloadHolder}
               resetAPUIPayloadHolder={resetAPUIPayloadHolder}
+              setAPIAction={setAPIAction}
             />
           </div>
         ) : (
@@ -114,6 +131,7 @@ function Audit({ setShow }) {
                       setObjectType={setObjectType}
                       setURL={setAuditURL}
                       resetAPUIPayloadHolder={resetAPUIPayloadHolder}
+                      setAPIAction={setAPIAction}
                     />
                   );
                 case "Number":
@@ -419,7 +437,15 @@ function OperationInput({ APIAction }) {
 //#endregion OPERATION_INPUT
 
 //#region OBJECT_INPUT
-function ObjectInput({ objectType, setObjectFields, setObjectType, setURL, setAPIPayloadHolder, resetAPUIPayloadHolder }) {
+function ObjectInput({
+  objectType,
+  setObjectFields,
+  setObjectType,
+  setURL,
+  setAPIPayloadHolder,
+  resetAPUIPayloadHolder,
+  setAPIAction,
+}) {
   return (
     <div className={boxStyle}>
       <label className={labelStyle}>Object</label>
@@ -430,7 +456,7 @@ function ObjectInput({ objectType, setObjectFields, setObjectType, setURL, setAP
           onChange={(e) => {
             const type = e.target.value;
             if (type === "") return;
-
+            setAPIAction("ADD");
             setObjectFields(header[type]);
             setObjectType(type);
             setURL(apiUrls[type]);

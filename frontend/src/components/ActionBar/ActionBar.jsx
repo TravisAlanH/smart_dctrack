@@ -12,5 +12,5 @@ export default function ActionBar({ setShow }) {
     <CabinetActionBar style={button} setShow={setShow} />,
   ];
 
-  return <div className="border bg-slate-800">{ActionBarTemplate[pageView]}</div>;
+  return <div className="bg-transparent">{ActionBarTemplate[pageView]}</div>;
 }

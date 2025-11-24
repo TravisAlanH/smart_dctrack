@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import { headerEndpoints } from "../src/components/Helpers/Endpoints";
 import axios from "axios";
 
-const BACKEND = import.meta.env.DEV ? "http://192.168.68.51:10000" : import.meta.env.VITE_BACKEND_URL;
+const BACKEND = import.meta.env.DEV ? "https://192.168.68.51:10000" : import.meta.env.VITE_BACKEND_URL;
 
 let initState = {
   NAMESTATE: {

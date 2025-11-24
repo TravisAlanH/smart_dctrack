@@ -17,10 +17,11 @@ import Cabinet from "./components/Screens/Cabinet";
 function App() {
   const pageView = ReuseDataStateStore((s) => s.data.pageView);
   const [show, setShow] = React.useState(0);
+  const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
 
   return (
-    <div className="w-screen h-screen overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-[calc(100vh-11rem)] overflow-auto">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#1F1F1F] text-black">
+      <div className="flex-1 overflow-auto">
         <div className={pageView === 0 ? "block" : "hidden"}>
           <Audit setShow={setShow} />
         </div>
@@ -33,20 +34,21 @@ function App() {
       <div
         className={
           show === 1
-            ? "absolute bottom-12 rounded-xl left-0 w-full h-80 bg-black text-white transition-all duration-300 translate-y-0"
-            : "absolute bottom-12 rounded xl left-0 w-full h-60 bg-black text-white transition-all duration-300 translate-y-full"
+            ? "absolute bottom-32 left-0 w-full h-40 bg-black text-white transition-all duration-300 translate-y-0 rounded-xl"
+            : "absolute bottom-32 left-0 w-full h-40 bg-black text-white transition-all duration-300 translate-y-[30rem] rounded-xl"
         }
       >
         <div className="p-4">
           <SlideContent setShow={setShow} />
         </div>
       </div>
+      {cabinetActionBar === 0 && pageView === 1 ? null : (
+        <div className="h-12 z-10 bg-transparent">
+          <ActionBar setShow={setShow} />
+        </div>
+      )}
 
-      <div className="absolute bottom-32 left-0 w-full h-12">
-        <ActionBar setShow={setShow} />
-      </div>
-
-      <div className="absolute bottom-0 left-0 w-full h-32">
+      <div className="h-[5.5rem] z-10">
         <Footer />
       </div>
     </div>
