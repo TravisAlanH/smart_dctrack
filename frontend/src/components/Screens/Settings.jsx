@@ -1,17 +1,26 @@
 import React from "react";
 import { loadSettingsMaster, saveSettingsMaster, updateSettingsField } from "../Helpers/SettingsMaster";
-import { ReuseDataStateStore } from "../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 
 export default function Settings() {
   //#region STATE_SETTERS
   const settingPassVarified = ReuseDataStateStore((s) => s.data.settingPassVarified);
   const setSettingPassVarified = ReuseDataStateStore((s) => s.setSettingPassVarified);
+  const pullLocationData = APIStore((s) => s.pullLocationData);
+  const LocationsOnInstance = APIStore((s) => s.data.LocationsOnInstance);
+  const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
+  const setCurrentLocationID = APIStore((s) => s.setCurrentLocationID);
+
+  React.useEffect(() => {
+    loadSettingsIntoStore();
+  }, []);
 
   const defaults = {
     IP_ADDRESS: "",
     USERNAME: "",
     PASSWORD: "",
     LOCATION: "",
+    LOCATIONCODE: "",
     BASE64USERPASS: "",
     SETTINGPASS: "",
   };
@@ -33,7 +42,6 @@ export default function Settings() {
   const [varifyPass, setVerifyPass] = React.useState("");
   const [SettingPassword, setSettingPassword] = React.useState("");
 
-  console.log(stored);
   //#endregion
 
   //#region LOAD_STORED_ON_MOUNT
@@ -48,7 +56,7 @@ export default function Settings() {
   //#endregion
 
   //#region FIELD_UPDATE
-  function updateField(label, value) {
+  async function updateField(label, value) {
     setForm((prev) => {
       const out = { ...prev, [label]: value };
       if (label === "USERNAME" || label === "PASSWORD") {
@@ -56,13 +64,17 @@ export default function Settings() {
       }
       return out;
     });
+
+    const latest = { ...form, [label]: value };
+    await saveSettingsMaster(latest);
+    loadSettingsIntoStore();
   }
   //#endregion
 
   //#region SUBMIT_SETTINGS
   async function submitSettings() {
     let current = stored;
-
+    console.log(current);
     for (const key of Object.keys(form)) {
       if (form[key] !== stored[key]) {
         current = await updateSettingsField(current, key, form[key]);
@@ -70,6 +82,8 @@ export default function Settings() {
     }
 
     setStored(current);
+    loadSettingsIntoStore();
+    pullLocationData();
   }
   //#endregion
 
@@ -84,6 +98,7 @@ export default function Settings() {
     setSettingPassword("");
     setPass("");
     setVerifyPass("");
+    loadSettingsIntoStore();
   }
   //#endregion
 
@@ -101,6 +116,7 @@ export default function Settings() {
   function handleLogin() {
     if (SettingPassword === stored.SETTINGPASS) {
       setSettingPassVarified(true);
+      setSettingPassword("");
     }
   }
   //#endregion
@@ -151,62 +167,130 @@ export default function Settings() {
 
       {/* #region SETTINGS_FORM */}
       {settingPassVarified && (
-        <div className="m-4 bg-gray-700 rounded-lg shadow-lg">
-          <form
-            className="p-4 gap-4 flex flex-col text-white"
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitSettings();
-            }}
-          >
-            <div className="flex flex-row gap-2 items-center">
-              <label className="w-[25%]">IP Address</label>
-              <input
-                className="text-black px-2 py-1 rounded w-[75%]"
-                type="text"
-                value={form.IP_ADDRESS}
-                onChange={(e) => updateField("IP_ADDRESS", e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-row gap-2 items-center">
-              <label className="w-[25%]">User Name</label>
-              <input
-                className="text-black px-2 py-1 rounded w-[75%]"
-                type="text"
-                value={form.USERNAME}
-                onChange={(e) => updateField("USERNAME", e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-row gap-2 items-center">
-              <label className="w-[25%]">Password</label>
-              <div className="w-[75%] flex flex-row gap-2 items-center">
+        <div>
+          <div className="m-4 bg-gray-700 rounded-lg shadow-lg">
+            <form
+              className="p-4 gap-4 flex flex-col text-white"
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitSettings();
+              }}
+            >
+              <div className="flex flex-row gap-2 items-center">
+                <label className="w-[25%]">IP Address</label>
                 <input
-                  className="text-black px-2 py-1 rounded w-[80%]"
-                  type={showPass ? "text" : "password"}
-                  value={form.PASSWORD}
-                  onChange={(e) => updateField("PASSWORD", e.target.value)}
+                  className="text-black px-2 py-1 rounded w-[75%]"
+                  type="text"
+                  value={form.IP_ADDRESS}
+                  onChange={(e) => updateField("IP_ADDRESS", e.target.value)}
                 />
-                <button
-                  type="button"
-                  className="bg-gray-800 text-white rounded px-2 py-1"
-                  onClick={() => setShowPass((prev) => !prev)}
-                >
-                  {showPass ? "Hide" : "Show"}
-                </button>
               </div>
-            </div>
 
+              <div className="flex flex-row gap-2 items-center">
+                <label className="w-[25%]">User Name</label>
+                <input
+                  className="text-black px-2 py-1 rounded w-[75%]"
+                  type="text"
+                  value={form.USERNAME}
+                  onChange={(e) => updateField("USERNAME", e.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-row gap-2 items-center">
+                <label className="w-[25%]">Password</label>
+                <div className="w-[75%] flex flex-row gap-2 items-center">
+                  <input
+                    className="text-black px-2 py-1 rounded w-[80%]"
+                    type={showPass ? "text" : "password"}
+                    value={form.PASSWORD}
+                    onChange={(e) => updateField("PASSWORD", e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="bg-gray-800 text-white rounded px-2 py-1"
+                    onClick={() => setShowPass((prev) => !prev)}
+                  >
+                    {showPass ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-row gap-2 items-center">
+                <label className="w-[25%]">Encode</label>
+                <input className="text-black px-2 py-1 rounded w-[75%]" type="text" readOnly value={form.BASE64USERPASS || ""} />
+              </div>
+
+              <button type="submit" className="bg-blue-600 text-white rounded px-3 py-2 mt-4">
+                Apply Changes
+              </button>
+            </form>
+          </div>
+          <div className="p-4 gap-4 flex flex-col text-white bg-gray-700 m-4 rounded-lg shadow-lg">
             <div className="flex flex-row gap-2 items-center">
-              <label className="w-[25%]">Encode</label>
-              <input className="text-black px-2 py-1 rounded w-[75%]" type="text" readOnly value={form.BASE64USERPASS || ""} />
-            </div>
+              <label className="w-[25%]">Location</label>
+              <select
+                className="text-black px-2 py-1 rounded w-[75%]"
+                value={
+                  form.LOCATIONCODE
+                    ? JSON.stringify({
+                        code: form.LOCATIONCODE,
+                        name: form.LOCATION,
+                      })
+                    : ""
+                }
+                onChange={async (e) => {
+                  if (!e.target.value) {
+                    const empty = { LOCATION: "", LOCATIONCODE: "" };
 
-            <button type="submit" className="bg-blue-600 text-white rounded px-3 py-2 mt-4">
-              Apply Changes
-            </button>
-          </form>
+                    setForm((prev) => ({ ...prev, ...empty }));
+                    await saveSettingsMaster({ ...form, ...empty });
+                    loadSettingsIntoStore();
+                    return;
+                  }
+
+                  const obj = JSON.parse(e.target.value);
+
+                  // update React state
+                  setForm((prev) => ({
+                    ...prev,
+                    LOCATION: obj.name,
+                    LOCATIONCODE: obj.code,
+                  }));
+
+                  // write to IndexedDB
+                  const updated = {
+                    ...form,
+                    LOCATION: obj.name,
+                    LOCATIONCODE: obj.code,
+                  };
+                  await saveSettingsMaster(updated);
+
+                  // sync APIStore
+                  loadSettingsIntoStore();
+                  setCurrentLocationID(obj.code);
+                }}
+              >
+                {Object.keys(LocationsOnInstance).length === 0 ? (
+                  <option value="">Apply API Settings</option>
+                ) : (
+                  <option value="">Select Location</option>
+                )}
+
+                {(LocationsOnInstance?.locations || []).map((loc) => (
+                  <option
+                    className="text-black"
+                    key={loc.id}
+                    value={JSON.stringify({
+                      code: loc.id,
+                      name: loc.tiLocationCode,
+                    })}
+                  >
+                    {loc.tiLocationName} ({loc.tiLocationCode})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       )}
       {/* #endregion */}

@@ -5,9 +5,6 @@ import { loadSettingsMaster } from "../src/components/Helpers/SettingsMaster";
 import axios from "axios";
 
 const BACKEND = import.meta.env.DEV ? "https://192.168.68.51:10000" : import.meta.env.VITE_BACKEND_URL;
-const IP_ADDRESS = loadSettingsMaster({ IP_ADDRESS: "" }).IP_ADDRESS || "";
-
-console.log(IP_ADDRESS);
 
 let initState = {
   NAMESTATE: {
@@ -65,6 +62,12 @@ let initState = {
     CurrentCabinetID: null,
     MakeDatafromInstance: { make: [] },
     ModelDatafromInstance: { model: [] },
+    IPADDRESS: "",
+    USERNAME: "",
+    PASSWORD: "",
+    BASE64USERPASS: "",
+    LOCATION: "",
+    LOCATIONCODE: "",
   },
 };
 
@@ -615,6 +618,31 @@ export const APIStore = create(
     setCurrentCabinetID: (id) => {
       set((state) => ({
         data: { ...state.data, CurrentCabinetID: id },
+      }));
+    },
+    loadSettingsIntoStore: async () => {
+      const defaults = {
+        IP_ADDRESS: "",
+        USERNAME: "",
+        PASSWORD: "",
+        BASE64USERPASS: "",
+        SETTINGPASS: "",
+        LOCATION: "",
+        LOCATIONCODE: "",
+      };
+
+      const stored = await loadSettingsMaster(defaults);
+
+      set((state) => ({
+        data: {
+          ...state.data,
+          IPADDRESS: stored.IP_ADDRESS || "",
+          USERNAME: stored.USERNAME || "",
+          PASSWORD: stored.PASSWORD || "",
+          BASE64USERPASS: stored.BASE64USERPASS || "",
+          LOCATION: stored.LOCATION || "",
+          LOCATIONCODE: stored.LOCATIONCODE || "",
+        },
       }));
     },
   }))

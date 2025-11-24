@@ -8,6 +8,7 @@ import ToggleSwitch from "../Interactions/ToggleSwitch";
 import { loadRequiredMaster } from "../Helpers/RequiredMaster";
 import AuditMakeInput from "../Interactions/AuditMakeInput";
 import AuditModelInput from "../Interactions/AuditModelInput";
+import AuditLocationInput from "../Interactions/AuditLocationInput";
 
 //#region MAIN_COMPONENT
 function Audit() {
@@ -162,6 +163,8 @@ function Audit() {
                   return <AuditMakeInput key={index} {...props} />;
                 case "IMGModel":
                   return <AuditModelInput key={index} {...props} />;
+                case "LOCATION":
+                  return <AuditLocationInput />;
                 default:
                   return <TextInput key={index} {...props} />;
               }

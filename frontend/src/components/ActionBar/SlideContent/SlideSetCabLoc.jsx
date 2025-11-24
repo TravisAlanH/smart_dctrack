@@ -34,6 +34,7 @@ export default function SlideSetCabLoc() {
           onChange={(e) => {
             setCurrentLocationID(e.target.value);
           }}
+          value={CurrnetLocationID}
         >
           <option value={null}>Select Location</option>
           {(LocationsOnInstance?.locations || []).map((loc) => (

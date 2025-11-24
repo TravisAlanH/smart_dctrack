@@ -55,3 +55,7 @@ export async function updateSettingsField(data, label, value) {
   await saveSettingsMaster(out);
   return out;
 }
+
+export async function getAllSettings(defaults) {
+  return await loadSettingsMaster(defaults);
+}
