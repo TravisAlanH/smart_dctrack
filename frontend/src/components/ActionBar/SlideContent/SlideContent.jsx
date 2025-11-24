@@ -5,8 +5,9 @@ import { loadRequiredMaster, updateRequiredField } from "../../Helpers/RequiredM
 import { required_master } from "../../Helpers/Endpoints";
 import ToggleSwitch from "../../Interactions/ToggleSwitch";
 
-export default function SlideContent({ setShow }) {
+export default function SlideContent({}) {
   const msg = APIStore((s) => s.data.ResponseMessage);
+  const setShow = APIStore((s) => s.setOpenResponseMessage);
 
   const [trueRequredMaster, setTrueRequiredMaster] = React.useState(loadRequiredMaster(required_master));
 
@@ -29,7 +30,7 @@ export default function SlideContent({ setShow }) {
             <ToggleSwitch label={"Required?"} checked={trueRequredMaster[msg.label]} onChange={handleToggleRequired} />
           ) : null}
         </div>
-        <button className="bg-red-600 text-white rounded px-3 py-1" onClick={() => setShow(0)}>
+        <button className="bg-red-600 text-white rounded px-3 py-1" onClick={() => setShow(false)}>
           Close
         </button>
       </div>

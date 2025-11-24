@@ -1,9 +1,13 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { headerEndpoints } from "../src/components/Helpers/Endpoints";
+import { loadSettingsMaster } from "../src/components/Helpers/SettingsMaster";
 import axios from "axios";
 
 const BACKEND = import.meta.env.DEV ? "https://192.168.68.51:10000" : import.meta.env.VITE_BACKEND_URL;
+const IP_ADDRESS = loadSettingsMaster({ IP_ADDRESS: "" }).IP_ADDRESS || "";
+
+console.log(IP_ADDRESS);
 
 let initState = {
   NAMESTATE: {
@@ -37,6 +41,7 @@ let initState = {
     SelectedInCabinetAsset: {},
     objectFields: "",
     objectType: "",
+    settingPassVarified: false,
   },
   DataState: {
     TextData: "",
@@ -45,6 +50,7 @@ let initState = {
     BaseURL: "10.34.2.111",
     ResponseMessage: {},
     ResponseCode: "",
+    openResponseMessage: false,
     sendAPIPush: () => {},
     auditRequest: {
       url: "",
@@ -90,6 +96,16 @@ export const ReuseDataStateStore = create(
     setPageView: (num) => {
       set((state) => ({
         data: { ...state.data, pageView: num },
+      }));
+      if (num !== 2) {
+        set((state) => ({
+          data: { ...state.data, settingPassVarified: false },
+        }));
+      }
+    },
+    setSettingPassVarified: (bool) => {
+      set((state) => ({
+        data: { ...state.data, settingPassVarified: bool },
       }));
     },
     setCabinetActionBar: (num) => {
@@ -236,14 +252,22 @@ export const APIStore = create(
       set((state) => ({
         data: { ...state.data, ResponseMessage: obj },
       }));
+      const hasContent = obj && Object.keys(obj).length > 0;
+      if (hasContent) get().setOpenResponseMessage(true);
+      else get().setOpenResponseMessage(false);
     },
     setResponseCode: (code) => {
       set((state) => ({
         data: { ...state.data, ResponseCode: code },
       }));
     },
+    setOpenResponseMessage: (bool) => {
+      set((state) => ({
+        data: { ...state.data, openResponseMessage: bool },
+      }));
+    },
     sendAPIPush: () => {
-      const { url, payload, BaseURL } = get().data.auditRequest;
+      const { url, payload } = get().data.auditRequest;
       const serverHost = get().data.BaseURL;
 
       const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
@@ -257,24 +281,34 @@ export const APIStore = create(
           },
         })
         .then((res) => {
-          get().setResponseCode(res.status);
-          get().setResponseMessage({ type: "APIResponse", data: res });
+          const code = res.status;
+          const data = res.data;
+
+          get().setResponseCode(code);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data,
+          });
         })
         .catch((err) => {
-          const status = err.response.data.backendData.httpCode || err.code || "ERR";
-          console.log(err);
-          get().setResponseCode(status);
-          get().setResponseMessage({ type: "APIResponse", data: err });
+          const code = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          const backend = err.response?.data?.backendData || err.response?.data || err;
+
+          get().setResponseCode(code);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: backend,
+          });
         });
     },
+
     EditAPIPush: (id) => {
       const { payload } = get().data.auditRequest;
       const serverHost = get().data.BaseURL;
 
-      // remove helper keys
-      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
+      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k != "objectType"));
 
-      // add optional proceed on warning
       cleanPayload["_tiProceedOnWarning"] = true;
 
       const apiURL = `${BACKEND}/api/v2/dcimoperations/items/${id}?returnDetails=true`;
@@ -286,15 +320,23 @@ export const APIStore = create(
           },
         })
         .then((res) => {
-          get().setResponseCode(res.status);
-          get().setResponseMessage({ type: "APIResponse", data: res });
+          console.log(res);
+          const code = res.data.backendData?.httpCode || res.status;
+          get().setResponseCode(code);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: res.data.backendData,
+          });
         })
         .catch((err) => {
           console.log(err);
-          const status = err.response.data.backendData.httpCode || err.code || "ERR";
 
-          get().setResponseCode(status);
-          get().setResponseMessage({ type: "APIResponse", data: err });
+          const code = err.response?.data?.backendData?.httpCode || err.code;
+          get().setResponseCode(code);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err.response?.data?.backendData,
+          });
         });
     },
 
@@ -466,7 +508,6 @@ export const APIStore = create(
       }
     },
     pullAllModelsFromMake: async () => {
-      console.log("model");
       const serverHost = get().data.BaseURL;
 
       const selectedMake = ReuseDataStateStore.getState().data.SelectedMake;
@@ -499,7 +540,6 @@ export const APIStore = create(
             "x-dctrack-host": serverHost,
           },
         });
-        console.log(res);
         set((state) => ({
           data: {
             ...state.data,

@@ -10,7 +10,7 @@ import AuditMakeInput from "../Interactions/AuditMakeInput";
 import AuditModelInput from "../Interactions/AuditModelInput";
 
 //#region MAIN_COMPONENT
-function Audit({ setShow }) {
+function Audit() {
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
   const setMessage = APIStore((s) => s.setResponseMessage);
@@ -27,8 +27,6 @@ function Audit({ setShow }) {
   const SelectedInCabinetAsset = ReuseDataStateStore((s) => s.data.SelectedInCabinetAsset);
   const setAPIAction = APIStore((s) => s.setAPIAction);
 
-  console.log(objectFields);
-
   const setCameraStatus = ReuseDataStateStore((s) => s.setCameraStatus);
   const setCameraRequiredToProcess = ReuseDataStateStore((s) => s.setCameraRequiredToProcess);
 
@@ -43,7 +41,6 @@ function Audit({ setShow }) {
   }, [requireWatcher]);
 
   useEffect(() => {
-    setShow(0);
     setTrueRequiredMaster(loadRequiredMaster(required_master));
   }, []);
 
@@ -105,13 +102,11 @@ function Audit({ setShow }) {
           <form className="w-full h-[95%] flex flex-col gap-3 mt-4" onSubmit={handleFormSubmit}>
             {Object.keys(objectFields).map((label, index) => {
               if (showRequired && !trueRequredMaster[label]) return null;
-              console.log("ob t", objectType);
               const type = headerTypes[objectType][label];
 
               const props = {
                 label,
                 objectType,
-                setShow,
                 setMessage,
                 APIPayloadHolder,
                 setAPIPayloadHolder,
@@ -191,7 +186,7 @@ const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-s
 //#endregion STYLE_CONSTANTS
 
 //#region TEXT_INPUT
-function TextInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
+function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
       <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
@@ -213,7 +208,6 @@ function TextInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
-            setShow(1);
           }}
         >
           ?
@@ -225,7 +219,7 @@ function TextInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder
 //#endregion TEXT_INPUT
 
 //#region NUMBER_INPUT
-function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
+function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
       <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
@@ -247,7 +241,6 @@ function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHold
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
-            setShow(1);
           }}
         >
           ?
@@ -262,7 +255,6 @@ function NumberInput({ label, objectType, setShow, setMessage, setAPIPayloadHold
 function OcrInput({
   label,
   objectType,
-  setShow,
   setMessage,
   setAPIPayloadHolder,
   APIPayloadHolder,
@@ -302,7 +294,6 @@ function OcrInput({
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
-            setShow(1);
           }}
         >
           ?
@@ -317,7 +308,6 @@ function OcrInput({
 function ImgInput({
   label,
   objectType,
-  setShow,
   setMessage,
   setAPIPayloadHolder,
   APIPayloadHolder,
@@ -357,7 +347,6 @@ function ImgInput({
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
-            setShow(1);
           }}
         >
           ?
@@ -372,7 +361,6 @@ function ImgInput({
 function QrInput({
   label,
   objectType,
-  setShow,
   setMessage,
   setAPIPayloadHolder,
   APIPayloadHolder,
@@ -412,7 +400,6 @@ function QrInput({
           onClick={() => {
             const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
-            setShow(1);
           }}
         >
           ?

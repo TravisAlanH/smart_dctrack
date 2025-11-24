@@ -18,10 +18,8 @@ function AuditMakeInput({
   const modelList = APIStore((s) => s.data.ModelDataFromInstance);
   const setSelectedModel = ReuseDataStateStore((s) => s.setSelectedModel);
   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
-  console.log(modelList);
   //   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
   const selectedMake = ReuseDataStateStore((s) => s.data.SelectedMake);
-  console.log(selectedMake);
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);

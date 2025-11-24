@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { APIStore } from "../../../store/Store";
 
-export default function APIPushActionBar({ style: button, setShow }) {
+export default function APIPushActionBar({ style: button }) {
   const code = APIStore((s) => s.data.ResponseCode);
   const APIAction = APIStore((s) => s.data.APIAction);
   //   function sendAPIPush() {
@@ -36,13 +36,7 @@ export default function APIPushActionBar({ style: button, setShow }) {
     <div>
       {APIAction === "ADD" ? (
         <div className="flex flex-row justify-around items-start my-2">
-          <div>
-            {code !== "" ? (
-              <button className={button} onClick={() => setShow(1)}>
-                {code}
-              </button>
-            ) : null}
-          </div>
+          <div>{code !== "" ? <button className={button}>{code}</button> : null}</div>
 
           <div>
             <button
@@ -58,13 +52,7 @@ export default function APIPushActionBar({ style: button, setShow }) {
         </div>
       ) : (
         <div className="flex flex-row justify-around items-start my-2">
-          <div>
-            {code !== "" ? (
-              <button className={button} onClick={() => setShow(1)}>
-                {code}
-              </button>
-            ) : null}
-          </div>
+          <div>{code !== "" ? <button className={button}>{code}</button> : null}</div>
 
           <div>
             <button

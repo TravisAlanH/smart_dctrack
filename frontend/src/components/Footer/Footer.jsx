@@ -72,7 +72,7 @@ export default function Footer() {
           <button
             className={buttonStyle}
             onClick={() => {
-              // setPageView(2)
+              setPageView(2);
             }}
           >
             Settings

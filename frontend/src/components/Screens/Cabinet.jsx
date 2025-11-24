@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import ToggleSwtich from "../Interactions/ToggleSwitch";
 
-export default function Cabinet({ setShow, pageView }) {
+export default function Cabinet({ pageView }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const currentLocationID = APIStore((s) => s.data.CurrnetLocationID);
   const cabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
@@ -24,12 +24,10 @@ export default function Cabinet({ setShow, pageView }) {
         text: "Please select a location and cabinet to view cabinet details.",
         label: "Select Location and Cabinet",
       });
-      setShow(1);
     } else {
       setMessage({});
-      setShow(0);
     }
-  }, [currentLocationID, currentCabinetID, setMessage, setShow, pageView]);
+  }, [currentLocationID, currentCabinetID, setMessage, pageView]);
 
   React.useEffect(() => {
     if (currentCabinetID) {

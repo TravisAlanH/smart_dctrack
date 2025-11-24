@@ -20,7 +20,6 @@ export default function CabinetActionBar({ style: button, setShow }) {
       setMessage={setMessage}
       setCabinetActionBar={setCabinetActionBar}
       SelectedInCabinetAsset={SelectedInCabinetAsset}
-      setShow={setShow}
       GETAssetDataByID={GETAssetDataByID}
       setPageView={setPageView}
       setObjectFields={setObjectFields}
@@ -36,15 +35,18 @@ function AssetActions({
   setCabinetActionBar,
   SelectedInCabinetAsset,
   setMessage,
-  setShow,
   GETAssetDataByID,
   setPageView,
   setObjectFields,
   setObjectType,
   setAPIAction,
 }) {
+  console.log(SelectedInCabinetAsset);
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row items-center">
+      <div>
+        <span className="text-lg font-semibold mx-2">{SelectedInCabinetAsset.tiName}</span>
+      </div>
       <div>
         <button
           className="bg-red-600 text-white rounded px-3 py-1 mx-2"
@@ -73,7 +75,6 @@ function AssetActions({
               text: "Are you sure you want to delete this asset? This action cannot be undone.",
               label: SelectedInCabinetAsset,
             });
-            setShow(1);
           }}
         >
           Delete

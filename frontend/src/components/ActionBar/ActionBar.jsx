@@ -7,10 +7,7 @@ export default function ActionBar({ setShow }) {
   const button = "bg-blue-600 text-white rounded text-lg px-3 py-.5";
   const pageView = ReuseDataStateStore((s) => s.data.pageView);
 
-  const ActionBarTemplate = [
-    <APIPushActionBar style={button} setShow={setShow} />,
-    <CabinetActionBar style={button} setShow={setShow} />,
-  ];
+  const ActionBarTemplate = [<APIPushActionBar style={button} />, <CabinetActionBar style={button} />];
 
   return <div className="bg-transparent">{ActionBarTemplate[pageView]}</div>;
 }
