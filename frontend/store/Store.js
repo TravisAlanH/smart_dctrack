@@ -601,6 +601,18 @@ export const APIStore = create(
       }));
       console.log("APIPayloadHolder", state.APIPayloadHolder);
     },
+    setSingleAPIPayloadHolder: (key, value) => {
+      const state = get().data;
+      set(() => ({
+        data: {
+          ...state,
+          APIPayloadHolder: {
+            ...state.APIPayloadHolder,
+            [key]: value,
+          },
+        },
+      }));
+    },
     setEditAPIPayloadHolder: (data) => {
       const state = get().data;
       set(() => ({

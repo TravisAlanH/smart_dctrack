@@ -20,6 +20,12 @@ function App() {
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
   const show = APIStore((s) => s.data.openResponseMessage);
 
+  const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
+
+  React.useEffect(() => {
+    loadSettingsIntoStore();
+  }, []);
+
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#1F1F1F] text-black">
       <div className="flex-1 overflow-auto">

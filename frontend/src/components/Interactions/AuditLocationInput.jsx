@@ -4,6 +4,7 @@ import { APIStore } from "../../../store/Store";
 export default function AuditLocationInput() {
   const LOCATION = APIStore((s) => s.data.LOCATION);
   const setMessage = APIStore((s) => s.setResponseMessage);
+  const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
 
   const label = "LOCATION";
 
@@ -12,6 +13,10 @@ export default function AuditLocationInput() {
   const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
   const inputStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
   const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
+
+  React.useEffect(() => {
+    setSingleAPIPayloadHolder("cmbLocation", LOCATION || "");
+  }, [LOCATION]);
 
   return (
     <div className={boxStyle}>

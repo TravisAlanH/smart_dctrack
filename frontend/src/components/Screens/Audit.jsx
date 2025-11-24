@@ -9,6 +9,7 @@ import { loadRequiredMaster } from "../Helpers/RequiredMaster";
 import AuditMakeInput from "../Interactions/AuditMakeInput";
 import AuditModelInput from "../Interactions/AuditModelInput";
 import AuditLocationInput from "../Interactions/AuditLocationInput";
+import AuditCabinetInput from "../Interactions/AuditCabinetInput";
 
 //#region MAIN_COMPONENT
 function Audit() {
@@ -165,6 +166,8 @@ function Audit() {
                   return <AuditModelInput key={index} {...props} />;
                 case "LOCATION":
                   return <AuditLocationInput />;
+                case "CABINET":
+                  return <AuditCabinetInput />;
                 default:
                   return <TextInput key={index} {...props} />;
               }
