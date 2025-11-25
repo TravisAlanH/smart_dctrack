@@ -457,6 +457,7 @@ export const APIStore = create(
             data: { ...state.data, APIPayloadHolder: res.data.item },
           }));
         }
+        return res;
       } catch (err) {
         const status = err.response.data.backendData.httpCode || err.code || "ERR";
 
@@ -599,7 +600,40 @@ export const APIStore = create(
         return null;
       }
     },
+    pullAuditTrail: async () => {
+      const IP = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
+      const url = `/v2/quicksearch/auditTrail?pageNumber=1&pageSize=0`;
+      const apiURL = `${BACKEND}/api${url}`;
+
+      try {
+        const res = await axios.post(
+          apiURL,
+          {
+            columns: [
+              {
+                name: "entityType",
+                filter: { eq: "Item" },
+              },
+            ],
+            selectedColumns: [],
+          },
+          {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          }
+        );
+
+        console.log(res.data);
+        return res.data;
+      } catch (err) {
+        console.log(err);
+        return null;
+      }
+    },
     setAuditUrl: (url) => {
       set((state) => ({
         data: {

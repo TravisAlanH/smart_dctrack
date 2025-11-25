@@ -12,6 +12,7 @@ import ActionBar from "./components/ActionBar/ActionBar";
 import SlideContent from "./components/ActionBar/SlideContent/SlideContent";
 import Cabinet from "./components/Screens/Cabinet";
 import Settings from "./components/Screens/Settings";
+import Home from "./components/Screens/Home";
 
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
@@ -29,7 +30,7 @@ function App() {
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#1F1F1F] text-black">
       <div className="flex-1 overflow-auto">
-        <div className={pageView === 0 ? "block" : "hidden"}>
+        <div className={pageView === 3 ? "block" : "hidden"}>
           <Audit />
         </div>
 
@@ -39,6 +40,10 @@ function App() {
 
         <div className={pageView === 2 ? "block" : "hidden"}>
           <Settings pageView={pageView} />
+        </div>
+
+        <div className={pageView === 0 ? "block" : "hidden"}>
+          <Home pageView={pageView} />
         </div>
       </div>
 
@@ -53,11 +58,12 @@ function App() {
           <SlideContent />
         </div>
       </div>
-      {/* {cabinetActionBar === 0 && pageView === 1 ? null : ( */}
-      <div className="h-12 z-10 bg-transparent">
-        <ActionBar />
-      </div>
-      {/* )} */}
+
+      {pageView === 1 || pageView === 3 ? (
+        <div className="h-12 z-10 bg-transparent">
+          <ActionBar />
+        </div>
+      ) : null}
 
       <div className="h-[5.5rem] z-10">
         <Footer />

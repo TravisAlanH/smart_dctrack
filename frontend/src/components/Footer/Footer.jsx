@@ -10,6 +10,8 @@ export default function Footer() {
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
   const buttonStyle = "bg-blue-600 text-white rounded px-3 py-1";
+  const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
+  const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
 
   return (
     <div className="border border-white bg-gray-800 h-[9rem]">
@@ -38,17 +40,18 @@ export default function Footer() {
           <button
             className={buttonStyle}
             onClick={() => {
-              pullAllMakesFromInstance();
+              setPageView(0);
             }}
           >
-            Makes to Log
+            Home
           </button>
         </div>
         <div>
           <button
             className={buttonStyle}
+            disabled={LOCATIONCODE === "" || BASE64USERPASS === ""}
             onClick={() => {
-              setPageView(0);
+              setPageView(3);
             }}
           >
             Audit
@@ -57,6 +60,7 @@ export default function Footer() {
         <div>
           <button
             className={buttonStyle}
+            disabled={LOCATIONCODE === "" || BASE64USERPASS === ""}
             onClick={() => {
               if (currentCabinetID !== null) {
                 pullAllAssetFromCabinet(currentCabinetID);

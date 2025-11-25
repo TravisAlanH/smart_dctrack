@@ -71,7 +71,7 @@ function AssetActions({
             GETAssetDataByID(payload);
             setObjectFields(header["Devices"]);
             setObjectType("Devices");
-            setPageView(0);
+            setPageView(3);
           }}
         >
           Edit

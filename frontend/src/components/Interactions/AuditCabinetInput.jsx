@@ -30,18 +30,25 @@ export default function AuditCabinetInput() {
           className={selectStyle}
           required
           onChange={(e) => {
-            setCurrentCabinetID(e.target.value);
-            setSingleAPIPayloadHolder("cmbCabinet", e.target.value || "");
+            const obj = JSON.parse(e.target.value);
+            setCurrentCabinetID(obj.id);
+            setSingleAPIPayloadHolder("cmbCabinet", obj.name);
           }}
         >
-          {LOCATIONCODE == "" ? <option value={null}>Location Required</option> : <option value={null}>Select Cabinet</option>}
+          {LOCATIONCODE == "" ? <option value="">Location Required</option> : <option value="">Select Cabinet</option>}
 
-          {(CabinetsInLocation?.cabinets || []).map((cab) => (
-            <option key={cab.cabinetId} value={cab.cabinetId}>
-              ({cab.cabinet})
-            </option>
-          ))}
+          {(CabinetsInLocation?.cabinets || []).map((cab) => {
+            const cleanName = cab.cabinet.replace("(", "").replace(")", "");
+            const payload = { id: cab.cabinetId, name: cleanName };
+
+            return (
+              <option key={cab.cabinetId} value={JSON.stringify(payload)}>
+                {cleanName}
+              </option>
+            );
+          })}
         </select>
+
         <button
           type="button"
           className={descriptionButtonStyle}

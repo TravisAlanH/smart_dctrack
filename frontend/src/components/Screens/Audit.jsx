@@ -11,6 +11,8 @@ import AuditModelInput from "../Interactions/AuditModelInput";
 import AuditLocationInput from "../Interactions/AuditLocationInput";
 import AuditCabinetInput from "../Interactions/AuditCabinetInput";
 import AuditUPositionInput from "../Interactions/AuditUPositionInput";
+import AuditCabinetSideInput from "../Interactions/AuditCabinetSideInput";
+import AuditDepthPositionInput from "../Interactions/AuditDepthPositionInput";
 
 //#region MAIN_COMPONENT
 function Audit() {
@@ -171,6 +173,10 @@ function Audit() {
                   return <AuditCabinetInput />;
                 case "UPosition":
                   return <AuditUPositionInput />;
+                case "CABINETSIDE":
+                  return <AuditCabinetSideInput />;
+                case "DEPTHPOSITION":
+                  return <AuditDepthPositionInput />;
                 default:
                   return <TextInput key={index} {...props} />;
               }
