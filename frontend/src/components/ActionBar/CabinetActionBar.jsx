@@ -1,6 +1,7 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { header } from "../Helpers/HeadersAsObjects";
+import ToggleSwitch from "../Interactions/ToggleSwitch";
 
 export default function CabinetActionBar({ style: button, setShow }) {
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
@@ -11,11 +12,21 @@ export default function CabinetActionBar({ style: button, setShow }) {
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
   const setAPIAction = APIStore((s) => s.setAPIAction);
-
+  const ShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.data.ShowEmptyUPToggleWatcher);
+  const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
+  const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
+  const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
+  console.log(cabinetActionBar);
+
   const Bars = [
-    <EMPTYACTIONBAR />,
+    <BaseActionBar
+      ShowEmptyUPToggleWatcher={ShowEmptyUPToggleWatcher}
+      setShowEmptyUPToggleWatcher={setShowEmptyUPToggleWatcher}
+      setCurrentCabinetID={setCurrentCabinetID}
+      currentCabinetID={currentCabinetID}
+    />,
     <AssetActions
       setMessage={setMessage}
       setCabinetActionBar={setCabinetActionBar}
@@ -94,6 +105,16 @@ function AssetActions({
   );
 }
 
-function EMPTYACTIONBAR() {
-  return <div className="bg-transparent"></div>;
+function BaseActionBar({ ShowEmptyUPToggleWatcher, setShowEmptyUPToggleWatcher, setCurrentCabinetID, currentCabinetID }) {
+  if (currentCabinetID === null || currentCabinetID === "") {
+    return null;
+  }
+  return (
+    <div className="bg-transparent flex flex-row justify-between w-full px-4">
+      <ToggleSwitch checked={ShowEmptyUPToggleWatcher} onChange={setShowEmptyUPToggleWatcher} label={"Hide Empty"} />
+      <button className="px-2 py-0.5 bg-green-500 rounded-md" onClick={() => setCurrentCabinetID("")}>
+        Cabinet Select
+      </button>
+    </div>
+  );
 }

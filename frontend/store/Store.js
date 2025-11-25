@@ -68,6 +68,7 @@ let initState = {
     BASE64USERPASS: "",
     LOCATION: "",
     LOCATIONCODE: "",
+    SelectedModelUR: 0,
   },
 };
 
@@ -271,7 +272,8 @@ export const APIStore = create(
     },
     sendAPIPush: () => {
       const { url, payload } = get().data.auditRequest;
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
 
@@ -280,7 +282,8 @@ export const APIStore = create(
       axios
         .post(apiURL, cleanPayload, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         })
         .then((res) => {
@@ -308,7 +311,8 @@ export const APIStore = create(
 
     EditAPIPush: (id) => {
       const { payload } = get().data.auditRequest;
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k != "objectType"));
 
@@ -319,7 +323,8 @@ export const APIStore = create(
       axios
         .put(apiURL, cleanPayload, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         })
         .then((res) => {
@@ -344,7 +349,8 @@ export const APIStore = create(
     },
 
     pullAllAssetFromCabinet: async (cabinetId) => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const url = `/v2/items/cabinetItems/${cabinetId}`;
       const apiURL = `${BACKEND}/api${url}`;
@@ -352,7 +358,8 @@ export const APIStore = create(
       try {
         const res = await axios.get(apiURL, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
         set((state) => ({
@@ -369,7 +376,8 @@ export const APIStore = create(
       }
     },
     deleteAsset: async (assetId) => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const url = `/v2/dcimoperations/items/${assetId}`;
       const apiURL = `${BACKEND}/api${url}`;
@@ -377,7 +385,8 @@ export const APIStore = create(
       try {
         const res = await axios.delete(apiURL, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
 
@@ -392,7 +401,8 @@ export const APIStore = create(
       }
     },
     pullCabinetData: async (locationId) => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const url = "/v2/capacity/cabinets/list/search";
 
@@ -406,7 +416,8 @@ export const APIStore = create(
       try {
         const res = await axios.post(apiURL, payload, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
         set((state) => ({
@@ -423,7 +434,8 @@ export const APIStore = create(
       }
     },
     GETAssetDataByID: async (payload) => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const url = "/v2/dcimoperations/items/";
 
@@ -432,7 +444,8 @@ export const APIStore = create(
       try {
         const res = await axios.get(apiURL, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
         // set((state) => ({
@@ -454,7 +467,8 @@ export const APIStore = create(
       }
     },
     pullLocationData: async () => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const url = "/v1/locations";
       const apiURL = `${BACKEND}/api${url}`;
@@ -462,7 +476,8 @@ export const APIStore = create(
       try {
         const res = await axios.get(apiURL, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
 
@@ -479,8 +494,28 @@ export const APIStore = create(
         return null;
       }
     },
+    pullRUDataFromSelectedModel: async (modelID) => {
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
+      const url = `/v2/models/${modelID}`;
+      const apiURL = `${BACKEND}/api${url}`;
+      try {
+        const res = await axios.get(apiURL, {
+          headers: {
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
+          },
+        });
+        console.log(res.data);
+        return res.data;
+      } catch (err) {
+        console.log(err);
+        return null;
+      }
+    },
     pullAllMakesFromInstance: async (query) => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const term = query || "";
       const url = `/v2/dcimoperations/search/makes/${encodeURIComponent(term)}`;
@@ -489,7 +524,8 @@ export const APIStore = create(
       try {
         const res = await axios.get(apiURL, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
 
@@ -511,7 +547,8 @@ export const APIStore = create(
       }
     },
     pullAllModelsFromMake: async () => {
-      const serverHost = get().data.BaseURL;
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
 
       const selectedMake = ReuseDataStateStore.getState().data.SelectedMake;
       const selectedModel = ReuseDataStateStore.getState().data.SelectedModel;
@@ -533,16 +570,18 @@ export const APIStore = create(
           { name: "model", filter: { contains: selectedModel } },
         ],
 
-        selectedColumns: [{ name: "make" }, { name: "model" }],
+        selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }],
         customFieldByLabel: false,
       };
 
       try {
         const res = await axios.post(apiURL, payload, {
           headers: {
-            "x-dctrack-host": serverHost,
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
           },
         });
+        console.log(res);
         set((state) => ({
           data: {
             ...state.data,
@@ -630,6 +669,11 @@ export const APIStore = create(
     setCurrentCabinetID: (id) => {
       set((state) => ({
         data: { ...state.data, CurrentCabinetID: id },
+      }));
+    },
+    setSelectedModelUR: (modelUR) => {
+      set((state) => ({
+        data: { ...state.data, SelectedModelUR: modelUR },
       }));
     },
     loadSettingsIntoStore: async () => {

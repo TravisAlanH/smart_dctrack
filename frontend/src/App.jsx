@@ -45,7 +45,7 @@ function App() {
       <div
         className={
           show === true
-            ? "absolute bottom-32 left-0 w-full h-40 bg-black text-white transition-all duration-300 translate-y-0 rounded-xl"
+            ? "absolute bottom-32 left-0 w-full h-60 bg-black text-white transition-all duration-300 translate-y-[5rem] rounded-xl"
             : "absolute bottom-32 left-0 w-full h-40 bg-black text-white transition-all duration-300 translate-y-[30rem] rounded-xl"
         }
       >
@@ -53,11 +53,11 @@ function App() {
           <SlideContent />
         </div>
       </div>
-      {cabinetActionBar === 0 && pageView === 1 ? null : (
-        <div className="h-12 z-10 bg-transparent">
-          <ActionBar />
-        </div>
-      )}
+      {/* {cabinetActionBar === 0 && pageView === 1 ? null : ( */}
+      <div className="h-12 z-10 bg-transparent">
+        <ActionBar />
+      </div>
+      {/* )} */}
 
       <div className="h-[5.5rem] z-10">
         <Footer />

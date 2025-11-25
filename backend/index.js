@@ -3,6 +3,7 @@ import axios from "axios";
 import https from "https";
 import fs from "fs";
 import cors from "cors";
+import { log } from "console";
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(
   cors({
     origin: ["https://192.168.68.51:5173", "http://localhost:5173", "http://127.0.0.1:5173"],
     methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: ["Content-Type", "x-dctrack-host"],
+    allowedHeaders: ["Content-Type", "x-dctrack-host", "x-login-details"],
   })
 );
 
@@ -21,6 +22,8 @@ app.use(express.json());
 app.get("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
+    const loginDetails = req.headers["x-login-details"];
+
     if (!host) {
       return res.status(400).json({ error: "Missing dcTrack host header" });
     }
@@ -33,7 +36,7 @@ app.get("/api/*", async (req, res) => {
     const response = await axios.get(target, {
       httpsAgent: agent,
       headers: {
-        Authorization: "Basic YWRtaW46c3VuYmlyZA==",
+        Authorization: loginDetails,
         Accept: "application/json",
       },
     });
@@ -53,6 +56,7 @@ app.get("/api/*", async (req, res) => {
 app.post("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
+    const loginDetails = req.headers["x-login-details"];
     if (!host) {
       return res.status(400).json({ error: "Missing dcTrack host header" });
     }
@@ -65,7 +69,7 @@ app.post("/api/*", async (req, res) => {
     const response = await axios.post(target, req.body, {
       httpsAgent: agent,
       headers: {
-        Authorization: "Basic YWRtaW46c3VuYmlyZA==",
+        Authorization: loginDetails,
         "Content-Type": "application/json",
         Accept: "application/json",
       },
@@ -86,6 +90,7 @@ app.post("/api/*", async (req, res) => {
 app.delete("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
+    const loginDetails = req.headers["x-login-details"];
     if (!host) {
       return res.status(400).json({ error: "Missing dcTrack host header" });
     }
@@ -98,7 +103,7 @@ app.delete("/api/*", async (req, res) => {
     const response = await axios.delete(target, {
       httpsAgent: agent,
       headers: {
-        Authorization: "Basic YWRtaW46c3VuYmlyZA==",
+        Authorization: loginDetails,
         Accept: "application/json",
       },
     });
@@ -118,6 +123,7 @@ app.delete("/api/*", async (req, res) => {
 app.put("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
+    const loginDetails = req.headers["x-login-details"];
     if (!host) {
       return res.status(400).json({ error: "Missing dcTrack host header" });
     }
@@ -130,7 +136,7 @@ app.put("/api/*", async (req, res) => {
     const response = await axios.put(target, req.body, {
       httpsAgent: agent,
       headers: {
-        Authorization: "Basic YWRtaW46c3VuYmlyZA==",
+        Authorization: loginDetails,
         Accept: "application/json",
         "Content-Type": "application/json",
       },

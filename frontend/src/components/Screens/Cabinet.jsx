@@ -14,9 +14,13 @@ export default function Cabinet({ pageView }) {
   const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
   const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
+  const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
+  const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
+
+  console.log(LOCATIONCODE);
 
   React.useEffect(() => {
-    const missing = !currentLocationID || !currentCabinetID;
+    const missing = !LOCATIONCODE || !currentCabinetID;
 
     if (missing && pageView === 1) {
       setMessage({
@@ -27,7 +31,7 @@ export default function Cabinet({ pageView }) {
     } else {
       setMessage({});
     }
-  }, [currentLocationID, currentCabinetID, setMessage, pageView]);
+  }, [LOCATIONCODE, currentCabinetID, setMessage, pageView]);
 
   React.useEffect(() => {
     if (currentCabinetID) {
@@ -35,7 +39,7 @@ export default function Cabinet({ pageView }) {
     }
   }, [currentCabinetID]);
 
-  if (!currentLocationID || !currentCabinetID) {
+  if (!LOCATIONCODE || !currentCabinetID) {
     return <div>Please select a location and cabinet.</div>;
   }
 
@@ -65,9 +69,8 @@ export default function Cabinet({ pageView }) {
 
   return (
     <div>
-      <div className="flex flex-row justify-between px-4">
+      <div className="flex flex-row justify-between px-4 m-4">
         <h2 className="font-bold text-lg">{selectedCabinet?.cabinet || "Cabinet Not Found"}</h2>
-        <ToggleSwtich checked={ShowEmptyUPToggleWatcher} onChange={setShowEmptyUPToggleWatcher} label={"Hide Empty"} />
       </div>
 
       <div className="flex flex-col gap-1">
