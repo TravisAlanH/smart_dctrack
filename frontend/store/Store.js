@@ -58,6 +58,7 @@ let initState = {
     LocationsOnInstance: {},
     CabinetsInLocation: {},
     AssetsInCabinet: {},
+    ZeroUAssetsInCabinet: [],
     CurrnetLocationID: null,
     CurrentCabinetID: null,
     MakeDatafromInstance: { make: [] },
@@ -364,6 +365,17 @@ export const APIStore = create(
         });
         set((state) => ({
           data: { ...state.data, AssetsInCabinet: res.data },
+        }));
+        console.log(res.data.cabinetItems);
+        const ZeroUData = [];
+        for (const item of res.data.cabinetItems) {
+          if (item.mounting === "ZeroU") {
+            const data = await get().GETAssetDataByID({ id: item.id, action: "get" });
+            ZeroUData.push(data?.data?.item || null);
+          }
+        }
+        set((state) => ({
+          data: { ...state.data, ZeroUAssetsInCabinet: ZeroUData },
         }));
         return res.data;
       } catch (err) {

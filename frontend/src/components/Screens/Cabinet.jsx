@@ -57,6 +57,7 @@ export default function Cabinet({ pageView }) {
   const skipSet = new Set();
 
   (AssetsInCabinet?.cabinetItems || []).forEach((item) => {
+    if (item.mounting === "ZeroU") return;
     const start = item.cmbUPosition;
     const count = item.tiRackUnits;
 
@@ -113,7 +114,8 @@ const boxStyleEmpty = "flex flex-row items-center bg-slate-400 mx-3 rounded-md p
 const labelDivStyle = "flex flex-col h-10 w-10 justify-center items-center";
 const labelStyle = "text-sm";
 const innerBoxStyleEmpty = "w-full h-full flex flex-row gap-2 pr-2";
-const innerBoxStyle = "w-full h-full flex flex-row gap-2 pr-2";
+const innerBoxStyle =
+  "w-full h-full flex flex-row gap-2 pr-2 border border-gray-400 rounded px-2 py-1 bg-white items-center justify-between";
 const inputStyle = "border border-gray-400 rounded px-2 py-1 text-sm w-full bg-white";
 const inputStyleEmpty = "border border-gray-400 rounded px-2 py-1 text-sm w-full bg-gray-400";
 
@@ -148,17 +150,25 @@ function FilledUPosition({ ru, item, setSelectedInCabinetAsset, setCabinetAction
           );
         })}
       </div>
-      <div className={innerBoxStyle}>
-        <span type="text" className={inputStyle}>{`${item.tiName} ${item.cmbMake} ${item.cmbModel}`}</span>
-        <button
-          className="border px-2 bg-green-500 rounded-md h-8"
-          onClick={() => {
-            setSelectedInCabinetAsset(item);
-            setCabinetActionBar(1);
-          }}
-        >
-          Act
-        </button>
+      <div className="flex flex-row w-full h-full items-center">
+        <div className={innerBoxStyle}>
+          <span type="text" className="">{`${item.tiName}`}</span>
+          <div className="flex flex-row text-sm gap-2">
+            <span type="text" className="">{`${item.cmbMake}`}</span>
+            <span type="text" className="">{`${item.cmbModel}`}</span>
+          </div>
+        </div>
+        <div className="w-[15%] flex justify-center">
+          <button
+            className="border px-2 bg-green-500 rounded-md h-8"
+            onClick={() => {
+              setSelectedInCabinetAsset(item);
+              setCabinetActionBar(1);
+            }}
+          >
+            Act
+          </button>
+        </div>
       </div>
     </div>
   );
