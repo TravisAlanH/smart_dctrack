@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { headerEndpoints } from "../Helpers/Endpoints";
 import { headerDescriptions } from "../Helpers/HeadersAsObjects";
+import { dcTrack_DISCRIPTIONS } from "../Helpers/dcTrackAPIDiscriptions";
 
 function AuditMakeInput({
   label,
@@ -46,7 +47,7 @@ function AuditMakeInput({
     setShowDrop(filtered.length > 0);
   }, [makeList, query]);
 
-  const selectedValue = APIPayloadHolder[headerEndpoints[objectType][label]] || "";
+  const selectedValue = APIPayloadHolder[[label]] || "";
 
   const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
   const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
@@ -58,7 +59,7 @@ function AuditMakeInput({
 
   return (
     <div className={boxStyle} style={{ position: "relative" }}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
+      <label className={!trueRequredMaster[label] ? requiredLableStyle : labelStyle}>Make</label>
 
       <div className={innerBoxStyle}>
         <input
@@ -142,7 +143,7 @@ function AuditMakeInput({
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
-            const text = headerDescriptions[objectType]?.[label] || "No data available";
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
             setMessage({
               type: "info_header",
               text,

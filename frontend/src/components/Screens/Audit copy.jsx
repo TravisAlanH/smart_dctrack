@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import CameraModal from "../Camera/CameraModal/CameraModal";
-// import { header, headerTypes, headerDescriptions } from "../Helpers/HeadersAsObjects";
+import { header, headerTypes, headerDescriptions } from "../Helpers/HeadersAsObjects";
 import { dcTrack_DISCRIPTIONS } from "../Helpers/dcTrackAPIDiscriptions";
 import { dcTrack_APIREQUIRED } from "../Helpers/dcTrackAPIRequired";
 import { dcTrack_EDITABLE } from "../Helpers/dcTrackAPIEditable";
 import { dcTrack_READABLE } from "../Helpers/dcTrackAPIReadable";
 import { dcTrack_ENDPOINTS } from "../Helpers/dcTrackAPIReturns";
-import { dcTrack_INPUTTYPES } from "../Helpers/dcTrackAPIInputTypes";
-import { dcTrack_URL } from "../Helpers/dcTrackAPIEndpointURL";
-// import { apiUrls } from "../Helpers/Endpoints";
-// import { headerEndpoints } from "../Helpers/Endpoints";
+import { apiUrls } from "../Helpers/Endpoints";
+import { headerEndpoints, required_master } from "../Helpers/Endpoints";
 import ToggleSwitch from "../Interactions/ToggleSwitch";
 import { loadRequiredMaster } from "../Helpers/RequiredMaster";
 import AuditMakeInput from "../Interactions/AuditMakeInput";
@@ -33,7 +31,6 @@ function Audit() {
   const objectFields = ReuseDataStateStore((s) => s.data.objectFields);
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const objectType = ReuseDataStateStore((s) => s.data.objectType);
-  console.log(objectType);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
   const APIAction = APIStore((s) => s.data.APIAction);
   const EditAPIPush = APIStore((s) => s.EditAPIPush);
@@ -45,16 +42,16 @@ function Audit() {
 
   const [showRequired, setShowRequired] = useState(true);
 
-  const [trueRequredMaster, setTrueRequiredMaster] = useState(loadRequiredMaster(dcTrack_APIREQUIRED));
+  const [trueRequredMaster, setTrueRequiredMaster] = useState(loadRequiredMaster(required_master));
 
   const requireWatcher = ReuseDataStateStore((s) => s.data.RequireToggleWatcher);
 
   useEffect(() => {
-    setTrueRequiredMaster(loadRequiredMaster(dcTrack_APIREQUIRED));
+    setTrueRequiredMaster(loadRequiredMaster(required_master));
   }, [requireWatcher]);
 
   useEffect(() => {
-    setTrueRequiredMaster(loadRequiredMaster(dcTrack_APIREQUIRED));
+    setTrueRequiredMaster(loadRequiredMaster(required_master));
   }, []);
 
   function handleFormSubmit(e) {
@@ -74,8 +71,6 @@ function Audit() {
   }
 
   const ButtonStyle = "bg-blue-600 text-white rounded text-lg px-3 py-1";
-
-  console.log(objectFields);
 
   //#region RETURN
   return (
@@ -100,24 +95,24 @@ function Audit() {
       </div>
 
       <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
-        <div className="w-full flex flex-col gap-3 mt-4">
-          <OperationInput APIAction={APIAction} />
-          <ObjectInput
-            setObjectFields={setObjectFields}
-            setObjectType={setObjectType}
-            setURL={setAuditURL}
-            setAPIPayloadHolder={setAPIPayloadHolder}
-            resetAPUIPayloadHolder={resetAPUIPayloadHolder}
-            setAPIAction={setAPIAction}
-            objectType={objectType}
-          />
-        </div>
-        {objectFields !== "" ? (
+        {objectFields == "" ? (
+          <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
+            <OperationInput APIAction={APIAction} />
+            <ObjectInput
+              setObjectFields={setObjectFields}
+              setObjectType={setObjectType}
+              setURL={setAuditURL}
+              setAPIPayloadHolder={setAPIPayloadHolder}
+              resetAPUIPayloadHolder={resetAPUIPayloadHolder}
+              setAPIAction={setAPIAction}
+            />
+          </div>
+        ) : (
           //#region AUIT_FORM
-          <form className="w-full h-[95%] flex flex-col gap-3" onSubmit={handleFormSubmit}>
-            {Object.keys(objectFields ?? {}).map((label, index) => {
-              if (showRequired && !trueRequredMaster[objectType][label]) return null;
-              const type = dcTrack_INPUTTYPES[objectType][label];
+          <form className="w-full h-[95%] flex flex-col gap-3 mt-4" onSubmit={handleFormSubmit}>
+            {Object.keys(objectFields).map((label, index) => {
+              if (showRequired && !trueRequredMaster[label]) return null;
+              const type = headerTypes[objectType][label];
 
               const props = {
                 label,
@@ -130,20 +125,20 @@ function Audit() {
               };
 
               switch (type) {
-                // case "Operation":
-                //   return <OperationInput APIAction={APIAction} />;
-                // case "Object":
-                //   return (
-                //     <ObjectInput
-                //       key={index}
-                //       {...props}
-                //       setObjectFields={setObjectFields}
-                //       setObjectType={setObjectType}
-                //       setURL={setAuditURL}
-                //       resetAPUIPayloadHolder={resetAPUIPayloadHolder}
-                //       setAPIAction={setAPIAction}
-                //     />
-                //   );
+                case "Operation":
+                  return <OperationInput APIAction={APIAction} />;
+                case "Object":
+                  return (
+                    <ObjectInput
+                      key={index}
+                      {...props}
+                      setObjectFields={setObjectFields}
+                      setObjectType={setObjectType}
+                      setURL={setAuditURL}
+                      resetAPUIPayloadHolder={resetAPUIPayloadHolder}
+                      setAPIAction={setAPIAction}
+                    />
+                  );
                 case "Number":
                   return <NumberInput key={index} {...props} />;
                 case "ORC":
@@ -182,7 +177,7 @@ function Audit() {
                 case "CABINET":
                   return <AuditCabinetInput />;
                 case "UPosition":
-                  return <AuditUPositionInput objectType={objectType} />;
+                  return <AuditUPositionInput />;
                 case "CABINETSIDE":
                   return <AuditCabinetSideInput />;
                 case "DEPTHPOSITION":
@@ -192,7 +187,7 @@ function Audit() {
               }
             })}
           </form>
-        ) : null}
+        )}
       </div>
     </div>
   );
@@ -214,25 +209,24 @@ const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-s
 function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           required={trueRequredMaster[label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
           type="text"
           placeholder={label}
           className={inputStyle}
-          value={APIPayloadHolder[label] || ""}
+          value={APIPayloadHolder[headerEndpoints[objectType][label]] || ""}
         />
         <button
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
           }}
         >
@@ -248,7 +242,7 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
 function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
@@ -256,8 +250,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
           placeholder={label}
           className={inputStyle}
           required={trueRequredMaster[label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
-          value={APIPayloadHolder[dcTrack_ENDPOINTS[objectType][label]]}
+          value={APIPayloadHolder[headerEndpoints[objectType][label]]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
@@ -266,7 +259,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
           }}
         >
@@ -291,7 +284,7 @@ function OcrInput({
 }) {
   return (
     <div className={boxStyle}>
-      <label className={!trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
@@ -299,11 +292,10 @@ function OcrInput({
           placeholder={label}
           className={inputStyle}
           required={trueRequredMaster[label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          value={APIPayloadHolder[label] || ""}
+          value={APIPayloadHolder[headerEndpoints[objectType][label]] || ""}
         />
         <button
           type="button"
@@ -320,7 +312,7 @@ function OcrInput({
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
           }}
         >
@@ -345,7 +337,7 @@ function ImgInput({
 }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
@@ -353,11 +345,10 @@ function ImgInput({
           placeholder={label}
           className={inputStyle}
           required={trueRequredMaster[label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          value={APIPayloadHolder[label] || ""}
+          value={APIPayloadHolder[headerEndpoints[objectType][label]] || ""}
         />
         <button
           type="button"
@@ -374,7 +365,7 @@ function ImgInput({
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
           }}
         >
@@ -399,7 +390,7 @@ function QrInput({
 }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{label}</label>
       <div className={innerBoxStyle}>
         <input
           name={label}
@@ -407,11 +398,10 @@ function QrInput({
           placeholder={label}
           className={inputStyle}
           required={trueRequredMaster[label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          value={APIPayloadHolder[label] || ""}
+          value={APIPayloadHolder[headerEndpoints[objectType][label]] || ""}
         />
         <button
           type="button"
@@ -428,7 +418,7 @@ function QrInput({
           type="button"
           className={descriptionButtonStyle}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = headerDescriptions[objectType]?.[label] || "No data available";
             setMessage({ type: "info_header", text, label });
           }}
         >
@@ -474,9 +464,9 @@ function ObjectInput({
             const type = e.target.value;
             if (type === "") return;
             setAPIAction("ADD");
-            setObjectFields(dcTrack_ENDPOINTS[type]);
+            setObjectFields(header[type]);
             setObjectType(type);
-            setURL(dcTrack_URL[type]);
+            setURL(apiUrls[type]);
             resetAPUIPayloadHolder();
             setAPIPayloadHolder({
               type: type,
@@ -486,13 +476,11 @@ function ObjectInput({
           }}
         >
           <option value="">Select</option>
-          {Object.keys(dcTrack_ENDPOINTS).map((key) => {
-            return (
-              <option key={key} value={key}>
-                {key}
-              </option>
-            );
-          })}
+          {Object.keys(header).map((key) => (
+            <option key={key} value={key}>
+              {key}
+            </option>
+          ))}
         </select>
       </div>
     </div>

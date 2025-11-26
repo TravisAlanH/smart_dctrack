@@ -8,7 +8,7 @@ export default function AuditCabinetInput() {
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const setMessage = APIStore((s) => s.setResponseMessage);
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
-
+  const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
   const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
   const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
@@ -29,6 +29,7 @@ export default function AuditCabinetInput() {
         <select
           className={selectStyle}
           required
+          value={APIPayloadHolder["cmbCabinet"] || ""}
           onChange={(e) => {
             const obj = JSON.parse(e.target.value);
             setCurrentCabinetID(obj.id);
@@ -38,12 +39,11 @@ export default function AuditCabinetInput() {
           {LOCATIONCODE == "" ? <option value="">Location Required</option> : <option value="">Select Cabinet</option>}
 
           {(CabinetsInLocation?.cabinets || []).map((cab) => {
-            const cleanName = cab.cabinet.replace("(", "").replace(")", "");
-            const payload = { id: cab.cabinetId, name: cleanName };
+            const payload = { id: cab.cabinetId, name: cab.cabinet };
 
             return (
-              <option key={cab.cabinetId} value={JSON.stringify(payload)}>
-                {cleanName}
+              <option key={cab.cabinetId} value={cab.cabinet}>
+                {cab.cabinet}
               </option>
             );
           })}

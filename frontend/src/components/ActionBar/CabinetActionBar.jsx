@@ -1,6 +1,7 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { header } from "../Helpers/HeadersAsObjects";
+import { dcTrack_ENDPOINTS } from "../Helpers/dcTrackAPIReturns";
 import ToggleSwitch from "../Interactions/ToggleSwitch";
 
 export default function CabinetActionBar({ style: button, setShow }) {
@@ -71,10 +72,12 @@ function AssetActions({
               id: SelectedInCabinetAsset.id,
               action: "update",
             };
+            const class_sub = `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+            console.log(class_sub);
             setAPIAction("EDIT");
+            setObjectType(class_sub);
             GETAssetDataByID(payload);
-            setObjectFields(header["Devices"]);
-            setObjectType("Devices");
+            setObjectFields(dcTrack_ENDPOINTS[class_sub]);
             setPageView(3);
           }}
         >

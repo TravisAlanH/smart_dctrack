@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { headerEndpoints } from "../src/components/Helpers/Endpoints";
+import { dcTrack_URL } from "../src/components/Helpers/dcTrackAPIEndpointURL";
 import { loadSettingsMaster } from "../src/components/Helpers/SettingsMaster";
 import axios from "axios";
 
@@ -681,8 +681,8 @@ export const APIStore = create(
     },
     setAPIPayloadHolder: (data) => {
       const state = get().data;
-      const endpoints = headerEndpoints[data.type];
-      const key = endpoints[data.field];
+      console.log(data);
+      const key = data.field;
 
       set(() => ({
         data: {
@@ -693,7 +693,6 @@ export const APIStore = create(
           },
         },
       }));
-      console.log("APIPayloadHolder", state.APIPayloadHolder);
     },
     setSingleAPIPayloadHolder: (key, value) => {
       const state = get().data;

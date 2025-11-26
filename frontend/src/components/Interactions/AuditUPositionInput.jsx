@@ -1,11 +1,12 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
 
-export default function AuditUPositionInput() {
+export default function AuditUPositionInput({ objectType }) {
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
-
+  const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
+  const APIAction = APIStore((s) => s.data.APIAction);
   const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
   const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
   const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
@@ -16,12 +17,17 @@ export default function AuditUPositionInput() {
   const selectedCabinet = (CabinetsInLocation?.cabinets || []).find((cab) => cab.cabinetId == currentCabinetID) || null;
 
   // parse U positions into array
-  const uList = selectedCabinet?.uPosition
+  const FilledU = APIPayloadHolder["cmbUPosition"];
+  const cleanU = FilledU ? String(FilledU).trim() : "";
+
+  const baseList = selectedCabinet?.uPosition
     ? selectedCabinet.uPosition
         .split(",")
-        .map((v) => Number(v.trim()))
-        .filter((n) => !isNaN(n))
+        .map((v) => v.trim())
+        .filter((v) => v.length > 0)
     : [];
+
+  const uList = cleanU !== "" && !baseList.includes(cleanU) ? [...baseList, cleanU] : baseList;
 
   const label = "U Position ";
 
@@ -32,6 +38,7 @@ export default function AuditUPositionInput() {
         <select
           className={selectStyle}
           required
+          value={APIPayloadHolder["cmbUPosition"] || ""}
           onChange={(e) => {
             setSingleAPIPayloadHolder("cmbUPosition", e.target.value || "");
           }}
@@ -39,12 +46,20 @@ export default function AuditUPositionInput() {
           {/* Header option */}
           {!currentCabinetID ? <option value="">Cabinet Required</option> : <option value="">Select U Position</option>}
 
-          {/* Only show valid U positions from selected cabinet */}
-          {[...uList].reverse().map((u) => (
-            <option key={u} value={u}>
-              {u}
-            </option>
-          ))}
+          {objectType === "Rack PDU / AC Power" ? (
+            <>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </>
+          ) : (
+            [...uList].reverse().map((u) => {
+              return (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              );
+            })
+          )}
         </select>
 
         <button
