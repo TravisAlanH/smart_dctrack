@@ -24,15 +24,15 @@ export default function PDUVIew() {
   ];
 
   const wrapper = "flex flex-row w-full h-full gap-4";
-  const columnBox = "w-full border py-4 rounded-lg";
+  const columnBox = "w-full border rounded-lg";
   const leftColumn = `${columnBox} ml-4`;
   const rightColumn = `${columnBox} mr-4`;
 
-  const headerRow = "flex flex-row justify-center mb-4";
-  const headerText = "text-white";
+  const headerRow = "flex flex-row justify-center";
+  const headerText = "text-white p-2";
 
   const positionsRow = "flex flex-row justify-around h-[35rem] px-2";
-  const titleRow = "flex flex-row justify-between px-4 m-4";
+  const titleRow = "flex flex-row justify-between";
   const titleText = "font-bold text-lg";
 
   return (
