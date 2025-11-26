@@ -1,6 +1,7 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import ToggleSwtich from "../Interactions/ToggleSwitch";
+import PDUVIew from "./PDUVIew";
 
 export default function Cabinet({ pageView }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
@@ -11,6 +12,7 @@ export default function Cabinet({ pageView }) {
   const AssetsInCabinet = APIStore((s) => s.data.AssetsInCabinet);
 
   const ShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.data.ShowEmptyUPToggleWatcher);
+  const showPDUToggleWatcher = ReuseDataStateStore((s) => s.data.ShowPDUToggleWatcher);
   const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
   const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
@@ -67,6 +69,14 @@ export default function Cabinet({ pageView }) {
       skipSet.add(start + i);
     }
   });
+
+  if (showPDUToggleWatcher) {
+    return (
+      <div>
+        <PDUVIew />
+      </div>
+    );
+  }
 
   return (
     <div>

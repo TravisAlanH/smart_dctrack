@@ -33,6 +33,7 @@ let initState = {
     },
     RequireToggleWatcher: false,
     ShowEmptyUPToggleWatcher: true,
+    ShowPDUToggleWatcher: false,
     SelectedMake: "",
     SelectedModel: "",
     SelectedInCabinetAsset: {},
@@ -215,6 +216,14 @@ export const ReuseDataStateStore = create(
         data: {
           ...state.data,
           RequireToggleWatcher: !state.data.RequireToggleWatcher,
+        },
+      }));
+    },
+    setPDUToggleWatcher: (bool) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          ShowPDUToggleWatcher: bool,
         },
       }));
     },
