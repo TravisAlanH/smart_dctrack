@@ -10,7 +10,7 @@ export default function Cabinet({ pageView }) {
   const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
   const setMessage = APIStore((s) => s.setResponseMessage);
   const AssetsInCabinet = APIStore((s) => s.data.AssetsInCabinet);
-
+  const CurrentCabinetName = APIStore((s) => s.data.CurrentCabinetName);
   const ShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.data.ShowEmptyUPToggleWatcher);
   const showPDUToggleWatcher = ReuseDataStateStore((s) => s.data.ShowPDUToggleWatcher);
   const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
@@ -18,8 +18,7 @@ export default function Cabinet({ pageView }) {
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
-
-  console.log(LOCATIONCODE);
+  // const [selectedCabinet, setSelectedCabinet] = React.useState(null);
 
   React.useEffect(() => {
     const missing = !LOCATIONCODE || !currentCabinetID;
@@ -44,9 +43,6 @@ export default function Cabinet({ pageView }) {
   if (!LOCATIONCODE || !currentCabinetID) {
     return <div>Please select a location and cabinet.</div>;
   }
-
-  const selectedCabinet =
-    (cabinetsInLocation?.cabinets || []).find((cab) => cab.cabinetId.toString() === currentCabinetID) || null;
 
   const cabinetHeight = 42;
 
@@ -81,7 +77,7 @@ export default function Cabinet({ pageView }) {
   return (
     <div>
       <div className="flex flex-row justify-between px-4 m-4">
-        <h2 className="font-bold text-lg">{selectedCabinet?.cabinet || "Cabinet Not Found"}</h2>
+        <h2 className="font-bold text-lg">{CurrentCabinetName}</h2>
       </div>
 
       <div className="flex flex-col gap-1">

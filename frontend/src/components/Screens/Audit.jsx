@@ -33,17 +33,16 @@ function Audit() {
   const objectFields = ReuseDataStateStore((s) => s.data.objectFields);
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const objectType = ReuseDataStateStore((s) => s.data.objectType);
-  console.log(objectType);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
   const APIAction = APIStore((s) => s.data.APIAction);
   const EditAPIPush = APIStore((s) => s.EditAPIPush);
   const SelectedInCabinetAsset = ReuseDataStateStore((s) => s.data.SelectedInCabinetAsset);
   const setAPIAction = APIStore((s) => s.setAPIAction);
+  const showRequired = ReuseDataStateStore((s) => s.data.ShowRequiredAudit);
+  const setShowRequired = ReuseDataStateStore((s) => s.setShowRequiredAudit);
 
   const setCameraStatus = ReuseDataStateStore((s) => s.setCameraStatus);
   const setCameraRequiredToProcess = ReuseDataStateStore((s) => s.setCameraRequiredToProcess);
-
-  const [showRequired, setShowRequired] = useState(true);
 
   const [trueRequredMaster, setTrueRequiredMaster] = useState(loadRequiredMaster(dcTrack_APIREQUIRED));
 
@@ -75,26 +74,10 @@ function Audit() {
 
   const ButtonStyle = "bg-blue-600 text-white rounded text-lg px-3 py-1";
 
-  console.log(objectFields);
-
   //#region RETURN
   return (
     <div className="App w-screen h-screen flex flex-col">
-      <div className="flex flex-row gap-3 justify-end">
-        <ToggleSwitch label={"Show Required"} checked={showRequired} onChange={setShowRequired} />
-        <div>
-          <button
-            className={ButtonStyle}
-            onClick={() => {
-              setAPIAction("ADD");
-              setObjectFields("");
-              setObjectType("");
-            }}
-          >
-            Reset
-          </button>
-        </div>
-      </div>
+      <div className="flex flex-row gap-3 justify-end">HEADER</div>
       <div className="z-20">
         <CameraModal />
       </div>
@@ -233,7 +216,7 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label });
+            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
           }}
         >
           ?
@@ -267,7 +250,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label });
+            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
           }}
         >
           ?
@@ -321,7 +304,7 @@ function OcrInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label });
+            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
           }}
         >
           ?
@@ -375,7 +358,7 @@ function ImgInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label });
+            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
           }}
         >
           ?
@@ -429,7 +412,7 @@ function QrInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label });
+            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
           }}
         >
           ?

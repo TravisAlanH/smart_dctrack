@@ -11,7 +11,6 @@ let initState = {
     NAMEDATA: {},
   },
   ReuseDataState: {
-    LocationCode: "",
     CameraText: "",
     CameraPermission: false,
     CameraIndex: 0,
@@ -23,10 +22,10 @@ let initState = {
     Make: "",
     Model: "",
     AssetTag: "",
-    ORCCropTop: 0.2,
-    ORCCropBottom: 0.8,
-    ORCCropLeft: 0.1,
-    ORCCropRight: 0.9,
+    ORCCropTop: 0.45,
+    ORCCropBottom: 0.55,
+    ORCCropLeft: 0.22,
+    ORCCropRight: 0.75,
     CameraRequiredToProcess: {
       type: "",
       field: "",
@@ -34,6 +33,7 @@ let initState = {
     RequireToggleWatcher: false,
     ShowEmptyUPToggleWatcher: true,
     ShowPDUToggleWatcher: false,
+    ShowRequiredAudit: true,
     SelectedMake: "",
     SelectedModel: "",
     SelectedInCabinetAsset: {},
@@ -61,6 +61,7 @@ let initState = {
     AssetsInCabinet: {},
     ZeroUAssetsInCabinet: [],
     CurrnetLocationID: null,
+    CurrentCabinetName: "",
     CurrentCabinetID: null,
     MakeDatafromInstance: { make: [] },
     ModelDatafromInstance: { model: [] },
@@ -219,6 +220,14 @@ export const ReuseDataStateStore = create(
         },
       }));
     },
+    setShowRequiredAudit: (bool) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          ShowRequiredAudit: bool,
+        },
+      }));
+    },
     setPDUToggleWatcher: (bool) => {
       set((state) => ({
         data: {
@@ -338,7 +347,6 @@ export const APIStore = create(
           },
         })
         .then((res) => {
-          console.log(res);
           const code = res.data.backendData?.httpCode || res.status;
           get().setResponseCode(code);
           get().setResponseMessage({
@@ -375,7 +383,6 @@ export const APIStore = create(
         set((state) => ({
           data: { ...state.data, AssetsInCabinet: res.data },
         }));
-        console.log(res.data.cabinetItems);
         const ZeroUData = [];
         for (const item of res.data.cabinetItems) {
           if (item.mounting === "ZeroU") {
@@ -472,7 +479,6 @@ export const APIStore = create(
         // set((state) => ({
         //   data: { ...state.data, CabinetsInLocation: res.data },
         // }));
-        console.log(res.data.item);
         if (payload.action === "update") {
           set((state) => ({
             data: { ...state.data, APIPayloadHolder: res.data.item },
@@ -528,7 +534,6 @@ export const APIStore = create(
             "x-login-details": LOGIN,
           },
         });
-        console.log(res.data);
         return res.data;
       } catch (err) {
         console.log(err);
@@ -603,7 +608,6 @@ export const APIStore = create(
             "x-login-details": LOGIN,
           },
         });
-        console.log(res);
         set((state) => ({
           data: {
             ...state.data,
@@ -648,7 +652,6 @@ export const APIStore = create(
           }
         );
 
-        console.log(res.data);
         return res.data;
       } catch (err) {
         console.log(err);
@@ -681,7 +684,6 @@ export const APIStore = create(
     },
     setAPIPayloadHolder: (data) => {
       const state = get().data;
-      console.log(data);
       const key = data.field;
 
       set(() => ({
@@ -721,8 +723,10 @@ export const APIStore = create(
       }));
     },
     setCurrentCabinetID: (id) => {
+      const CabinetsInLocation = get().data.CabinetsInLocation;
+      const cabinetName = (CabinetsInLocation?.cabinets || []).find((cab) => cab.cabinetId == id)?.cabinet;
       set((state) => ({
-        data: { ...state.data, CurrentCabinetID: id },
+        data: { ...state.data, CurrentCabinetName: cabinetName || "", CurrentCabinetID: id },
       }));
     },
     setSelectedModelUR: (modelUR) => {

@@ -49,8 +49,6 @@ function AuditMakeInput({
   const buttonStyle = "bg-blue-600 text-white w-[20%] rounded text-lg";
   const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
 
-  console.log(results);
-
   return (
     <div className={boxStyle} style={{ position: "relative" }}>
       <label className={!trueRequredMaster[label] ? requiredLableStyle : labelStyle}>Model</label>

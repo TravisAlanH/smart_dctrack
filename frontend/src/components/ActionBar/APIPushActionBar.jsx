@@ -1,10 +1,18 @@
 import React from "react";
 import axios from "axios";
-import { APIStore } from "../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../store/Store";
+import ToggleSwitch from "../Interactions/ToggleSwitch";
 
 export default function APIPushActionBar({ style: button }) {
   const code = APIStore((s) => s.data.ResponseCode);
   const APIAction = APIStore((s) => s.data.APIAction);
+  const setAPIAction = APIStore((s) => s.setAPIAction);
+  const setObjectFields = APIStore((s) => s.setObjectFields);
+  const setObjectType = APIStore((s) => s.setObjectType);
+  const showRequired = ReuseDataStateStore((s) => s.data.ShowRequiredAudit);
+  const setShowRequired = ReuseDataStateStore((s) => s.setShowRequiredAudit);
+  const setMessage = APIStore((s) => s.setResponseMessage);
+  const ButtonStyle = "bg-blue-600 text-white rounded px-3 py-1 mx-2";
   //   function sendAPIPush() {
   //     const payload = APIStore.getState().payload || {};
 
@@ -36,7 +44,27 @@ export default function APIPushActionBar({ style: button }) {
     <div>
       {APIAction === "ADD" ? (
         <div className="flex flex-row justify-around items-start my-2">
-          <div>{code !== "" ? <button className={button}>{code}</button> : null}</div>
+          {/* <div>{code !== "" ? <button className={button}>{code}</button> : null}</div> */}
+          <div className="flex flex-row gap-3 justify-end">
+            <ToggleSwitch label={"Show Required"} checked={showRequired} onChange={setShowRequired} />
+            <div>
+              <button
+                className={ButtonStyle}
+                onClick={() => {
+                  // setAPIAction("ADD");
+                  // setObjectFields("");
+                  // setObjectType("");
+                  setMessage({
+                    type: "Reset Audit Form",
+                    text: "Are you sure you want to reset all Fields in this Audit Form?",
+                    label: "",
+                  });
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
 
           <div>
             <button
@@ -46,7 +74,7 @@ export default function APIPushActionBar({ style: button }) {
                 if (form) form.requestSubmit();
               }}
             >
-              API Push
+              Push
             </button>
           </div>
         </div>

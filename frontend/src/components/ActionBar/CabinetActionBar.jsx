@@ -72,7 +72,10 @@ function AssetActions({
               id: SelectedInCabinetAsset.id,
               action: "update",
             };
-            const class_sub = `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+            const class_sub = SelectedInCabinetAsset.hasOwnProperty("tiClass")
+              ? SelectedInCabinetAsset["tiClass"]
+              : `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+
             console.log(class_sub);
             setAPIAction("EDIT");
             setObjectType(class_sub);

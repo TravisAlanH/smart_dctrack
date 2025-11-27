@@ -31,16 +31,14 @@ export default function AuditCabinetInput() {
           required
           value={APIPayloadHolder["cmbCabinet"] || ""}
           onChange={(e) => {
-            const obj = JSON.parse(e.target.value);
-            setCurrentCabinetID(obj.id);
-            setSingleAPIPayloadHolder("cmbCabinet", obj.name);
+            const cabinet = CabinetsInLocation.cabinets.find((cab) => cab.cabinet === e.target.value);
+            setCurrentCabinetID(cabinet.cabinetId);
+            setSingleAPIPayloadHolder("cmbCabinet", cabinet.cabinet);
           }}
         >
           {LOCATIONCODE == "" ? <option value="">Location Required</option> : <option value="">Select Cabinet</option>}
 
           {(CabinetsInLocation?.cabinets || []).map((cab) => {
-            const payload = { id: cab.cabinetId, name: cab.cabinet };
-
             return (
               <option key={cab.cabinetId} value={cab.cabinet}>
                 {cab.cabinet}

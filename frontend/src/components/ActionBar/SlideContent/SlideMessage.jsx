@@ -5,17 +5,22 @@ import SlideSetCabLoc from "./SlideSetCabLoc";
 export default function SlideMessage({ setShow }) {
   const msg = APIStore((s) => s.data.ResponseMessage);
   const [deleteHold, setDeleteHold] = React.useState("");
+  const [resetHold, setResetHold] = React.useState(false);
   const deleteAsset = APIStore((s) => s.deleteAsset);
   const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
   const cabinetId = APIStore((s) => s.data.CurrentCabinetID);
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
   const setOpenResponseMessage = APIStore((s) => s.setOpenResponseMessage);
+  const setAPIAction = APIStore((s) => s.setAPIAction);
+  const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
+  const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
 
   function formatMessage(m) {
     if (!m) return null;
 
+    console.log(m);
+
     React.useEffect(() => {
-      console.log(m.type);
       if (Object.keys(m).length !== 0) setOpenResponseMessage(true);
     }, [m]);
 
@@ -73,6 +78,38 @@ export default function SlideMessage({ setShow }) {
       );
     }
 
+    if (type === "Reset Audit Form") {
+      // const name = m.label?.tiName || "";
+      const disabledStyle = "bg-gray-600 text-white rounded px-3 py-1 mx-2 cursor-not-allowed";
+      const enabledStyle = "bg-red-600 text-white rounded px-3 py-1 mx-2";
+
+      return (
+        <div className="flex flex-col items-center pt-3">
+          <div className="flex flex-row">Are you sure you want to reset all Fields in this Audit Form?</div>
+          <div className="flex flex-row w-full justify-center items-center">
+            <input
+              type="checkbox"
+              value={resetHold}
+              className=" px-2 py-1 rounded h-[1.5rem] w-[1.5rem]"
+              onChange={() => setResetHold(!resetHold)}
+            />
+
+            <button
+              className={!resetHold ? disabledStyle : enabledStyle}
+              disabled={!resetHold}
+              onClick={() => {
+                setAPIAction("ADD");
+                setObjectFields("");
+                setObjectType("");
+              }}
+            >
+              Confirm Reset
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     if (type === "APIResponse" && backend.success === false && backend.httpCode === 400) {
       return (
         <div className="flex flex-col text-left p-2 text-sm">
@@ -97,6 +134,17 @@ export default function SlideMessage({ setShow }) {
       return (
         <div className="flex flex-col text-left p-2 text-sm">
           <div className="font-bold">Success</div>
+        </div>
+      );
+    }
+
+    if (type === "info_header") {
+      return (
+        <div className="flex flex-col text-left p-2 text-sm">
+          <div className="flex flex-row w-full justify-center">
+            <span className="font-bold">{m.label}</span>
+          </div>
+          <div className="mt-2 flex flex-row w-full justify-center">{m.text}</div>
         </div>
       );
     }

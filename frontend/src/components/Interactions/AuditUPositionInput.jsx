@@ -12,6 +12,7 @@ export default function AuditUPositionInput({ objectType }) {
   const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
   const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
   const selectStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
+  const setMessage = APIStore((s) => s.setResponseMessage);
 
   // find the selected cabinet
   const selectedCabinet = (CabinetsInLocation?.cabinets || []).find((cab) => cab.cabinetId == currentCabinetID) || null;

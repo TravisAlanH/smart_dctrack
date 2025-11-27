@@ -1,15 +1,13 @@
 import React from "react";
-import { APIStore } from "../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 
 export default function PDUVIew() {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const cabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
   const ZeroUAssetsInCabinet = APIStore((s) => s.data.ZeroUAssetsInCabinet);
-  const setSelectedInCabinetAsset = APIStore((s) => s.setSelectedInCabinetAsset);
-  const setCabinetActionBar = APIStore((s) => s.setCabinetActionBar);
-
-  const selectedCabinet =
-    (cabinetsInLocation?.cabinets || []).find((cab) => cab.cabinetId.toString() === currentCabinetID) || null;
+  const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
+  const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
+  const CurrentCabinetName = APIStore((s) => s.data.CurrentCabinetName);
 
   const positionsLeft = [
     { depth: "Back", side: "Left" },
@@ -29,7 +27,7 @@ export default function PDUVIew() {
   const rightColumn = `${columnBox} mr-4`;
 
   const headerRow = "flex flex-row justify-center";
-  const headerText = "text-white p-2";
+  const headerText = "text-white";
 
   const positionsRow = "flex flex-row justify-around h-[35rem] px-2";
   const titleRow = "flex flex-row justify-between";
@@ -37,8 +35,8 @@ export default function PDUVIew() {
 
   return (
     <div>
-      <div className={titleRow}>
-        <h2 className={titleText}>{selectedCabinet?.cabinet || "Cabinet Not Found"}</h2>
+      <div className="flex flex-row justify-between px-4 m-4">
+        <h2 className="font-bold text-lg">{CurrentCabinetName}</h2>
       </div>
 
       <div className={wrapper}>

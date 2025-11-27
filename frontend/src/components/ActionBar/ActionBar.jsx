@@ -14,8 +14,6 @@ export default function ActionBar({}) {
     <APIPushActionBar style={button} />,
   ];
 
-  console.log(pageView);
-
   return <div className="bg-transparent">{ActionBarTemplate[pageView]}</div>;
 }
 
