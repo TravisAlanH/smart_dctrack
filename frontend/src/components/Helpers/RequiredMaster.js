@@ -1,10 +1,11 @@
 const STORAGE_KEY = "required_master_override";
 
 export function loadRequiredMaster(defaults) {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) return { ...defaults };
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return { ...defaults };
   try {
-    return JSON.parse(stored);
+    const parsed = JSON.parse(raw);
+    return { ...defaults, ...parsed };
   } catch {
     return { ...defaults };
   }
@@ -14,8 +15,19 @@ export function saveRequiredMaster(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export function updateRequiredField(data, label, value) {
-  const out = { ...data, [label]: value };
+export function updateRequiredField(data, objectType, label, value) {
+  const group = data[objectType] || {};
+
+  const updatedGroup = {
+    ...group,
+    [label]: value,
+  };
+
+  const out = {
+    ...data,
+    [objectType]: updatedGroup,
+  };
+
   saveRequiredMaster(out);
   return out;
 }

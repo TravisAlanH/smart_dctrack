@@ -1,6 +1,7 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../../store/Store";
 import SlideSetCabLoc from "./SlideSetCabLoc";
+import { dcTrack_READABLE } from "../../Helpers/dcTrackAPIReadable";
 
 export default function SlideMessage({ setShow }) {
   const msg = APIStore((s) => s.data.ResponseMessage);
@@ -14,6 +15,8 @@ export default function SlideMessage({ setShow }) {
   const setAPIAction = APIStore((s) => s.setAPIAction);
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
+  const resetAPUIPayloadHolder = APIStore((s) => s.resetAPUIPayloadHolder);
+  const objectType = ReuseDataStateStore((s) => s.data.objectType);
 
   function formatMessage(m) {
     if (!m) return null;
@@ -69,6 +72,7 @@ export default function SlideMessage({ setShow }) {
               }
 
               setShow(false);
+              setDeleteHold("");
               setCabinetActionBar(0);
             }}
           >
@@ -101,6 +105,8 @@ export default function SlideMessage({ setShow }) {
                 setAPIAction("ADD");
                 setObjectFields("");
                 setObjectType("");
+                resetAPUIPayloadHolder({});
+                setShow(false);
               }}
             >
               Confirm Reset
@@ -142,7 +148,7 @@ export default function SlideMessage({ setShow }) {
       return (
         <div className="flex flex-col text-left p-2 text-sm">
           <div className="flex flex-row w-full justify-center">
-            <span className="font-bold">{m.label}</span>
+            <span className="font-bold">{dcTrack_READABLE[objectType][m.label]}</span>
           </div>
           <div className="mt-2 flex flex-row w-full justify-center">{m.text}</div>
         </div>

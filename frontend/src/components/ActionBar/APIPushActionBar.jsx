@@ -12,6 +12,7 @@ export default function APIPushActionBar({ style: button }) {
   const showRequired = ReuseDataStateStore((s) => s.data.ShowRequiredAudit);
   const setShowRequired = ReuseDataStateStore((s) => s.setShowRequiredAudit);
   const setMessage = APIStore((s) => s.setResponseMessage);
+  const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const ButtonStyle = "bg-blue-600 text-white rounded px-3 py-1 mx-2";
   //   function sendAPIPush() {
   //     const payload = APIStore.getState().payload || {};
@@ -39,7 +40,6 @@ export default function APIPushActionBar({ style: button }) {
   //         setAPIMessage(err);
   //       });
   //   }
-
   return (
     <div>
       {APIAction === "ADD" ? (
@@ -49,7 +49,10 @@ export default function APIPushActionBar({ style: button }) {
             <ToggleSwitch label={"Show Required"} checked={showRequired} onChange={setShowRequired} />
             <div>
               <button
-                className={ButtonStyle}
+                className={
+                  Object.keys(APIPayloadHolder).length === 0 ? "bg-gray border px-2 py-1 text-white rounded-md" : ButtonStyle
+                }
+                disabled={Object.keys(APIPayloadHolder).length === 0}
                 onClick={() => {
                   // setAPIAction("ADD");
                   // setObjectFields("");
@@ -80,8 +83,30 @@ export default function APIPushActionBar({ style: button }) {
         </div>
       ) : (
         <div className="flex flex-row justify-around items-start my-2">
-          <div>{code !== "" ? <button className={button}>{code}</button> : null}</div>
-
+          {/* <div>{code !== "" ? <button className={button}>{code}</button> : null}</div> */}
+          <div className="flex flex-row gap-3 justify-end">
+            <ToggleSwitch label={"Show Required"} checked={showRequired} onChange={setShowRequired} />
+            <div>
+              <button
+                className={
+                  Object.keys(APIPayloadHolder).length === 0 ? "bg-gray border px-2 py-1 text-white rounded-md" : ButtonStyle
+                }
+                disabled={Object.keys(APIPayloadHolder).length === 0}
+                onClick={() => {
+                  // setAPIAction("ADD");
+                  // setObjectFields("");
+                  // setObjectType("");
+                  setMessage({
+                    type: "Reset Audit Form",
+                    text: "Are you sure you want to reset all Fields in this Audit Form?",
+                    label: "",
+                  });
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
           <div>
             <button
               className={button}

@@ -4,7 +4,7 @@ import { dcTrack_URL } from "../src/components/Helpers/dcTrackAPIEndpointURL";
 import { loadSettingsMaster } from "../src/components/Helpers/SettingsMaster";
 import axios from "axios";
 
-const BACKEND = import.meta.env.DEV ? "https://192.168.68.51:10000" : import.meta.env.VITE_BACKEND_URL;
+const BACKEND = import.meta.env.DEV ? "https://192.168.68.58:10000" : import.meta.env.VITE_BACKEND_URL;
 
 let initState = {
   NAMESTATE: {

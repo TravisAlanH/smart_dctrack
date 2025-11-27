@@ -11,7 +11,6 @@ import { dcTrack_INPUTTYPES } from "../Helpers/dcTrackAPIInputTypes";
 import { dcTrack_URL } from "../Helpers/dcTrackAPIEndpointURL";
 // import { apiUrls } from "../Helpers/Endpoints";
 // import { headerEndpoints } from "../Helpers/Endpoints";
-import ToggleSwitch from "../Interactions/ToggleSwitch";
 import { loadRequiredMaster } from "../Helpers/RequiredMaster";
 import AuditMakeInput from "../Interactions/AuditMakeInput";
 import AuditModelInput from "../Interactions/AuditModelInput";
@@ -99,6 +98,7 @@ function Audit() {
           //#region AUIT_FORM
           <form className="w-full h-[95%] flex flex-col gap-3" onSubmit={handleFormSubmit}>
             {Object.keys(objectFields ?? {}).map((label, index) => {
+              console.log(label, trueRequredMaster[objectType][label]);
               if (showRequired && !trueRequredMaster[objectType][label]) return null;
               const type = dcTrack_INPUTTYPES[objectType][label];
 
@@ -197,11 +197,13 @@ const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-s
 function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
+        {dcTrack_READABLE[objectType][label]}
+      </label>
       <div className={innerBoxStyle}>
         <input
           name={label}
-          required={trueRequredMaster[label]}
+          required={trueRequredMaster[objectType][label]}
           readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
@@ -216,7 +218,7 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
+            setMessage({ type: "info_header", text, label: label });
           }}
         >
           ?
@@ -231,14 +233,16 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
 function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
+        {dcTrack_READABLE[objectType][label]}
+      </label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="number"
           placeholder={label}
           className={inputStyle}
-          required={trueRequredMaster[label]}
+          required={trueRequredMaster[objectType][label]}
           readOnly={!dcTrack_EDITABLE[objectType][label]}
           value={APIPayloadHolder[dcTrack_ENDPOINTS[objectType][label]]}
           onChange={(e) => {
@@ -250,7 +254,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
+            setMessage({ type: "info_header", text, label: label });
           }}
         >
           ?
@@ -274,14 +278,16 @@ function OcrInput({
 }) {
   return (
     <div className={boxStyle}>
-      <label className={!trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
+        {dcTrack_READABLE[objectType][label]}
+      </label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="text"
           placeholder={label}
           className={inputStyle}
-          required={trueRequredMaster[label]}
+          required={trueRequredMaster[objectType][label]}
           readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
@@ -304,7 +310,7 @@ function OcrInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
+            setMessage({ type: "info_header", text, label: label });
           }}
         >
           ?
@@ -328,14 +334,16 @@ function ImgInput({
 }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
+        {dcTrack_READABLE[objectType][label]}
+      </label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="text"
           placeholder={label}
           className={inputStyle}
-          required={trueRequredMaster[label]}
+          required={trueRequredMaster[objectType][label]}
           readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
@@ -358,7 +366,7 @@ function ImgInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
+            setMessage({ type: "info_header", text, label: label });
           }}
         >
           ?
@@ -382,14 +390,16 @@ function QrInput({
 }) {
   return (
     <div className={boxStyle}>
-      <label className={trueRequredMaster[label] ? requiredLableStyle : labelStyle}>{dcTrack_READABLE[objectType][label]}</label>
+      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
+        {dcTrack_READABLE[objectType][label]}
+      </label>
       <div className={innerBoxStyle}>
         <input
           name={label}
           type="text"
           placeholder={label}
           className={inputStyle}
-          required={trueRequredMaster[label]}
+          required={trueRequredMaster[objectType][label]}
           readOnly={!dcTrack_EDITABLE[objectType][label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
@@ -412,7 +422,7 @@ function QrInput({
           className={descriptionButtonStyle}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: dcTrack_READABLE[objectType][label] });
+            setMessage({ type: "info_header", text, label: label });
           }}
         >
           ?
