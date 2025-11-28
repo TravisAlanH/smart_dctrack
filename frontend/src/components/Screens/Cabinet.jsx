@@ -168,7 +168,7 @@ function FilledUPosition({
   const lableHeight = `${item.tiRackUnits * 2.5}rem`;
 
   return (
-    <div className="flex flex-row items-center bg-slate-300 mx-3 rounded-md py-1" style={{ height }}>
+    <div className="flex flex-row items-center justify-center bg-slate-300 mx-3 rounded-md py-1" style={{ height }}>
       <div className="flex flex-col w-10 justify-around items-center" style={{ height: lableHeight }}>
         {[...Array(item.tiRackUnits)].map((_, idx) => {
           const start = Number(ru);
@@ -242,14 +242,29 @@ function FilledUPosition({
 }
 
 function FullView({ item, setSelectedInCabinetAsset, setCabinetActionBar, CassisModelsInCabinet, cabinetViewFrontBack }) {
+  function trimName(str) {
+    if (!str) return "";
+    if (str.length > 27) return str.slice(0, 27) + "...";
+    return str;
+  }
+
   return (
     <div className="flex flex-row w-full h-full items-center">
-      <div className={innerBoxStyle}>
-        <span type="text" className="">{`${item.tiName}`}</span>
-        <div className="flex flex-row text-sm gap-2">
-          <span type="text" className="">{`${item.cmbMake}`}</span>
-          <span type="text" className="">{`${item.cmbModel}`}</span>
+      <div
+        className={`w-full h-full flex flex-col gap-2 pr-2 border border-gray-400 rounded px-2 py-1 bg-white justify-between items-center `}
+      >
+        <div
+          className={`w-full flex flex-row gap-2 pr-2 rounded px-2 py-1 items-center justify-between  ${
+            item.formFactor === "Chassis" ? "h-[3rem]" : "h-full"
+          }`}
+        >
+          <span type="text" className="">{`${item.tiName}`}</span>
+          <div className="flex flex-row text-sm gap-2 text-right w-[50%]">
+            <span type="text" className="text-right">{`${trimName(item.cmbMake)}`}</span>
+            <span type="text" className="">{`${trimName(item.cmbModel)}`}</span>
+          </div>
         </div>
+
         {item.formFactor === "Chassis"
           ? (() => {
               const modelId = item.modelId;
@@ -257,17 +272,16 @@ function FullView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Cassis
               if (!chassisModel) {
                 return null;
               }
-
               const faces = chassisModel.chassisFaces;
               if (!faces || !Array.isArray(faces) || faces.length === 0) {
                 return null;
               }
               const face = faces.find((f) => f.face === cabinetViewFrontBack);
-
               if (!face) {
                 return null;
               }
-              return <span className="text-sm font-semibold bg-blue-200 px-2 py-1 rounded-md">Chassis</span>;
+              const slots = face.chassisSlots;
+              return <SlotView slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} />;
             })()
           : null}
       </div>
@@ -308,6 +322,37 @@ function HalfView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Rail }
         >
           Act
         </button>
+      </div>
+    </div>
+  );
+}
+
+function SlotView({ slots, cabinetViewFrontBack }) {
+  const count = slots.length;
+
+  // sort by slotLabel (numeric or string-safe)
+  const sorted = [...slots].sort((a, b) => {
+    const numA = Number(a.slotLabel);
+    const numB = Number(b.slotLabel);
+
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+    return a.slotLabel.localeCompare(b.slotLabel);
+  });
+
+  const half = Math.ceil(count / 2);
+
+  const SlotsTop = sorted.slice(0, half);
+  const SlotsBottom = sorted.slice(half);
+
+  console.log(SlotsTop);
+  return (
+    <div className="">
+      <div>
+        {SlotsTop.map((slot) => (
+          <div key={slot.slotId} className="p-2 border rounded bg-white text-center flex items-center justify-center">
+            <span>{`Slot ${slot.slotNumber} - ${cabinetViewFrontBack} Face`}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
