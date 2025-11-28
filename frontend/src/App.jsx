@@ -28,7 +28,7 @@ function App() {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#1F1F1F] text-black">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#292929] text-black">
       <div className="flex-1 overflow-auto">
         <div className={pageView === 3 ? "block" : "hidden"}>
           <Audit />

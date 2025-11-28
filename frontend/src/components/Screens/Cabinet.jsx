@@ -1,27 +1,22 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
-import ToggleSwtich from "../Interactions/ToggleSwitch";
 import PDUVIew from "./PDUVIew";
 
 export default function Cabinet({ pageView }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
-  const currentLocationID = APIStore((s) => s.data.CurrnetLocationID);
-  const cabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
+  const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
   const setMessage = APIStore((s) => s.setResponseMessage);
   const AssetsInCabinet = APIStore((s) => s.data.AssetsInCabinet);
   const CurrentCabinetName = APIStore((s) => s.data.CurrentCabinetName);
+  const CassisModelsInCabinet = APIStore((s) => s.data.CassisModelsInCabinet);
+
   const ShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.data.ShowEmptyUPToggleWatcher);
   const showPDUToggleWatcher = ReuseDataStateStore((s) => s.data.ShowPDUToggleWatcher);
-  const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
   const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
-  const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
-  const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
   const cabinetViewFrontBack = ReuseDataStateStore((s) => s.data.cabinetViewFrontBack);
   const setCabinetViewFrontBack = ReuseDataStateStore((s) => s.setCabinetViewFrontBack);
-  const CassisModelsInCabinet = APIStore((s) => s.data.CassisModelsInCabinet);
-  // const [selectedCabinet, setSelectedCabinet] = React.useState(null);
 
   React.useEffect(() => {
     const missing = !LOCATIONCODE || !currentCabinetID;
@@ -35,25 +30,29 @@ export default function Cabinet({ pageView }) {
     } else {
       setMessage({});
     }
-  }, [LOCATIONCODE, currentCabinetID, setMessage, pageView]);
+  }, [LOCATIONCODE, currentCabinetID, pageView, setMessage]);
 
   React.useEffect(() => {
     if (currentCabinetID) {
       pullAllAssetFromCabinet(currentCabinetID);
     }
-  }, [currentCabinetID]);
+  }, [currentCabinetID, pullAllAssetFromCabinet]);
 
   if (!LOCATIONCODE || !currentCabinetID) {
-    return <div>Please select a location and cabinet.</div>;
+    return <div className="text-base text-white p-4">Please select a location and cabinet.</div>;
+  }
+
+  if (showPDUToggleWatcher) {
+    return (
+      <div className="w-full h-full overflow-y-auto">
+        <PDUVIew />
+      </div>
+    );
   }
 
   const cabinetHeight = 42;
-
   const uList = Array.from({ length: cabinetHeight }, (_, i) => (i + 1).toString());
 
-  // Build two maps:
-  // startMap: RU → item at starting RU only
-  // skipSet: all RUs that belong to multi-RU items except start
   const startMap = {};
   const skipSet = new Set();
 
@@ -63,94 +62,81 @@ export default function Cabinet({ pageView }) {
     const count = item.tiRackUnits;
 
     startMap[start] = item;
-
     for (let i = 1; i < count; i++) {
       skipSet.add(start + i);
     }
   });
 
-  if (showPDUToggleWatcher) {
-    return (
-      <div>
-        <PDUVIew />
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="flex flex-row justify-between px-4 m-4">
-        <h2 className="font-bold text-lg">{CurrentCabinetName}</h2>
+    <div className="w-full h-full flex flex-col overflow-hidden text-white">
+      <div className="flex flex-row items-center justify-between px-4 pt-2 pb-1">
+        <h2 className="font-bold text-base truncate max-w-[65%]">{CurrentCabinetName}</h2>
+
         <button
+          className="text-base border border-gray-400 rounded px-2 py-1 bg-slate-800"
           onClick={() => {
             const railArray = ["Front", "Back"];
             const currentRail = railArray.indexOf(cabinetViewFrontBack);
-            let nextRail = currentRail + 1;
-
-            if (nextRail >= railArray.length) nextRail = 0;
-
+            const nextRail = currentRail + 1 >= railArray.length ? 0 : currentRail + 1;
             setCabinetViewFrontBack(railArray[nextRail]);
           }}
         >
-          {`${cabinetViewFrontBack} Rail`}
+          {cabinetViewFrontBack} Rail
         </button>
       </div>
 
-      <div className="flex flex-col gap-1">
-        {uList
-          .slice()
-          .reverse()
-          .map((ru) => {
-            const ruNum = Number(ru);
+      <div className="flex-1 overflow-y-auto px-2 pb-24">
+        <div className="flex flex-col gap-2">
+          {uList
+            .slice()
+            .reverse()
+            .map((ru) => {
+              const ruNum = Number(ru);
 
-            // skip rows covered by multi-RU items
-            if (skipSet.has(ruNum)) {
-              return null;
-            }
+              if (skipSet.has(ruNum)) {
+                return null;
+              }
 
-            // render only the starting RU
-            if (startMap[ruNum]) {
-              return (
-                <FilledUPosition
-                  key={ru}
-                  ru={ru}
-                  item={startMap[ruNum]}
-                  setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                  setCabinetActionBar={setCabinetActionBar}
-                  cabinetViewFrontBack={cabinetViewFrontBack}
-                  CassisModelsInCabinet={CassisModelsInCabinet}
-                />
-              );
-            }
+              if (startMap[ruNum]) {
+                return (
+                  <FilledUPosition
+                    key={ru}
+                    ru={ru}
+                    item={startMap[ruNum]}
+                    setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+                    setCabinetActionBar={setCabinetActionBar}
+                    cabinetViewFrontBack={cabinetViewFrontBack}
+                    CassisModelsInCabinet={CassisModelsInCabinet}
+                  />
+                );
+              }
 
-            if (ShowEmptyUPToggleWatcher) {
-              return null;
-            }
+              if (ShowEmptyUPToggleWatcher) {
+                return null;
+              }
 
-            return <EmptyUPosition key={ru} ru={ru} />;
-          })}
+              return <EmptyUPosition key={ru} ru={ru} />;
+            })}
+        </div>
       </div>
     </div>
   );
 }
 
-const boxStyleEmpty = "flex flex-row items-center bg-slate-400 mx-3 rounded-md py-1 h-9";
-const labelDivStyle = "flex flex-col h-10 w-10 justify-center items-center";
-const labelStyle = "text-sm hover:font-bold";
-const innerBoxStyleEmpty = "w-full h-full flex flex-row gap-2 pr-2";
-const innerBoxStyle =
-  "w-full h-full flex flex-row gap-2 pr-2 border border-gray-400 rounded px-2 py-1 bg-white items-center justify-between";
-const inputStyle = "border border-gray-400 rounded px-2 py-1 text-sm w-full bg-white";
-const inputStyleEmpty = "border border-gray-400 rounded px-2 py-1 text-sm w-full bg-gray-400";
-
 function EmptyUPosition({ ru }) {
   return (
-    <div className={boxStyleEmpty}>
-      <div className={labelDivStyle}>
-        <label className={labelStyle}>{ru}</label>
+    <div className="flex flex-row items-center bg-slate-500 rounded-md h-10 px-2">
+      <div className="flex flex-col h-full w-10 justify-center items-center">
+        <label className="text-base">{ru}</label>
       </div>
-      <div className={innerBoxStyleEmpty}>
-        <input type="text" className={inputStyleEmpty} value={`Empty`} readOnly />
+
+      <div className="flex-1 h-full flex items-center">
+        <input
+          type="text"
+          className="border border-gray-400 rounded px-2 py-1 text-base w-full bg-gray-300 text-black"
+          value="Empty"
+          readOnly
+        />
       </div>
     </div>
   );
@@ -164,79 +150,92 @@ function FilledUPosition({
   cabinetViewFrontBack,
   CassisModelsInCabinet,
 }) {
-  const height = `${item.tiRackUnits * 2.5}rem`;
-  const lableHeight = `${item.tiRackUnits * 2.5}rem`;
+  const minHeight = `${item.tiRackUnits * 2.3}rem`;
+
+  const renderBody = () => {
+    if (cabinetViewFrontBack === "Front") {
+      if (item.radioRailsUsed === "Back") {
+        return (
+          <HalfView
+            item={item}
+            setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+            setCabinetActionBar={setCabinetActionBar}
+            Rail="Back"
+          />
+        );
+      }
+      return (
+        <FullView
+          item={item}
+          setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+          setCabinetActionBar={setCabinetActionBar}
+          CassisModelsInCabinet={CassisModelsInCabinet}
+          cabinetViewFrontBack="Front"
+        />
+      );
+    }
+
+    if (cabinetViewFrontBack === "Back") {
+      if (item.radioRailsUsed === "Front") {
+        return (
+          <HalfView
+            item={item}
+            setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+            setCabinetActionBar={setCabinetActionBar}
+            Rail="Front"
+          />
+        );
+      }
+      return (
+        <FullView
+          item={item}
+          setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+          setCabinetActionBar={setCabinetActionBar}
+          CassisModelsInCabinet={CassisModelsInCabinet}
+          cabinetViewFrontBack="Back"
+        />
+      );
+    }
+
+    return (
+      <FullView
+        item={item}
+        setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+        setCabinetActionBar={setCabinetActionBar}
+        CassisModelsInCabinet={CassisModelsInCabinet}
+        cabinetViewFrontBack={cabinetViewFrontBack}
+      />
+    );
+  };
 
   return (
-    <div className="flex flex-row items-center justify-center bg-slate-300 mx-3 rounded-md py-1" style={{ height }}>
-      <div className="flex flex-col w-10 justify-around items-center" style={{ height: lableHeight }}>
+    <div className="flex flex-row items-stretch bg-slate-600 rounded-md px-2 py-1" style={{ minHeight }}>
+      <div className="flex flex-col w-10 justify-around items-center">
         {[...Array(item.tiRackUnits)].map((_, idx) => {
           const start = Number(ru);
           const size = item.tiRackUnits;
           const value = start + (size - 1) - idx;
-          // console.log(item.tiName, item);
           return (
-            <label className={labelStyle} key={idx}>
+            <label className="text-base" key={idx}>
               {value}
             </label>
           );
         })}
       </div>
-      {cabinetViewFrontBack === "Front"
-        ? (() => {
-            if (item.radioRailsUsed === "Back") {
-              return (
-                <HalfView
-                  item={item}
-                  setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                  setCabinetActionBar={setCabinetActionBar}
-                  Rail="Back"
-                />
-              );
-            }
-            return (
-              <FullView
-                item={item}
-                setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                setCabinetActionBar={setCabinetActionBar}
-                CassisModelsInCabinet={CassisModelsInCabinet}
-                cabinetViewFrontBack={"Front"}
-              />
-            );
-          })()
-        : cabinetViewFrontBack === "Back"
-        ? (() => {
-            if (item.radioRailsUsed === "Front") {
-              return (
-                <HalfView
-                  item={item}
-                  setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                  setCabinetActionBar={setCabinetActionBar}
-                  Rail="Front"
-                />
-              );
-            }
-            return (
-              <FullView
-                item={item}
-                setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                setCabinetActionBar={setCabinetActionBar}
-                CassisModelsInCabinet={CassisModelsInCabinet}
-                cabinetViewFrontBack={"Back"}
-              />
-            );
-          })()
-        : (() => {
-            return (
-              <FullView
-                item={item}
-                setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                setCabinetActionBar={setCabinetActionBar}
-                CassisModelsInCabinet={CassisModelsInCabinet}
-                cabinetViewFrontBack={cabinetViewFrontBack}
-              />
-            );
-          })()}
+
+      <div className="flex-1 flex flex-row items-center overflow-hidden">{renderBody()}</div>
+
+      <div className="w-16 flex justify-center items-center pl-1">
+        <button
+          className="border border-green-700 px-2 bg-green-500 rounded-md h-8 text-base text-black"
+          onClick={() => {
+            setSelectedInCabinetAsset(item);
+            setCabinetActionBar(1);
+          }}
+        >
+          Act
+        </button>
+      </div>
     </div>
   );
 }
@@ -248,112 +247,112 @@ function FullView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Cassis
     return str;
   }
 
-  return (
-    <div className="flex flex-row w-full h-full items-center">
-      <div
-        className={`w-full h-full flex flex-col gap-2 pr-2 border border-gray-400 rounded px-2 py-1 bg-white justify-between items-center `}
-      >
-        <div
-          className={`w-full flex flex-row gap-2 pr-2 rounded px-2 py-1 items-center justify-between  ${
-            item.formFactor === "Chassis" ? "h-[3rem]" : "h-full"
-          }`}
-        >
-          <span type="text" className="">{`${item.tiName}`}</span>
-          <div className="flex flex-row text-sm gap-2 text-right w-[50%]">
-            <span type="text" className="text-right">{`${trimName(item.cmbMake)}`}</span>
-            <span type="text" className="">{`${trimName(item.cmbModel)}`}</span>
-          </div>
-        </div>
+  const isChassis = item.formFactor === "Chassis";
 
-        {item.formFactor === "Chassis"
-          ? (() => {
-              const modelId = item.modelId;
-              const chassisModel = CassisModelsInCabinet.find((m) => m && m.modelId === modelId);
-              if (!chassisModel) {
-                return null;
-              }
-              const faces = chassisModel.chassisFaces;
-              if (!faces || !Array.isArray(faces) || faces.length === 0) {
-                return null;
-              }
-              const face = faces.find((f) => f.face === cabinetViewFrontBack);
-              if (!face) {
-                return null;
-              }
-              const slots = face.chassisSlots;
-              return <SlotView slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} />;
-            })()
-          : null}
+  let chassisSlots = null;
+  if (isChassis && Array.isArray(CassisModelsInCabinet) && CassisModelsInCabinet.length > 0) {
+    const modelId = item.modelId;
+    const chassisModel = CassisModelsInCabinet.find((m) => m && m.modelId === modelId);
+    if (chassisModel && Array.isArray(chassisModel.chassisFaces)) {
+      const face = chassisModel.chassisFaces.find((f) => f.face === cabinetViewFrontBack);
+      if (face && Array.isArray(face.chassisSlots)) {
+        chassisSlots = face.chassisSlots;
+      }
+    }
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col gap-1 border border-gray-400 bg-white text-black rounded px-2 py-1 overflow-hidden">
+      <div className={`w-full flex flex-row items-center justify-between gap-2 ${isChassis ? "min-h-[2.5rem]" : ""}`}>
+        <span className="text-base truncate max-w-[50%]">{item.tiName}</span>
+
+        <div className="flex flex-row text-xs gap-1 justify-end w-1/2">
+          <span className="truncate text-right max-w-[40%] text-base">{trimName(item.cmbMake)}</span>
+          <span className="truncate max-w-[60%] text-base">{trimName(item.cmbModel)}</span>
+        </div>
       </div>
-      <div className="w-[15%] flex justify-center">
-        <button
-          className="border px-2 bg-green-500 rounded-md h-8"
-          onClick={() => {
-            setSelectedInCabinetAsset(item);
-            setCabinetActionBar(1);
-          }}
-        >
-          Act
-        </button>
-      </div>
+
+      {isChassis && chassisSlots ? (
+        <div className="w-full flex-1 overflow-hidden">
+          <SlotView slots={chassisSlots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={item.tiRackUnits} />
+        </div>
+      ) : null}
     </div>
   );
 }
 
 function HalfView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Rail }) {
   return (
-    <div className="flex flex-row w-full h-full justify-end items-center">
+    <div className="flex flex-row w-full h-full items-center">
       <div
-        className="flex flex-row w-full h-full justify-center items-center p-2"
+        className="flex flex-row flex-1 h-full justify-center items-center px-2 py-1 rounded"
         style={{
-          backgroundImage: "repeating-linear-gradient(45deg, #ccc 0 2px, transparent 2px 6px)",
+          backgroundImage: "repeating-linear-gradient(45deg, #737373 0 2px, transparent 2px 6px)",
         }}
       >
-        <div className="bg-white px-2 rounded-md">{`${Rail} Rail`}</div>
-      </div>
-
-      <div className="w-[15%] flex justify-center">
-        <button
-          className="border px-2 bg-green-500 rounded-md h-8"
-          onClick={() => {
-            setSelectedInCabinetAsset(item);
-            setCabinetActionBar(1);
-          }}
-        >
-          Act
-        </button>
+        <div className="bg-white px-2 py-1 rounded-md text-base text-black">{Rail} Rail</div>
       </div>
     </div>
   );
 }
 
-function SlotView({ slots, cabinetViewFrontBack }) {
+function SlotView({ slots, cabinetViewFrontBack, rackUnits }) {
   const count = slots.length;
+  console.log(slots);
 
-  // sort by slotLabel (numeric or string-safe)
   const sorted = [...slots].sort((a, b) => {
     const numA = Number(a.slotLabel);
     const numB = Number(b.slotLabel);
 
-    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-    return a.slotLabel.localeCompare(b.slotLabel);
+    if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+      return numA - numB;
+    }
+    return String(a.slotLabel).localeCompare(String(b.slotLabel));
   });
 
   const half = Math.ceil(count / 2);
-
   const SlotsTop = sorted.slice(0, half);
   const SlotsBottom = sorted.slice(half);
 
-  console.log(SlotsTop);
+  const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden";
+
+  const slotRowClass = "flex flex-row gap-1";
+
+  const slotBoxClass =
+    "flex flex-col items-center justify-center text-center border rounded px-1 py-1 " +
+    "min-w-[3rem] max-w-[4rem] h-[6rem] text-base bg-slate-50 text-black";
+
   return (
-    <div className="">
-      <div>
-        {SlotsTop.map((slot) => (
-          <div key={slot.slotId} className="p-2 border rounded bg-white text-center flex items-center justify-center">
-            <span>{`Slot ${slot.slotNumber} - ${cabinetViewFrontBack} Face`}</span>
+    <div className={containerBase}>
+      {rackUnits <= 4 ? (
+        <div className="flex flex-row gap-1 w-full overflow-x-auto">
+          {sorted.map((slot) => (
+            <div key={slot.slotId} className={slotBoxClass}>
+              <span>{`Slot ${slot.slotNumber}`}</span>
+              <span>{`${cabinetViewFrontBack} Face`}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className={slotRowClass}>
+            {SlotsBottom.map((slot) => (
+              <div key={slot.slotId} className={slotBoxClass}>
+                <span>{`Slot ${slot.slotNumber}`}</span>
+                <span>{`${cabinetViewFrontBack} Face`}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+          <div className={slotRowClass}>
+            {SlotsTop.map((slot) => (
+              <div key={slot.slotId} className={slotBoxClass}>
+                <span>{`Slot ${slot.slotNumber}`}</span>
+                <span>{`${cabinetViewFrontBack} Face`}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

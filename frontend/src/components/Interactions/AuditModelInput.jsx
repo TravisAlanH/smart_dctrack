@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
-import { headerEndpoints } from "../Helpers/Endpoints";
-import { headerDescriptions } from "../Helpers/HeadersAsObjects";
 import { dcTrack_DISCRIPTIONS } from "../Helpers/dcTrackAPIDiscriptions";
 
-function AuditMakeInput({
+function AuditModelInput({
   label,
   objectType,
   setShow,
@@ -14,12 +12,12 @@ function AuditMakeInput({
   setCameraStatus,
   setCameraRequiredToProcess,
   trueRequredMaster,
+  ui,
 }) {
   const pullAllModelsFromMake = APIStore((s) => s.pullAllModelsFromMake);
   const modelList = APIStore((s) => s.data.ModelDataFromInstance);
   const setSelectedModel = ReuseDataStateStore((s) => s.setSelectedModel);
   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
-  //   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
   const selectedMake = ReuseDataStateStore((s) => s.data.SelectedMake);
 
   const [query, setQuery] = useState("");
@@ -39,37 +37,34 @@ function AuditMakeInput({
     setResults(modelList);
   }, [query, pullAllModelsFromMake]);
 
-  const selectedValue = APIPayloadHolder[[label]] || "";
-
-  const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
-  const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
-  const labelStyle = "px-2 text-sm";
-  const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
-  const inputStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
-  const buttonStyle = "bg-blue-600 text-white w-[20%] rounded text-lg";
-  const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
+  const selectedValue = APIPayloadHolder[label] || "";
+  const required = trueRequredMaster[objectType][label];
 
   return (
-    <div className={boxStyle} style={{ position: "relative" }}>
-      <label className={!trueRequredMaster[label] ? requiredLableStyle : labelStyle}>Model</label>
+    <div className={ui.cardOuter} style={{ position: "relative" }}>
+      <div className={ui.cardHeader}>
+        <label className={required ? ui.labelRequired : ui.label}>Model</label>
+      </div>
 
-      <div className={innerBoxStyle}>
+      <div className={ui.cardBody}>
         <input
           ref={inputRef}
           name={label}
           type="text"
           placeholder={label}
-          className={inputStyle}
-          required={trueRequredMaster[label]}
+          className={ui.input}
+          required={required}
           value={query || selectedValue}
           onChange={(e) => {
             const text = e.target.value;
             setQuery(text);
+
             setAPIPayloadHolder({
               type: objectType,
               field: label,
               value: text,
             });
+
             setSelectedModel(text);
           }}
           onFocus={() => {
@@ -82,8 +77,8 @@ function AuditMakeInput({
             style={{
               position: "absolute",
               top: "100%",
-              left: "0",
-              right: "0",
+              left: 0,
+              right: 0,
               zIndex: 50,
               background: "white",
               border: "1px solid #ccc",
@@ -94,31 +89,28 @@ function AuditMakeInput({
             {results.map((item) => (
               <div
                 key={item.id}
-                style={{
-                  padding: "0.5rem",
-                  cursor: "pointer",
-                }}
                 className="flex flex-row justify-between mx-2 border-y"
+                style={{ padding: "0.5rem", cursor: "pointer" }}
                 onClick={() => {
                   setQuery(item.model);
+
                   setAPIPayloadHolder({
                     type: objectType,
                     field: "cmbMake",
                     value: item.make,
                   });
+
                   setAPIPayloadHolder({
                     type: objectType,
                     field: "cmbModel",
                     value: item.model,
                   });
+
                   setSelectedModel(item.model);
                   setSelectedMake(item.make);
-                  // setSelectedModelUR(item.urId);
                   setShowDrop(false);
 
-                  if (inputRef.current) {
-                    inputRef.current.blur();
-                  }
+                  if (inputRef.current) inputRef.current.blur();
                 }}
               >
                 <span>{item.model}</span>
@@ -130,11 +122,13 @@ function AuditMakeInput({
 
         <button
           type="button"
-          className={buttonStyle}
+          className={ui.mainButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(1);
-            document.getElementById("CameraModal").style.display = "block";
+
+            const el = document.getElementById("CameraModal");
+            if (el) el.style.display = "block";
           }}
         >
           Scan
@@ -142,9 +136,9 @@ function AuditMakeInput({
 
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({
               type: "info_header",
               text,
@@ -160,4 +154,4 @@ function AuditMakeInput({
   );
 }
 
-export default AuditMakeInput;
+export default AuditModelInput;

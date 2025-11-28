@@ -1,7 +1,7 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
 
-export default function AuditCabinetInput() {
+export default function AuditCabinetInput({ ui }) {
   const pullCabinetData = APIStore((s) => s.pullCabinetData);
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
@@ -9,50 +9,48 @@ export default function AuditCabinetInput() {
   const setMessage = APIStore((s) => s.setResponseMessage);
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
-  const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
-  const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
-  const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
-  const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
-  const selectStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
+
+  const label = "Cabinet";
 
   React.useEffect(() => {
-    if (LOCATIONCODE == "") return;
+    if (!LOCATIONCODE) return;
     pullCabinetData(LOCATIONCODE);
-  }, [LOCATIONCODE]);
-
-  const label = "CABINET";
+  }, [LOCATIONCODE, pullCabinetData]);
 
   return (
-    <div className={boxStyle}>
-      <label className={requiredLableStyle}>Cabinet</label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={ui.labelRequired}>Cabinet</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <select
-          className={selectStyle}
+          className={ui.select}
           required
           value={APIPayloadHolder["cmbCabinet"] || ""}
           onChange={(e) => {
-            const cabinet = CabinetsInLocation.cabinets.find((cab) => cab.cabinet === e.target.value);
-            setCurrentCabinetID(cabinet.cabinetId);
-            setSingleAPIPayloadHolder("cmbCabinet", cabinet.cabinet);
+            const cab = CabinetsInLocation.cabinets.find((x) => x.cabinet === e.target.value);
+
+            if (!cab) return;
+
+            setCurrentCabinetID(cab.cabinetId);
+            setSingleAPIPayloadHolder("cmbCabinet", cab.cabinet);
           }}
         >
-          {LOCATIONCODE == "" ? <option value="">Location Required</option> : <option value="">Select Cabinet</option>}
+          {!LOCATIONCODE ? <option value="">Location Required</option> : <option value="">Select Cabinet</option>}
 
-          {(CabinetsInLocation?.cabinets || []).map((cab) => {
-            return (
-              <option key={cab.cabinetId} value={cab.cabinet}>
-                {cab.cabinet}
-              </option>
-            );
-          })}
+          {(CabinetsInLocation?.cabinets || []).map((cab) => (
+            <option key={cab.cabinetId} value={cab.cabinet}>
+              {cab.cabinet}
+            </option>
+          ))}
         </select>
 
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text =
-              "The parent location such as ROOM-101. Must match a Location defined in the system, is set in the Settings Screen.";
+            const text = "Select the cabinet inside the chosen location. The list comes from the system after a location is set.";
             setMessage({ type: "info_header", text, label });
           }}
         >

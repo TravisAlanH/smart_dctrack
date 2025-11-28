@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import CameraModal from "../Camera/CameraModal/CameraModal";
-// import { header, headerTypes, headerDescriptions } from "../Helpers/HeadersAsObjects";
 import { dcTrack_DISCRIPTIONS } from "../Helpers/dcTrackAPIDiscriptions";
 import { dcTrack_APIREQUIRED } from "../Helpers/dcTrackAPIRequired";
 import { dcTrack_EDITABLE } from "../Helpers/dcTrackAPIEditable";
@@ -9,9 +8,8 @@ import { dcTrack_READABLE } from "../Helpers/dcTrackAPIReadable";
 import { dcTrack_ENDPOINTS } from "../Helpers/dcTrackAPIReturns";
 import { dcTrack_INPUTTYPES } from "../Helpers/dcTrackAPIInputTypes";
 import { dcTrack_URL } from "../Helpers/dcTrackAPIEndpointURL";
-// import { apiUrls } from "../Helpers/Endpoints";
-// import { headerEndpoints } from "../Helpers/Endpoints";
 import { loadRequiredMaster } from "../Helpers/RequiredMaster";
+
 import AuditMakeInput from "../Interactions/AuditMakeInput";
 import AuditModelInput from "../Interactions/AuditModelInput";
 import AuditLocationInput from "../Interactions/AuditLocationInput";
@@ -22,8 +20,25 @@ import AuditDepthPositionInput from "../Interactions/AuditDepthPositionInput";
 import AuditRailsUsedInput from "../Interactions/AuditRailsUsedInput";
 import AuditOrientationTypeInput from "../Interactions/AuditOrientationTypeInput";
 
-//#region MAIN_COMPONENT
-function Audit() {
+/* Shared UI */
+export const auditUI = {
+  cardOuter: "flex flex-col bg-slate-600 rounded-md mx-2",
+  cardHeader: "px-3 pt-2 pb-1 text-xs sm:text-sm font-semibold text-white",
+  cardBody: "w-full flex flex-row items-center gap-2 px-3 pb-2",
+
+  label: "text-sm sm:text-sm",
+  labelRequired: "text-sm sm:text-sm text-red-400 font-bold",
+
+  // iOS zoom fix: use text-base
+  input: "border border-gray-400 rounded px-2 py-1 text-base w-full bg-white text-black",
+  select: "border border-gray-400 rounded px-2 py-1 text-base w-full bg-white text-black",
+
+  mainButton: "bg-blue-600 text-white rounded px-3 py-1 text-sm sm:text-sm whitespace-nowrap",
+  infoButton: "bg-green-600 text-white rounded px-2 py-1 text-sm sm:text-sm whitespace-nowrap",
+};
+
+/* MAIN COMPONENT */
+export default function Audit() {
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
   const setMessage = APIStore((s) => s.setResponseMessage);
@@ -31,22 +46,23 @@ function Audit() {
   const setPayload = APIStore((s) => s.setAuditPayload);
   const sendAPIPush = APIStore((s) => s.sendAPIPush);
   const resetAPUIPayloadHolder = APIStore((s) => s.resetAPUIPayloadHolder);
+
   const objectFields = ReuseDataStateStore((s) => s.data.objectFields);
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const objectType = ReuseDataStateStore((s) => s.data.objectType);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
+
   const APIAction = APIStore((s) => s.data.APIAction);
   const EditAPIPush = APIStore((s) => s.EditAPIPush);
   const SelectedInCabinetAsset = ReuseDataStateStore((s) => s.data.SelectedInCabinetAsset);
   const setAPIAction = APIStore((s) => s.setAPIAction);
+
   const showRequired = ReuseDataStateStore((s) => s.data.ShowRequiredAudit);
-  const setShowRequired = ReuseDataStateStore((s) => s.setShowRequiredAudit);
 
   const setCameraStatus = ReuseDataStateStore((s) => s.setCameraStatus);
   const setCameraRequiredToProcess = ReuseDataStateStore((s) => s.setCameraRequiredToProcess);
 
   const [trueRequredMaster, setTrueRequiredMaster] = useState(loadRequiredMaster(dcTrack_APIREQUIRED));
-
   const requireWatcher = ReuseDataStateStore((s) => s.data.RequireToggleWatcher);
 
   useEffect(() => {
@@ -59,13 +75,8 @@ function Audit() {
 
   function handleFormSubmit(e) {
     e.preventDefault();
-
-    const formData = new FormData(e.target);
-    const out = {};
-
-    for (const [key, val] of formData.entries()) out[key] = val;
-
     setPayload(APIPayloadHolder);
+
     if (APIAction === "ADD") {
       sendAPIPush();
     } else if (APIAction === "EDIT") {
@@ -73,36 +84,39 @@ function Audit() {
     }
   }
 
-  const ButtonStyle = "bg-blue-600 text-white rounded text-lg px-3 py-1";
-
-  //#region RETURN
   return (
-    <div className="App w-screen h-screen flex flex-col">
-      <div className="flex flex-row gap-3 justify-end">HEADER</div>
-      <div className="z-20">
-        <CameraModal />
-      </div>
+    <div className="w-full h-full flex flex-col overflow-hidden text-white">
+      <div className="flex-none">
+        <div className="flex flex-row items-center justify-between px-4 pt-2 pb-1">
+          <h2 className="font-bold text-lg">Audit</h2>
+        </div>
 
-      <div className="w-full h-[95%] flex flex-col gap-3 mt-4">
-        <div className="w-full flex flex-col gap-3 mt-4">
-          <OperationInput APIAction={APIAction} />
+        <div className="z-20">
+          <CameraModal />
+        </div>
+
+        <div className="px-2 pt-1 pb-2 space-y-2">
+          <OperationInput APIAction={APIAction} ui={auditUI} />
           <ObjectInput
+            objectType={objectType}
             setObjectFields={setObjectFields}
             setObjectType={setObjectType}
             setURL={setAuditURL}
             setAPIPayloadHolder={setAPIPayloadHolder}
             resetAPUIPayloadHolder={resetAPUIPayloadHolder}
             setAPIAction={setAPIAction}
-            objectType={objectType}
+            ui={auditUI}
           />
         </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-1 pb-24">
         {objectFields !== "" ? (
-          //#region AUIT_FORM
-          <form className="w-full h-[95%] flex flex-col gap-3" onSubmit={handleFormSubmit}>
+          <form className="w-full flex flex-col gap-2 pb-6" onSubmit={handleFormSubmit}>
             {Object.keys(objectFields ?? {}).map((label, index) => {
               if (showRequired && !trueRequredMaster[objectType][label]) return null;
-              const type = dcTrack_INPUTTYPES[objectType][label];
 
+              const type = dcTrack_INPUTTYPES[objectType][label];
               const props = {
                 label,
                 objectType,
@@ -110,24 +124,10 @@ function Audit() {
                 APIPayloadHolder,
                 setAPIPayloadHolder,
                 trueRequredMaster,
-                objectType,
+                ui: auditUI,
               };
 
               switch (type) {
-                // case "Operation":
-                //   return <OperationInput APIAction={APIAction} />;
-                // case "Object":
-                //   return (
-                //     <ObjectInput
-                //       key={index}
-                //       {...props}
-                //       setObjectFields={setObjectFields}
-                //       setObjectType={setObjectType}
-                //       setURL={setAuditURL}
-                //       resetAPUIPayloadHolder={resetAPUIPayloadHolder}
-                //       setAPIAction={setAPIAction}
-                //     />
-                //   );
                 case "Number":
                   return <NumberInput key={index} {...props} />;
                 case "ORC":
@@ -158,72 +158,71 @@ function Audit() {
                     />
                   );
                 case "IMGMake":
-                  return <AuditMakeInput key={index} {...props} />;
+                  return <AuditMakeInput key={index} {...props} ui={auditUI} />;
                 case "IMGModel":
-                  return <AuditModelInput key={index} {...props} />;
+                  return <AuditModelInput key={index} {...props} ui={auditUI} />;
                 case "LOCATION":
-                  return <AuditLocationInput />;
+                  return <AuditLocationInput key={index} ui={auditUI} />;
                 case "CABINET":
-                  return <AuditCabinetInput />;
+                  return <AuditCabinetInput key={index} ui={auditUI} />;
                 case "UPosition":
-                  return <AuditUPositionInput objectType={objectType} />;
+                  return <AuditUPositionInput key={index} objectType={objectType} ui={auditUI} />;
                 case "CABINETSIDE":
-                  return <AuditCabinetSideInput />;
+                  return <AuditCabinetSideInput key={index} ui={auditUI} />;
                 case "DEPTHPOSITION":
-                  return <AuditDepthPositionInput />;
+                  return <AuditDepthPositionInput key={index} ui={auditUI} />;
                 case "RAILSUSED":
-                  return <AuditRailsUsedInput />;
+                  return <AuditRailsUsedInput key={index} ui={auditUI} />;
                 case "ORIENTATION":
-                  return <AuditOrientationTypeInput />;
+                  return <AuditOrientationTypeInput key={index} ui={auditUI} />;
                 default:
                   return <TextInput key={index} {...props} />;
               }
             })}
+
+            <div className="px-2 pt-2 flex justify-end">
+              <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 text-sm">
+                Submit
+              </button>
+            </div>
           </form>
         ) : null}
       </div>
     </div>
   );
 }
-//#endregion MAIN_COMPONENT
 
-//#region STYLE_CONSTANTS
-const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
-const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
-const labelStyle = "px-2 text-sm";
-const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
-const inputStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
-const buttonStyle = "bg-blue-600 text-white w-[20%] rounded text-lg";
-const selectStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
-const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
-//#endregion STYLE_CONSTANTS
+/* INPUT CARDS */
 
-//#region TEXT_INPUT
-function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
+function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui }) {
+  const req = trueRequredMaster[objectType][label];
+  const edit = dcTrack_EDITABLE[objectType][label];
+
   return (
-    <div className={boxStyle}>
-      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
-        {dcTrack_READABLE[objectType][label]}
-      </label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <input
           name={label}
-          required={trueRequredMaster[objectType][label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
+          required={req}
+          readOnly={!edit}
+          type="text"
+          className={ui.input}
+          value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          type="text"
-          placeholder={label}
-          className={inputStyle}
-          value={APIPayloadHolder[label] || ""}
         />
+
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: label });
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
+            setMessage({ type: "info_header", text, label });
           }}
         >
           ?
@@ -232,40 +231,36 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
     </div>
   );
 }
-//#endregion TEXT_INPUT
 
-//#region NUMBER_INPUT
-function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
-  console.log("OBJECT TYPE IN NUMBER INPUT:", objectType);
-  console.log("DCTrack_ENDPOINTS:", dcTrack_ENDPOINTS);
-  console.log("LABEL:", label);
-  console.log("ENDPOINT:", dcTrack_ENDPOINTS[objectType][label]);
-  console.log("PAYLOAD VALUE:", APIPayloadHolder[dcTrack_ENDPOINTS[objectType][label]]);
+function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui }) {
+  const req = trueRequredMaster[objectType][label];
+  const edit = dcTrack_EDITABLE[objectType][label];
 
   return (
-    <div className={boxStyle}>
-      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
-        {dcTrack_READABLE[objectType][label]}
-      </label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <input
           name={label}
           type="number"
-          placeholder={label}
-          className={inputStyle}
-          required={trueRequredMaster[objectType][label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
-          value={APIPayloadHolder[label]}
+          required={req}
+          readOnly={!edit}
+          className={ui.input}
+          value={APIPayloadHolder[label] ?? ""}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
         />
+
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: label });
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
+            setMessage({ type: "info_header", text, label });
           }}
         >
           ?
@@ -274,55 +269,59 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
     </div>
   );
 }
-//#endregion NUMBER_INPUT
 
-//#region ORC_INPUT
 function OcrInput({
   label,
   objectType,
   setMessage,
   setAPIPayloadHolder,
-
   APIPayloadHolder,
   setCameraStatus,
   setCameraRequiredToProcess,
   trueRequredMaster,
+  ui,
 }) {
+  const req = trueRequredMaster[objectType][label];
+  const edit = dcTrack_EDITABLE[objectType][label];
+
   return (
-    <div className={boxStyle}>
-      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
-        {dcTrack_READABLE[objectType][label]}
-      </label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <input
           name={label}
           type="text"
-          placeholder={label}
-          className={inputStyle}
-          required={trueRequredMaster[objectType][label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
+          required={req}
+          readOnly={!edit}
+          className={ui.input}
+          value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          value={APIPayloadHolder[label] || ""}
         />
+
         <button
           type="button"
-          className={buttonStyle}
+          className={ui.mainButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(0);
-            document.getElementById("CameraModal").style.display = "block";
+            const el = document.getElementById("CameraModal");
+            if (el) el.style.display = "block";
           }}
         >
           ORC
         </button>
+
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: label });
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
+            setMessage({ type: "info_header", text, label });
           }}
         >
           ?
@@ -331,9 +330,7 @@ function OcrInput({
     </div>
   );
 }
-//#endregion ORC_INPUT
 
-//#region IMG_INPUT
 function ImgInput({
   label,
   objectType,
@@ -343,42 +340,49 @@ function ImgInput({
   setCameraStatus,
   setCameraRequiredToProcess,
   trueRequredMaster,
+  ui,
 }) {
+  const req = trueRequredMaster[objectType][label];
+  const edit = dcTrack_EDITABLE[objectType][label];
+
   return (
-    <div className={boxStyle}>
-      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
-        {dcTrack_READABLE[objectType][label]}
-      </label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <input
           name={label}
           type="text"
-          placeholder={label}
-          className={inputStyle}
-          required={trueRequredMaster[objectType][label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
+          required={req}
+          readOnly={!edit}
+          className={ui.input}
+          value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          value={APIPayloadHolder[label] || ""}
         />
+
         <button
           type="button"
-          className={buttonStyle}
+          className={ui.mainButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(1);
-            document.getElementById("CameraModal").style.display = "block";
+            const el = document.getElementById("CameraModal");
+            if (el) el.style.display = "block";
           }}
         >
           Scan
         </button>
+
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: label });
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
+            setMessage({ type: "info_header", text, label });
           }}
         >
           ?
@@ -387,9 +391,7 @@ function ImgInput({
     </div>
   );
 }
-//#endregion IMG_INPUT
 
-//#region QR_INPUT
 function QrInput({
   label,
   objectType,
@@ -399,42 +401,49 @@ function QrInput({
   setCameraStatus,
   setCameraRequiredToProcess,
   trueRequredMaster,
+  ui,
 }) {
+  const req = trueRequredMaster[objectType][label];
+  const edit = dcTrack_EDITABLE[objectType][label];
+
   return (
-    <div className={boxStyle}>
-      <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
-        {dcTrack_READABLE[objectType][label]}
-      </label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <input
           name={label}
           type="text"
-          placeholder={label}
-          className={inputStyle}
-          required={trueRequredMaster[objectType][label]}
-          readOnly={!dcTrack_EDITABLE[objectType][label]}
+          required={req}
+          readOnly={!edit}
+          className={ui.input}
+          value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
-          value={APIPayloadHolder[label] || ""}
         />
+
         <button
           type="button"
-          className={buttonStyle}
+          className={ui.mainButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(2);
-            document.getElementById("CameraModal").style.display = "block";
+            const el = document.getElementById("CameraModal");
+            if (el) el.style.display = "block";
           }}
         >
           Scan
         </button>
+
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
-            setMessage({ type: "info_header", text, label: label });
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
+            setMessage({ type: "info_header", text, label });
           }}
         >
           ?
@@ -443,22 +452,23 @@ function QrInput({
     </div>
   );
 }
-//#endregion QR_INPUT
 
-//#region OPERATION_INPUT
-function OperationInput({ APIAction }) {
+/* OPERATION INPUT */
+function OperationInput({ APIAction, ui }) {
   return (
-    <div className={boxStyle}>
-      <label className={labelStyle}>Operation</label>
-      <div className={innerBoxStyle}>
-        <input type="text" className={inputStyle} value={APIAction} readOnly />
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={ui.label}>Operation</label>
+      </div>
+
+      <div className={ui.cardBody}>
+        <input type="text" className={ui.input} value={APIAction} readOnly />
       </div>
     </div>
   );
 }
-//#endregion OPERATION_INPUT
 
-//#region OBJECT_INPUT
+/* OBJECT INPUT */
 function ObjectInput({
   objectType,
   setObjectFields,
@@ -467,42 +477,44 @@ function ObjectInput({
   setAPIPayloadHolder,
   resetAPUIPayloadHolder,
   setAPIAction,
+  ui,
 }) {
   return (
-    <div className={boxStyle}>
-      <label className={labelStyle}>Object</label>
-      <div className={innerBoxStyle}>
+    <div className={ui.cardOuter}>
+      <div className={ui.cardHeader}>
+        <label className={ui.label}>Object</label>
+      </div>
+
+      <div className={ui.cardBody}>
         <select
           value={objectType}
-          className={selectStyle}
+          className={ui.select}
           onChange={(e) => {
             const type = e.target.value;
             if (type === "") return;
+
             setAPIAction("ADD");
             setObjectFields(dcTrack_ENDPOINTS[type]);
             setObjectType(type);
             setURL(dcTrack_URL[type]);
             resetAPUIPayloadHolder();
+
             setAPIPayloadHolder({
-              type: type,
-              field: "Object ",
+              type,
+              field: "Object",
               value: type,
             });
           }}
         >
           <option value="">Select</option>
-          {Object.keys(dcTrack_ENDPOINTS).map((key) => {
-            return (
-              <option key={key} value={key}>
-                {key}
-              </option>
-            );
-          })}
+
+          {Object.keys(dcTrack_ENDPOINTS).map((key) => (
+            <option key={key} value={key}>
+              {key}
+            </option>
+          ))}
         </select>
       </div>
     </div>
   );
 }
-//#endregion OBJECT_INPUT
-
-export default Audit;

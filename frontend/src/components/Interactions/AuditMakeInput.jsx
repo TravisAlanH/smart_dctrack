@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
-import { headerEndpoints } from "../Helpers/Endpoints";
-import { headerDescriptions } from "../Helpers/HeadersAsObjects";
 import { dcTrack_DISCRIPTIONS } from "../Helpers/dcTrackAPIDiscriptions";
 
 function AuditMakeInput({
@@ -14,6 +12,7 @@ function AuditMakeInput({
   setCameraStatus,
   setCameraRequiredToProcess,
   trueRequredMaster,
+  ui,
 }) {
   const pullAllMakesFromInstance = APIStore((s) => s.pullAllMakesFromInstance);
   const makeList = APIStore((s) => s.data.MakeDatafromInstance.make);
@@ -25,7 +24,6 @@ function AuditMakeInput({
 
   const inputRef = useRef(null);
 
-  // Fetch from server when user enters 3+ characters
   useEffect(() => {
     if (query.length >= 3) {
       pullAllMakesFromInstance(query);
@@ -35,49 +33,46 @@ function AuditMakeInput({
     }
   }, [query, pullAllMakesFromInstance]);
 
-  // Filter after store updates
   useEffect(() => {
     if (query.length < 3) return;
 
     const low = query.toLowerCase();
-
     const filtered = makeList.filter((x) => x.value.toLowerCase().includes(low)).sort((a, b) => a.value.localeCompare(b.value));
 
     setResults(filtered);
     setShowDrop(filtered.length > 0);
   }, [makeList, query]);
 
-  const selectedValue = APIPayloadHolder[[label]] || "";
-
-  const boxStyle = "flex flex-col items-start bg-slate-400 mx-3 rounded-md py-1";
-  const innerBoxStyle = "w-full flex flex-row gap-2 px-2";
-  const labelStyle = "px-2 text-sm";
-  const requiredLableStyle = "px-2 text-sm text-red-600 font-bold";
-  const inputStyle = "border border-gray-400 rounded px-2 py-1 text-lg w-full";
-  const buttonStyle = "bg-blue-600 text-white w-[20%] rounded text-lg";
-  const descriptionButtonStyle = "bg-green-600 text-white rounded px-2 py-1 text-sm";
+  const selectedValue = APIPayloadHolder[label] || "";
+  const required = trueRequredMaster[objectType][label];
+  const readOnly = false;
 
   return (
-    <div className={boxStyle} style={{ position: "relative" }}>
-      <label className={!trueRequredMaster[label] ? requiredLableStyle : labelStyle}>Make</label>
+    <div className={ui.cardOuter} style={{ position: "relative" }}>
+      <div className={ui.cardHeader}>
+        <label className={required ? ui.labelRequired : ui.label}>Make</label>
+      </div>
 
-      <div className={innerBoxStyle}>
+      <div className={ui.cardBody}>
         <input
           ref={inputRef}
           name={label}
           type="text"
+          className={ui.input}
+          required={required}
+          readOnly={readOnly}
           placeholder={label}
-          className={inputStyle}
-          required={trueRequredMaster[label]}
           value={query || selectedValue}
           onChange={(e) => {
             const text = e.target.value;
             setQuery(text);
+
             setAPIPayloadHolder({
               type: objectType,
               field: label,
               value: text,
             });
+
             setSelectedMake(text);
           }}
           onFocus={() => {
@@ -90,8 +85,8 @@ function AuditMakeInput({
             style={{
               position: "absolute",
               top: "100%",
-              left: "0",
-              right: "0",
+              left: 0,
+              right: 0,
               zIndex: 50,
               background: "white",
               border: "1px solid #ccc",
@@ -102,23 +97,20 @@ function AuditMakeInput({
             {results.map((item) => (
               <div
                 key={item.id}
-                style={{
-                  padding: "0.5rem",
-                  cursor: "pointer",
-                }}
+                style={{ padding: "0.5rem", cursor: "pointer" }}
                 onClick={() => {
                   setQuery(item.value);
+
                   setAPIPayloadHolder({
                     type: objectType,
                     field: label,
                     value: item.value,
                   });
+
                   setSelectedMake(item.value);
                   setShowDrop(false);
 
-                  if (inputRef.current) {
-                    inputRef.current.blur();
-                  }
+                  if (inputRef.current) inputRef.current.blur();
                 }}
               >
                 {item.value}
@@ -129,11 +121,13 @@ function AuditMakeInput({
 
         <button
           type="button"
-          className={buttonStyle}
+          className={ui.mainButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(1);
-            document.getElementById("CameraModal").style.display = "block";
+
+            const el = document.getElementById("CameraModal");
+            if (el) el.style.display = "block";
           }}
         >
           Scan
@@ -141,9 +135,9 @@ function AuditMakeInput({
 
         <button
           type="button"
-          className={descriptionButtonStyle}
+          className={ui.infoButton}
           onClick={() => {
-            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data available";
+            const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({
               type: "info_header",
               text,

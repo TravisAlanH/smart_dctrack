@@ -12,21 +12,12 @@ export default function Footer() {
   const buttonStyle = "bg-blue-600 text-white rounded px-3 py-1";
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
+  const pullChassisSQL = APIStore((s) => s.pullChassisSQL);
 
   return (
     <div className="border border-white bg-gray-800 h-[9rem]">
       <div className="flex flex-row justify-around items-start">
         {/* <div>
-          <button
-            className={buttonStyle}
-            onClick={() => {
-              pullLocationData();
-            }}
-          >
-            Locations to Log
-          </button>
-        </div>
-        <div>
           <button
             className={buttonStyle}
             onClick={() => {

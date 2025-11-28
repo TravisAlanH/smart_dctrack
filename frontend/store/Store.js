@@ -483,6 +483,7 @@ export const APIStore = create(
         return null;
       }
     },
+
     GETAssetDataByID: async (payload) => {
       const IPADDRESS = get().data.IPADDRESS;
       const LOGIN = get().data.BASE64USERPASS;
