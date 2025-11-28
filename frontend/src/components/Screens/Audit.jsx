@@ -19,6 +19,8 @@ import AuditCabinetInput from "../Interactions/AuditCabinetInput";
 import AuditUPositionInput from "../Interactions/AuditUPositionInput";
 import AuditCabinetSideInput from "../Interactions/AuditCabinetSideInput";
 import AuditDepthPositionInput from "../Interactions/AuditDepthPositionInput";
+import AuditRailsUsedInput from "../Interactions/AuditRailsUsedInput";
+import AuditOrientationTypeInput from "../Interactions/AuditOrientationTypeInput";
 
 //#region MAIN_COMPONENT
 function Audit() {
@@ -98,7 +100,6 @@ function Audit() {
           //#region AUIT_FORM
           <form className="w-full h-[95%] flex flex-col gap-3" onSubmit={handleFormSubmit}>
             {Object.keys(objectFields ?? {}).map((label, index) => {
-              console.log(label, trueRequredMaster[objectType][label]);
               if (showRequired && !trueRequredMaster[objectType][label]) return null;
               const type = dcTrack_INPUTTYPES[objectType][label];
 
@@ -170,6 +171,10 @@ function Audit() {
                   return <AuditCabinetSideInput />;
                 case "DEPTHPOSITION":
                   return <AuditDepthPositionInput />;
+                case "RAILSUSED":
+                  return <AuditRailsUsedInput />;
+                case "ORIENTATION":
+                  return <AuditOrientationTypeInput />;
                 default:
                   return <TextInput key={index} {...props} />;
               }
@@ -231,6 +236,12 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
 
 //#region NUMBER_INPUT
 function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster }) {
+  console.log("OBJECT TYPE IN NUMBER INPUT:", objectType);
+  console.log("DCTrack_ENDPOINTS:", dcTrack_ENDPOINTS);
+  console.log("LABEL:", label);
+  console.log("ENDPOINT:", dcTrack_ENDPOINTS[objectType][label]);
+  console.log("PAYLOAD VALUE:", APIPayloadHolder[dcTrack_ENDPOINTS[objectType][label]]);
+
   return (
     <div className={boxStyle}>
       <label className={trueRequredMaster[objectType][label] ? requiredLableStyle : labelStyle}>
@@ -244,7 +255,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
           className={inputStyle}
           required={trueRequredMaster[objectType][label]}
           readOnly={!dcTrack_EDITABLE[objectType][label]}
-          value={APIPayloadHolder[dcTrack_ENDPOINTS[objectType][label]]}
+          value={APIPayloadHolder[label]}
           onChange={(e) => {
             setAPIPayloadHolder({ type: objectType, field: label, value: e.target.value });
           }}
@@ -271,6 +282,7 @@ function OcrInput({
   objectType,
   setMessage,
   setAPIPayloadHolder,
+
   APIPayloadHolder,
   setCameraStatus,
   setCameraRequiredToProcess,

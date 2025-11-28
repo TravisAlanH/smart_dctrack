@@ -18,9 +18,6 @@ export default function Cabinet({ pageView }) {
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
-  const cabinetViewFrontBack = ReuseDataStateStore((s) => s.data.cabinetViewFrontBack);
-  const setCabinetViewFrontBack = ReuseDataStateStore((s) => s.setCabinetViewFrontBack);
-  const CassisModelsInCabinet = APIStore((s) => s.data.CassisModelsInCabinet);
   // const [selectedCabinet, setSelectedCabinet] = React.useState(null);
 
   React.useEffect(() => {
@@ -81,19 +78,6 @@ export default function Cabinet({ pageView }) {
     <div>
       <div className="flex flex-row justify-between px-4 m-4">
         <h2 className="font-bold text-lg">{CurrentCabinetName}</h2>
-        <button
-          onClick={() => {
-            const railArray = ["Front", "Back"];
-            const currentRail = railArray.indexOf(cabinetViewFrontBack);
-            let nextRail = currentRail + 1;
-
-            if (nextRail >= railArray.length) nextRail = 0;
-
-            setCabinetViewFrontBack(railArray[nextRail]);
-          }}
-        >
-          {`${cabinetViewFrontBack} Rail`}
-        </button>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -117,8 +101,6 @@ export default function Cabinet({ pageView }) {
                   item={startMap[ruNum]}
                   setSelectedInCabinetAsset={setSelectedInCabinetAsset}
                   setCabinetActionBar={setCabinetActionBar}
-                  cabinetViewFrontBack={cabinetViewFrontBack}
-                  CassisModelsInCabinet={CassisModelsInCabinet}
                 />
               );
             }
@@ -156,14 +138,7 @@ function EmptyUPosition({ ru }) {
   );
 }
 
-function FilledUPosition({
-  ru,
-  item,
-  setSelectedInCabinetAsset,
-  setCabinetActionBar,
-  cabinetViewFrontBack,
-  CassisModelsInCabinet,
-}) {
+function FilledUPosition({ ru, item, setSelectedInCabinetAsset, setCabinetActionBar }) {
   const height = `${item.tiRackUnits * 2.5}rem`;
   const lableHeight = `${item.tiRackUnits * 2.5}rem`;
 
@@ -174,7 +149,7 @@ function FilledUPosition({
           const start = Number(ru);
           const size = item.tiRackUnits;
           const value = start + (size - 1) - idx;
-          // console.log(item.tiName, item);
+          console.log(item.tiName, item);
           return (
             <label className={labelStyle} key={idx}>
               {value}
@@ -182,132 +157,28 @@ function FilledUPosition({
           );
         })}
       </div>
-      {cabinetViewFrontBack === "Front"
-        ? (() => {
-            if (item.radioRailsUsed === "Back") {
-              return (
-                <HalfView
-                  item={item}
-                  setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                  setCabinetActionBar={setCabinetActionBar}
-                  Rail="Back"
-                />
-              );
-            }
-            return (
-              <FullView
-                item={item}
-                setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                setCabinetActionBar={setCabinetActionBar}
-                CassisModelsInCabinet={CassisModelsInCabinet}
-                cabinetViewFrontBack={"Front"}
-              />
-            );
-          })()
-        : cabinetViewFrontBack === "Back"
-        ? (() => {
-            if (item.radioRailsUsed === "Front") {
-              return (
-                <HalfView
-                  item={item}
-                  setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                  setCabinetActionBar={setCabinetActionBar}
-                  Rail="Front"
-                />
-              );
-            }
-            return (
-              <FullView
-                item={item}
-                setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                setCabinetActionBar={setCabinetActionBar}
-                CassisModelsInCabinet={CassisModelsInCabinet}
-                cabinetViewFrontBack={"Back"}
-              />
-            );
-          })()
-        : (() => {
-            return (
-              <FullView
-                item={item}
-                setSelectedInCabinetAsset={setSelectedInCabinetAsset}
-                setCabinetActionBar={setCabinetActionBar}
-                CassisModelsInCabinet={CassisModelsInCabinet}
-                cabinetViewFrontBack={cabinetViewFrontBack}
-              />
-            );
-          })()}
-    </div>
-  );
-}
-
-function FullView({ item, setSelectedInCabinetAsset, setCabinetActionBar, CassisModelsInCabinet, cabinetViewFrontBack }) {
-  return (
-    <div className="flex flex-row w-full h-full items-center">
-      <div className={innerBoxStyle}>
-        <span type="text" className="">{`${item.tiName}`}</span>
-        <div className="flex flex-row text-sm gap-2">
-          <span type="text" className="">{`${item.cmbMake}`}</span>
-          <span type="text" className="">{`${item.cmbModel}`}</span>
+      <div className="flex flex-row w-full h-full items-center">
+        <div className={innerBoxStyle}>
+          <span type="text" className="">{`${item.tiName}`}</span>
+          <div className="flex flex-row text-sm gap-2">
+            <span type="text" className="">{`${item.cmbMake}`}</span>
+            <span type="text" className="">{`${item.cmbModel}`}</span>
+          </div>
+          {item.formFactor === "Chassis" ? (
+            <span className="text-sm font-semibold bg-blue-200 px-2 py-1 rounded-md">Chassis</span>
+          ) : null}
         </div>
-        {item.formFactor === "Chassis"
-          ? (() => {
-              const modelId = item.modelId;
-              const chassisModel = CassisModelsInCabinet.find((m) => m && m.modelId === modelId);
-              if (!chassisModel) {
-                return null;
-              }
-
-              const faces = chassisModel.chassisFaces;
-              if (!faces || !Array.isArray(faces) || faces.length === 0) {
-                return null;
-              }
-              const face = faces.find((f) => f.face === cabinetViewFrontBack);
-
-              if (!face) {
-                return null;
-              }
-              return <span className="text-sm font-semibold bg-blue-200 px-2 py-1 rounded-md">Chassis</span>;
-            })()
-          : null}
-      </div>
-      <div className="w-[15%] flex justify-center">
-        <button
-          className="border px-2 bg-green-500 rounded-md h-8"
-          onClick={() => {
-            setSelectedInCabinetAsset(item);
-            setCabinetActionBar(1);
-          }}
-        >
-          Act
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function HalfView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Rail }) {
-  return (
-    <div className="flex flex-row w-full h-full justify-end items-center">
-      <div
-        className="flex flex-row w-full h-full justify-center items-center p-2"
-        style={{
-          backgroundImage: "repeating-linear-gradient(45deg, #ccc 0 2px, transparent 2px 6px)",
-        }}
-      >
-        <div className="bg-white px-2 rounded-md">{`${Rail} Rail`}</div>
-      </div>
-
-      <div className="w-[15%] flex justify-center">
-        <button
-          className="border px-2 bg-green-500 rounded-md h-8"
-          onClick={() => {
-            setSelectedInCabinetAsset(item);
-            setCabinetActionBar(1);
-          }}
-        >
-          Act
-        </button>
+        <div className="w-[15%] flex justify-center">
+          <button
+            className="border px-2 bg-green-500 rounded-md h-8"
+            onClick={() => {
+              setSelectedInCabinetAsset(item);
+              setCabinetActionBar(1);
+            }}
+          >
+            Act
+          </button>
+        </div>
       </div>
     </div>
   );

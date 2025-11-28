@@ -19,6 +19,7 @@ let initState = {
     PredictTrigger: 0,
     pageView: 0,
     cabinetActionBar: 0,
+    cabinetViewFrontBack: "Front",
     Make: "",
     Model: "",
     AssetTag: "",
@@ -60,6 +61,7 @@ let initState = {
     CabinetsInLocation: {},
     AssetsInCabinet: {},
     ZeroUAssetsInCabinet: [],
+    CassisModelsInCabinet: [],
     CurrnetLocationID: null,
     CurrentCabinetName: "",
     CurrentCabinetID: null,
@@ -217,6 +219,14 @@ export const ReuseDataStateStore = create(
         data: {
           ...state.data,
           RequireToggleWatcher: !state.data.RequireToggleWatcher,
+        },
+      }));
+    },
+    setCabinetViewFrontBack: (View) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          cabinetViewFrontBack: View,
         },
       }));
     },
@@ -393,6 +403,18 @@ export const APIStore = create(
         set((state) => ({
           data: { ...state.data, ZeroUAssetsInCabinet: ZeroUData },
         }));
+        const CassisModels = [];
+        const modelIDs = new Set();
+        for (const item of res.data.cabinetItems) {
+          if (item.formFactor === "Chassis" && !modelIDs.has(item.modelId)) {
+            const data = await get().pullAllAssetData(item.modelId);
+            modelIDs.add(item.modelId);
+            CassisModels.push(data || null);
+          }
+        }
+        set((state) => ({
+          data: { ...state.data, CassisModelsInCabinet: CassisModels },
+        }));
         return res.data;
       } catch (err) {
         const status = err.response.data.backendData.httpCode || err.code || "ERR";
@@ -526,6 +548,24 @@ export const APIStore = create(
       const IPADDRESS = get().data.IPADDRESS;
       const LOGIN = get().data.BASE64USERPASS;
       const url = `/v2/models/${modelID}`;
+      const apiURL = `${BACKEND}/api${url}`;
+      try {
+        const res = await axios.get(apiURL, {
+          headers: {
+            "x-dctrack-host": IPADDRESS,
+            "x-login-details": LOGIN,
+          },
+        });
+        return res.data;
+      } catch (err) {
+        console.log(err);
+        return null;
+      }
+    },
+    pullAllAssetData: async (ID) => {
+      const IPADDRESS = get().data.IPADDRESS;
+      const LOGIN = get().data.BASE64USERPASS;
+      const url = `/v2/models/${ID}`;
       const apiURL = `${BACKEND}/api${url}`;
       try {
         const res = await axios.get(apiURL, {
