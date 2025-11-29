@@ -21,8 +21,6 @@ export default function CabinetActionBar({ style: button, setShow }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
-  console.log(cabinetActionBar);
-
   const Bars = [
     <BaseActionBar
       ShowEmptyUPToggleWatcher={ShowEmptyUPToggleWatcher}

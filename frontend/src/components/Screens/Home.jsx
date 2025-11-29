@@ -2,8 +2,8 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 
 export default function Home() {
-  const pullAuditTrail = APIStore((state) => state.pullAuditTrail);
-  const GETAssetDataByID = APIStore((state) => state.GETAssetDataByID);
+  const pullAuditTrail = APIStore((s) => s.pullAuditTrail);
+  const GETAssetDataByID = APIStore((s) => s.GETAssetDataByID);
 
   const [auditTrail, setAuditTrail] = React.useState([]);
   const [changedBySet, setChangedBySet] = React.useState(new Set());
@@ -14,28 +14,25 @@ export default function Home() {
     const data = await pullAuditTrail();
     const results = data.searchResults?.auditTrail || [];
 
-    // 1. Map of most recent entry per changedBy
+    // Map latest by user
     const byMap = new Map();
     for (const entry of results) {
       byMap.set(entry.changedBy, entry);
     }
     setChangedBySet(byMap);
 
-    // 1b. Load asset details using same index ordering
-    const orderedEntries = [...byMap.values()];
-
+    // Load assets for each entry
+    const ordered = [...byMap.values()];
     const assetList = [];
-    for (let i = 0; i < orderedEntries.length; i++) {
-      const entry = orderedEntries[i];
-      const payload = {
-        id: entry.entityId,
-        action: "get",
-      };
+
+    for (let i = 0; i < ordered.length; i++) {
+      const entry = ordered[i];
       if (entry.action === "DELETE") {
         assetList[i] = null;
         continue;
       }
       try {
+        const payload = { id: entry.entityId, action: "get" };
         const res = await GETAssetDataByID(payload);
         assetList[i] = res?.data?.item || null;
       } catch {
@@ -45,108 +42,120 @@ export default function Home() {
 
     setChangedByAssets(assetList);
 
-    // 2. Filter out Budget Status
-    const filteredResults = results.filter((entry) => entry && entry.field !== "Budget Status");
+    // Filter out Budget Status
+    const filtered = results.filter((e) => e.field !== "Budget Status");
 
-    // 3. Remove duplicate INSERT bursts
-    const deduped = [];
+    // Dedup inserts
+    const dedup = [];
     const seen = new Set();
 
-    for (const entry of filteredResults) {
-      if (entry.action === "INSERT") {
-        const key = `${entry.entityId}_${entry.changedDate}`;
+    for (const e of filtered) {
+      if (e.action === "INSERT") {
+        const key = `${e.entityId}_${e.changedDate}`;
         if (seen.has(key)) continue;
         seen.add(key);
       }
-      deduped.push(entry);
+      dedup.push(e);
     }
 
-    // 4. Last 50
-    const last = deduped.slice(-50);
+    // Last 50 newest first
+    const last = dedup.slice(-50).reverse();
+    console.log(last);
 
-    // 5. Newest first
-    setAuditTrail(last.reverse());
+    setAuditTrail(last);
   }
 
-  // console.log(auditTrail);
-  console.log(changedByAssets);
+  const pageWrapper = "w-full h-full overflow-y-auto px-3 pb-24 text-white";
 
-  const buttonStype = "bg-slate-300 test-black m-2 px-2 py-1 rounded hover:bg-slate-400";
+  // MATCHES CABINET BUTTON STYLE
+  const buttonStyle = "border border-gray-400 bg-slate-800 text-white px-3 py-1 rounded text-base hover:bg-slate-700";
+
+  const cardOuter = "flex flex-col bg-slate-700 border border-gray-500 rounded-lg w-full mt-4 p-3 text-white";
+
+  const listItem = "w-full bg-white border border-gray-400 rounded-md flex flex-row items-center h-14 px-2 text-black";
+
+  const leftTag =
+    "w-12 min-w-[3rem] h-full flex items-center justify-center bg-slate-200 border-r border-gray-400 text-base font-bold text-black";
+
+  const rowText = "text-base truncate";
 
   return (
-    <div>
-      <div className="flex flex-col justify-start items-center m-4">
-        <button className={buttonStype} onClick={() => handleAuditTrailRefresh()}>
+    <div className={pageWrapper}>
+      {/* Refresh button */}
+      <div className="w-full flex justify-center mt-4">
+        <button className={buttonStyle} onClick={handleAuditTrailRefresh}>
           Refresh
         </button>
-        <div className="border w-full mx-4">
-          <div className="border m-4">
-            <label className="font-bold text-white">Last Known Cabinet</label>
-            <div className="overflow-y-auto overflow-x-hidden">
-              {[...changedBySet].map((entry, index) => {
-                console.log(entry);
-                const data = entry[1];
-                return (
-                  <div key={index} className="border h-[3rem] text-white">
-                    <div className="flex flex-row justify-start h-full">
-                      <div className="w-[3rem] h-full border flex flex-row justify-center items-center">
-                        {data.action === "INSERT" ? "I" : data.action === "UPDATE" ? "U" : "D"}
-                      </div>
-                      <div className="w-[100%] h-full flex flex-col justify-start items-start px-2">
-                        <div className="flex flex-row w-full justify-between items-start">
-                          <span>{data.changedBy}</span>
-                          <span>{changedByAssets[index]?.cmbCabinet ?? ""}</span>
-                        </div>
-                        <div className="flex flex-row justify-start items-start text-sm">
-                          <span>{data.changedDate}</span>
-                        </div>
-                      </div>
-                    </div>
+      </div>
+
+      {/* Last Known Cabinet */}
+      <div className={cardOuter}>
+        <h3 className="text-base font-bold mb-2">Last Known Cabinet</h3>
+
+        <div className="flex flex-col gap-2 max-h-[22rem] overflow-y-auto">
+          {[...changedBySet].map((entry, index) => {
+            const data = entry[1];
+            return (
+              <div key={index} className={listItem}>
+                <div className={leftTag}>{data.action === "INSERT" ? "I" : data.action === "UPDATE" ? "U" : "D"}</div>
+
+                <div className="flex flex-col flex-1 px-2 justify-center text-black">
+                  <div className="flex flex-row w-full justify-between items-center gap-2">
+                    <span className={rowText}>{data.changedBy}</span>
+                    <span className="text-base text-right truncate max-w-[40%] text-black">
+                      {changedByAssets[index]?.cmbCabinet ?? ""}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+
+                  <span className="text-sm text-black">{data.changedDate}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <div className="border w-full mx-4">
-          <div className="border m-4">
-            <div className="flex flex-row justify-around">
-              <button className={buttonStype} onClick={() => setViewAduit("ALL")}>
-                All
-              </button>
-              <button className={buttonStype} onClick={() => setViewAduit("INSERT")}>
-                Creates
-              </button>
-              <button className={buttonStype} onClick={() => setViewAduit("UPDATE")}>
-                Updates
-              </button>
-              <button className={buttonStype} onClick={() => setViewAduit("DELETE")}>
-                Deletes
-              </button>
-            </div>
-            <div className="overflow-y-auto overflow-x-hidden h-[30rem]">
-              {auditTrail
-                .filter((entry) => (viewAudit === "ALL" ? true : entry.action === viewAudit))
-                .map((entry, index) => (
-                  <div key={index} className="border h-[3rem] text-white">
-                    <div className="flex flex-row justify-start h-full">
-                      <div className="w-[3rem] h-full border flex flex-row justify-center items-center">
-                        {entry.action === "INSERT" ? "I" : entry.action === "UPDATE" ? "U" : "D"}
-                      </div>
-                      <div className="w-[100%] h-full flex flex-col justify-start items-start px-2">
-                        <div className="flex flex-row justify-start items-start">
-                          <span>{entry.changedDate}</span>
-                        </div>
-                        <div className="flex flex-row w-full justify-between items-start">
-                          <span>{entry.changedBy}</span>
-                          <span>{entry.action === "DELETE" ? entry.changedFrom : entry.entityName}</span>
-                        </div>
-                      </div>
-                    </div>
+      </div>
+
+      {/* Audit Trail */}
+      <div className={cardOuter}>
+        <h3 className="text-base font-bold mb-3">Audit Trail</h3>
+
+        {/* Filters */}
+        <div className="flex flex-wrap justify-center gap-2 mb-3">
+          <button className={buttonStyle} onClick={() => setViewAduit("ALL")}>
+            All
+          </button>
+          <button className={buttonStyle} onClick={() => setViewAduit("INSERT")}>
+            Creates
+          </button>
+          <button className={buttonStyle} onClick={() => setViewAduit("UPDATE")}>
+            Updates
+          </button>
+          <button className={buttonStyle} onClick={() => setViewAduit("DELETE")}>
+            Deletes
+          </button>
+        </div>
+
+        {/* Rows */}
+        <div className="flex flex-col gap-2 max-h-[32rem] overflow-y-auto">
+          {auditTrail
+            .filter((e) => (viewAudit === "ALL" ? true : e.action === viewAudit))
+            .map((entry, index) => (
+              <div key={index} className={listItem}>
+                <div className={leftTag}>{entry.action === "INSERT" ? "I" : entry.action === "UPDATE" ? "U" : "D"}</div>
+
+                <div className="flex flex-col flex-1 px-2 justify-center text-black">
+                  <span className="text-sm text-black">{entry.changedDate}</span>
+
+                  <div className="flex flex-row w-full justify-between gap-2">
+                    <span className={rowText}>{entry.changedBy}</span>
+
+                    <span className="text-base text-right truncate max-w-[50%] text-black">
+                      {entry.action === "DELETE" ? entry.changedFrom : entry.entityName}
+                    </span>
                   </div>
-                ))}
-            </div>
-          </div>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </div>

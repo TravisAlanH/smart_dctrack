@@ -4,9 +4,10 @@ import { APIStore } from "../../../store/Store";
 export default function AuditDepthPositionInput({ ui }) {
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const setMessage = APIStore((s) => s.setResponseMessage);
+  const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
 
   const label = "Depth Position";
-  const options = ["FRONT", "CENTER", "BACK"];
+  const options = ["Front", "Center", "Back"];
 
   return (
     <div className={ui.cardOuter}>
@@ -18,6 +19,7 @@ export default function AuditDepthPositionInput({ ui }) {
         <select
           className={ui.select}
           required
+          value={APIPayloadHolder["radioDepthPosition"] || ""}
           onChange={(e) => {
             setSingleAPIPayloadHolder("radioDepthPosition", e.target.value || "");
           }}

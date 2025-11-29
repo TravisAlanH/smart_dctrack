@@ -21,8 +21,6 @@ export default function SlideMessage({ setShow }) {
   function formatMessage(m) {
     if (!m) return null;
 
-    console.log(m);
-
     React.useEffect(() => {
       if (Object.keys(m).length !== 0) setOpenResponseMessage(true);
     }, [m]);

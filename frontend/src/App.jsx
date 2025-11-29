@@ -13,6 +13,7 @@ import SlideContent from "./components/ActionBar/SlideContent/SlideContent";
 import Cabinet from "./components/Screens/Cabinet";
 import Settings from "./components/Screens/Settings";
 import Home from "./components/Screens/Home";
+import LoadingSpinner from "./components/LoadingSpinner/Spinner";
 
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
@@ -20,6 +21,7 @@ function App() {
   const pageView = ReuseDataStateStore((s) => s.data.pageView);
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
   const show = APIStore((s) => s.data.openResponseMessage);
+  const ContentLoading = APIStore((s) => s.data.ContentLoading);
 
   const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
 
@@ -68,6 +70,7 @@ function App() {
       <div className="h-[5.5rem] z-10">
         <Footer />
       </div>
+      {ContentLoading ? <LoadingSpinner /> : null}
     </div>
   );
 }

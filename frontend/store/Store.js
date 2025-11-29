@@ -46,6 +46,7 @@ let initState = {
     TextData: "",
   },
   APIStore: {
+    ContentLoading: true,
     BaseURL: "10.34.2.111",
     ResponseMessage: {},
     ResponseCode: "",
@@ -61,6 +62,10 @@ let initState = {
     CabinetsInLocation: {},
     AssetsInCabinet: {},
     ZeroUAssetsInCabinet: [],
+    BladesInCabinet: [],
+    BladesSignature: "",
+    ChassisSignature: "",
+    BladesModelsInCabinet: [],
     CassisModelsInCabinet: [],
     CurrnetLocationID: null,
     CurrentCabinetName: "",
@@ -276,11 +281,28 @@ export const ReuseDataStateStore = create(
 export const APIStore = create(
   devtools((set, get) => ({
     data: initState.APIStore,
+
     setAPIAction: (action) => {
       set((state) => ({
         data: { ...state.data, APIAction: action },
       }));
     },
+
+    setContentLoading: (bool) => {
+      set((state) => ({
+        data: { ...state.data, ContentLoading: bool },
+      }));
+    },
+
+    runWithLoading: async (fn) => {
+      get().setContentLoading(true);
+      try {
+        return await fn();
+      } finally {
+        get().setContentLoading(false);
+      }
+    },
+
     setResponseMessage: (obj) => {
       set((state) => ({
         data: { ...state.data, ResponseMessage: obj },
@@ -289,43 +311,43 @@ export const APIStore = create(
       if (hasContent) get().setOpenResponseMessage(true);
       else get().setOpenResponseMessage(false);
     },
+
     setResponseCode: (code) => {
       set((state) => ({
         data: { ...state.data, ResponseCode: code },
       }));
     },
+
     setOpenResponseMessage: (bool) => {
       set((state) => ({
         data: { ...state.data, openResponseMessage: bool },
       }));
     },
-    sendAPIPush: () => {
-      const { url, payload } = get().data.auditRequest;
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
 
-      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
+    sendAPIPush: () =>
+      get().runWithLoading(async () => {
+        const { url, payload } = get().data.auditRequest;
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
 
-      const apiURL = `${BACKEND}/api${url}?returnDetails=false`;
+        const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
 
-      axios
-        .post(apiURL, cleanPayload, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        })
-        .then((res) => {
-          const code = res.status;
-          const data = res.data;
+        const apiURL = `${BACKEND}/api${url}?returnDetails=false`;
 
-          get().setResponseCode(code);
+        try {
+          const res = await axios.post(apiURL, cleanPayload, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          get().setResponseCode(res.status);
           get().setResponseMessage({
             type: "APIResponse",
-            data,
+            data: res.data,
           });
-        })
-        .catch((err) => {
+        } catch (err) {
           const code = err.response?.data?.backendData?.httpCode || err.code || "ERR";
 
           const backend = err.response?.data?.backendData || err.response?.data || err;
@@ -335,370 +357,478 @@ export const APIStore = create(
             type: "APIResponse",
             data: backend,
           });
-        });
-    },
+        }
+      }),
 
-    EditAPIPush: (id) => {
-      const { payload } = get().data.auditRequest;
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
+    EditAPIPush: (id) =>
+      get().runWithLoading(async () => {
+        const { payload } = get().data.auditRequest;
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
 
-      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k != "objectType"));
+        const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k != "objectType"));
 
-      cleanPayload["_tiProceedOnWarning"] = true;
+        cleanPayload["_tiProceedOnWarning"] = true;
 
-      const apiURL = `${BACKEND}/api/v2/dcimoperations/items/${id}?returnDetails=true`;
+        const apiURL = `${BACKEND}/api/v2/dcimoperations/items/${id}?returnDetails=true`;
 
-      axios
-        .put(apiURL, cleanPayload, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        })
-        .then((res) => {
+        try {
+          const res = await axios.put(apiURL, cleanPayload, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
           const code = res.data.backendData?.httpCode || res.status;
           get().setResponseCode(code);
           get().setResponseMessage({
             type: "APIResponse",
             data: res.data.backendData,
           });
-        })
-        .catch((err) => {
-          console.log(err);
-
+        } catch (err) {
           const code = err.response?.data?.backendData?.httpCode || err.code;
+
           get().setResponseCode(code);
           get().setResponseMessage({
             type: "APIResponse",
             data: err.response?.data?.backendData,
           });
-        });
-    },
-
-    pullAllAssetFromCabinet: async (cabinetId) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const url = `/v2/items/cabinetItems/${cabinetId}`;
-      const apiURL = `${BACKEND}/api${url}`;
-
-      try {
-        const res = await axios.get(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-        set((state) => ({
-          data: { ...state.data, AssetsInCabinet: res.data },
-        }));
-        const ZeroUData = [];
-        for (const item of res.data.cabinetItems) {
-          if (item.mounting === "ZeroU") {
-            const data = await get().GETAssetDataByID({ id: item.id, action: "get" });
-            ZeroUData.push(data?.data?.item || null);
-          }
         }
-        set((state) => ({
-          data: { ...state.data, ZeroUAssetsInCabinet: ZeroUData },
-        }));
-        const CassisModels = [];
-        const modelIDs = new Set();
-        for (const item of res.data.cabinetItems) {
-          if (item.formFactor === "Chassis" && !modelIDs.has(item.modelId)) {
-            const data = await get().pullAllAssetData(item.modelId);
-            modelIDs.add(item.modelId);
-            CassisModels.push(data || null);
-          }
-        }
-        set((state) => ({
-          data: { ...state.data, CassisModelsInCabinet: CassisModels },
-        }));
-        return res.data;
-      } catch (err) {
-        const status = err.response.data.backendData.httpCode || err.code || "ERR";
+      }),
 
-        get().setResponseCode(status);
-        get().setResponseMessage({ type: "APIResponse", data: err });
-        console.log(err);
-        return null;
-      }
-    },
-    deleteAsset: async (assetId) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
+    pullAllAssetFromCabinet: async (cabinetId) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
 
-      const url = `/v2/dcimoperations/items/${assetId}`;
-      const apiURL = `${BACKEND}/api${url}`;
+        const url = `/v2/items/cabinetItems/${cabinetId}`;
+        const apiURL = `${BACKEND}/api${url}`;
 
-      try {
-        const res = await axios.delete(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-
-        return res.data;
-      } catch (err) {
-        const status = err.response.data.backendData.httpCode || err.code || "ERR";
-
-        get().setResponseCode(status);
-        get().setResponseMessage({ type: "APIResponse", data: err });
-        console.log(err);
-        return null;
-      }
-    },
-    pullCabinetData: async (locationId) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const url = "/v2/capacity/cabinets/list/search";
-
-      const payload = {
-        ruHeight: 1,
-        locationIds: [locationId],
-      };
-
-      const apiURL = `${BACKEND}/api${url}`;
-
-      try {
-        const res = await axios.post(apiURL, payload, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-        set((state) => ({
-          data: { ...state.data, CabinetsInLocation: res.data },
-        }));
-        return res.data;
-      } catch (err) {
-        const status = err.response.data.backendData.httpCode || err.code || "ERR";
-
-        get().setResponseCode(status);
-        get().setResponseMessage({ type: "APIResponse", data: err });
-        console.log(err);
-        return null;
-      }
-    },
-
-    GETAssetDataByID: async (payload) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const url = "/v2/dcimoperations/items/";
-
-      const apiURL = `${BACKEND}/api${url}${payload.id}`;
-
-      try {
-        const res = await axios.get(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-        // set((state) => ({
-        //   data: { ...state.data, CabinetsInLocation: res.data },
-        // }));
-        if (payload.action === "update") {
-          set((state) => ({
-            data: { ...state.data, APIPayloadHolder: res.data.item },
-          }));
-        }
-        return res;
-      } catch (err) {
-        const status = err.response.data.backendData.httpCode || err.code || "ERR";
-
-        get().setResponseCode(status);
-        get().setResponseMessage({ type: "APIResponse", data: err });
-        console.log(err);
-        return null;
-      }
-    },
-    pullLocationData: async () => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const url = "/v1/locations";
-      const apiURL = `${BACKEND}/api${url}`;
-
-      try {
-        const res = await axios.get(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-
-        set((state) => ({
-          data: { ...state.data, LocationsOnInstance: res.data },
-        }));
-        return res.data;
-      } catch (err) {
-        const status = err.response.data.backendData.httpCode || err.code || "ERR";
-
-        get().setResponseCode(status);
-        get().setResponseMessage({ type: "APIResponse", data: err });
-        console.log(err);
-        return null;
-      }
-    },
-    pullRUDataFromSelectedModel: async (modelID) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-      const url = `/v2/models/${modelID}`;
-      const apiURL = `${BACKEND}/api${url}`;
-      try {
-        const res = await axios.get(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-        return res.data;
-      } catch (err) {
-        console.log(err);
-        return null;
-      }
-    },
-    pullAllAssetData: async (ID) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-      const url = `/v2/models/${ID}`;
-      const apiURL = `${BACKEND}/api${url}`;
-      try {
-        const res = await axios.get(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-        return res.data;
-      } catch (err) {
-        console.log(err);
-        return null;
-      }
-    },
-    pullAllMakesFromInstance: async (query) => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const term = query || "";
-      const url = `/v2/dcimoperations/search/makes/${encodeURIComponent(term)}`;
-      const apiURL = `${BACKEND}/api${url}`;
-
-      try {
-        const res = await axios.get(apiURL, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-
-        const list = res.data?.make ?? [];
-
-        const top10 = list.slice(0, 10);
-
-        set((state) => ({
-          data: {
-            ...state.data,
-            MakeDatafromInstance: { make: top10 },
-          },
-        }));
-
-        return list;
-      } catch (err) {
-        console.log(err);
-        return null;
-      }
-    },
-    pullAllModelsFromMake: async () => {
-      const IPADDRESS = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const selectedMake = ReuseDataStateStore.getState().data.SelectedMake;
-      const selectedModel = ReuseDataStateStore.getState().data.SelectedModel;
-
-      // if (!selectedMake) {
-      //   get().setResponseMessage("No make selected");
-      //   return null;
-      // }
-
-      const url = `/v2/quicksearch/models?pageNumber=1&pageSize=10`;
-      const apiURL = `${BACKEND}/api${url}`;
-
-      const payload = {
-        columns: [
-          {
-            name: "make",
-            filter: { contains: selectedMake },
-          },
-          { name: "model", filter: { contains: selectedModel } },
-        ],
-
-        selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }],
-        customFieldByLabel: false,
-      };
-
-      try {
-        const res = await axios.post(apiURL, payload, {
-          headers: {
-            "x-dctrack-host": IPADDRESS,
-            "x-login-details": LOGIN,
-          },
-        });
-        set((state) => ({
-          data: {
-            ...state.data,
-            ModelDataFromInstance: res.data?.searchResults?.models || [],
-          },
-        }));
-
-        return res.data;
-      } catch (err) {
-        const status = err.response.data.backendData.httpCode || err.code || "ERR";
-
-        get().setResponseCode(status);
-        get().setResponseMessage({ type: "APIResponse", data: err });
-        console.log(err);
-        return null;
-      }
-    },
-    pullAuditTrail: async () => {
-      const IP = get().data.IPADDRESS;
-      const LOGIN = get().data.BASE64USERPASS;
-
-      const url = `/v2/quicksearch/auditTrail?pageNumber=1&pageSize=0`;
-      const apiURL = `${BACKEND}/api${url}`;
-
-      try {
-        const res = await axios.post(
-          apiURL,
-          {
-            columns: [
-              {
-                name: "entityType",
-                filter: { eq: "Item" },
-              },
-            ],
-            selectedColumns: [],
-          },
-          {
+        try {
+          const res = await axios.get(apiURL, {
             headers: {
               "x-dctrack-host": IP,
               "x-login-details": LOGIN,
             },
-          }
-        );
+          });
 
-        return res.data;
-      } catch (err) {
-        console.log(err);
-        return null;
-      }
-    },
+          const items = res.data.cabinetItems || [];
+
+          // ------------------------------------------------
+          // Build signatures for change detection
+          // ------------------------------------------------
+          const newChassisSignature = items
+            .filter((i) => i.formFactor === "Chassis")
+            .map((i) => i.modelId)
+            .join("|");
+
+          const newBladeSignature = items
+            .filter((i) => i.mounting === "Blade")
+            .map((i) => i.modelId)
+            .join("|");
+
+          const { ChassisSignature: oldChassisSignature, BladesSignature: oldBladeSignature } = get().data;
+
+          // ------------------------------------------------
+          // Always update the base cabinet items
+          // ------------------------------------------------
+          set((state) => ({
+            data: { ...state.data, AssetsInCabinet: res.data },
+          }));
+
+          // ------------------------------------------------
+          // Zero U: ALWAYS refresh (as requested)
+          // ------------------------------------------------
+          const ZeroUData = [];
+          for (const item of items) {
+            if (item.mounting === "ZeroU") {
+              const data = await get().GETAssetDataByID({
+                id: item.id,
+                action: "get",
+              });
+              ZeroUData.push(data?.data?.item || null);
+            }
+          }
+
+          set((state) => ({
+            data: {
+              ...state.data,
+              ZeroUAssetsInCabinet: ZeroUData,
+            },
+          }));
+
+          // ------------------------------------------------
+          // Blade models: refresh ONLY IF signature changed
+          // ------------------------------------------------
+          if (newBladeSignature !== oldBladeSignature) {
+            const BladeModels = [];
+            const usedBladeModels = new Set();
+
+            for (const item of items) {
+              if (item.mounting === "Blade" && !usedBladeModels.has(item.modelId)) {
+                const data = await get().pullAllAssetData(item.modelId);
+                usedBladeModels.add(item.modelId);
+                BladeModels.push(data || null);
+              }
+            }
+
+            set((state) => ({
+              data: {
+                ...state.data,
+                BladesModelsInCabinet: BladeModels,
+                BladesSignature: newBladeSignature,
+              },
+            }));
+          }
+
+          const BladeData = [];
+          for (const item of items) {
+            if (item.mounting === "Blade") {
+              const data = await get().GETAssetDataByID({
+                id: item.id,
+                action: "get",
+              });
+              BladeData.push(data?.data?.item || null);
+            }
+          }
+
+          set((state) => ({
+            data: {
+              ...state.data,
+              BladesInCabinet: BladeData,
+            },
+          }));
+
+          // ------------------------------------------------
+          // Chassis models: refresh ONLY IF signature changed
+          // ------------------------------------------------
+          if (newChassisSignature !== oldChassisSignature) {
+            const CassisModels = [];
+            const modelIDs = new Set();
+
+            for (const item of items) {
+              if (item.formFactor === "Chassis" && !modelIDs.has(item.modelId)) {
+                const data = await get().pullAllAssetData(item.modelId);
+                modelIDs.add(item.modelId);
+                CassisModels.push(data || null);
+              }
+            }
+
+            set((state) => ({
+              data: {
+                ...state.data,
+                CassisModelsInCabinet: CassisModels,
+                ChassisSignature: newChassisSignature,
+              },
+            }));
+          }
+
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+          return null;
+        }
+      }),
+
+    deleteAsset: async (assetId) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const url = `/v2/dcimoperations/items/${assetId}`;
+        const apiURL = `${BACKEND}/api${url}`;
+
+        try {
+          const res = await axios.delete(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+          return null;
+        }
+      }),
+
+    pullCabinetData: async (locationId) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const url = "/v2/capacity/cabinets/list/search";
+        const apiURL = `${BACKEND}/api${url}`;
+
+        const payload = {
+          ruHeight: 1,
+          locationIds: [locationId],
+        };
+
+        try {
+          const res = await axios.post(apiURL, payload, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          set((state) => ({
+            data: { ...state.data, CabinetsInLocation: res.data },
+          }));
+
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+          return null;
+        }
+      }),
+
+    GETAssetDataByID: async (payload) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const apiURL = `${BACKEND}/api/v2/dcimoperations/items/${payload.id}`;
+
+        try {
+          const res = await axios.get(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          if (payload.action === "update") {
+            set((state) => ({
+              data: { ...state.data, APIPayloadHolder: res.data.item },
+            }));
+          }
+
+          return res;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+
+          return null;
+        }
+      }),
+
+    pullLocationData: async () =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const apiURL = `${BACKEND}/api/v1/locations`;
+
+        try {
+          const res = await axios.get(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          set((state) => ({
+            data: { ...state.data, LocationsOnInstance: res.data },
+          }));
+
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+          return null;
+        }
+      }),
+
+    pullRUDataFromSelectedModel: async (modelID) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const apiURL = `${BACKEND}/api/v2/models/${modelID}`;
+
+        try {
+          const res = await axios.get(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          return res.data;
+        } catch (err) {
+          return null;
+        }
+      }),
+
+    pullAllAssetData: async (ID) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const apiURL = `${BACKEND}/api/v2/models/${ID}`;
+
+        try {
+          const res = await axios.get(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+          return res.data;
+        } catch (err) {
+          return null;
+        }
+      }),
+
+    pullAllMakesFromInstance: async (query) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const term = query || "";
+        const apiURL = `${BACKEND}/api/v2/dcimoperations/search/makes/${encodeURIComponent(term)}`;
+
+        try {
+          const res = await axios.get(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          const list = res.data?.make ?? [];
+          const top10 = list.slice(0, 10);
+
+          set((state) => ({
+            data: {
+              ...state.data,
+              MakeDatafromInstance: { make: top10 },
+            },
+          }));
+
+          return list;
+        } catch (err) {
+          return null;
+        }
+      }),
+
+    pullAllModelsFromMake: async () =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const selectedMake = ReuseDataStateStore.getState().data.SelectedMake;
+        const selectedModel = ReuseDataStateStore.getState().data.SelectedModel;
+
+        const url = `/v2/quicksearch/models?pageNumber=1&pageSize=10`;
+        const apiURL = `${BACKEND}/api${url}`;
+
+        const payload = {
+          columns: [
+            {
+              name: "make",
+              filter: { contains: selectedMake },
+            },
+            { name: "model", filter: { contains: selectedModel } },
+          ],
+          selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }],
+          customFieldByLabel: false,
+        };
+
+        try {
+          const res = await axios.post(apiURL, payload, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          set((state) => ({
+            data: {
+              ...state.data,
+              ModelDataFromInstance: res.data?.searchResults?.models || [],
+            },
+          }));
+
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+
+          return null;
+        }
+      }),
+
+    pullAuditTrail: async () =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const apiURL = `${BACKEND}/api/v2/quicksearch/auditTrail?pageNumber=1&pageSize=0`;
+
+        try {
+          const res = await axios.post(
+            apiURL,
+            {
+              columns: [
+                {
+                  name: "entityType",
+                  filter: { eq: "Item" },
+                },
+              ],
+              selectedColumns: [],
+            },
+            {
+              headers: {
+                "x-dctrack-host": IP,
+                "x-login-details": LOGIN,
+              },
+            }
+          );
+
+          return res.data;
+        } catch (err) {
+          return null;
+        }
+      }),
+
     setAuditUrl: (url) => {
       set((state) => ({
         data: {
@@ -707,6 +837,7 @@ export const APIStore = create(
         },
       }));
     },
+
     setAuditPayload: (data) => {
       set((state) => ({
         data: {
@@ -715,6 +846,7 @@ export const APIStore = create(
         },
       }));
     },
+
     resetAPUIPayloadHolder: () => {
       set((state) => ({
         data: {
@@ -723,6 +855,7 @@ export const APIStore = create(
         },
       }));
     },
+
     setAPIPayloadHolder: (data) => {
       const state = get().data;
       const key = data.field;
@@ -737,6 +870,7 @@ export const APIStore = create(
         },
       }));
     },
+
     setSingleAPIPayloadHolder: (key, value) => {
       const state = get().data;
       set(() => ({
@@ -749,6 +883,7 @@ export const APIStore = create(
         },
       }));
     },
+
     setEditAPIPayloadHolder: (data) => {
       const state = get().data;
       set(() => ({
@@ -758,47 +893,57 @@ export const APIStore = create(
         },
       }));
     },
+
     setCurrentLocationID: (id) => {
       set((state) => ({
         data: { ...state.data, CurrnetLocationID: id },
       }));
     },
+
     setCurrentCabinetID: (id) => {
       const CabinetsInLocation = get().data.CabinetsInLocation;
       const cabinetName = (CabinetsInLocation?.cabinets || []).find((cab) => cab.cabinetId == id)?.cabinet;
+
       set((state) => ({
-        data: { ...state.data, CurrentCabinetName: cabinetName || "", CurrentCabinetID: id },
+        data: {
+          ...state.data,
+          CurrentCabinetName: cabinetName || "",
+          CurrentCabinetID: id,
+        },
       }));
     },
+
     setSelectedModelUR: (modelUR) => {
       set((state) => ({
         data: { ...state.data, SelectedModelUR: modelUR },
       }));
     },
-    loadSettingsIntoStore: async () => {
-      const defaults = {
-        IP_ADDRESS: "",
-        USERNAME: "",
-        PASSWORD: "",
-        BASE64USERPASS: "",
-        SETTINGPASS: "",
-        LOCATION: "",
-        LOCATIONCODE: "",
-      };
 
-      const stored = await loadSettingsMaster(defaults);
+    loadSettingsIntoStore: async () =>
+      get().runWithLoading(async () => {
+        const defaults = {
+          IP_ADDRESS: "",
+          USERNAME: "",
+          PASSWORD: "",
+          BASE64USERPASS: "",
+          SETTINGPASS: "",
+          LOCATION: "",
+          LOCATIONCODE: "",
+        };
 
-      set((state) => ({
-        data: {
-          ...state.data,
-          IPADDRESS: stored.IP_ADDRESS || "",
-          USERNAME: stored.USERNAME || "",
-          PASSWORD: stored.PASSWORD || "",
-          BASE64USERPASS: stored.BASE64USERPASS || "",
-          LOCATION: stored.LOCATION || "",
-          LOCATIONCODE: stored.LOCATIONCODE || "",
-        },
-      }));
-    },
+        const stored = await loadSettingsMaster(defaults);
+
+        set((state) => ({
+          data: {
+            ...state.data,
+            IPADDRESS: stored.IP_ADDRESS || "",
+            USERNAME: stored.USERNAME || "",
+            PASSWORD: stored.PASSWORD || "",
+            BASE64USERPASS: stored.BASE64USERPASS || "",
+            LOCATION: stored.LOCATION || "",
+            LOCATIONCODE: stored.LOCATIONCODE || "",
+          },
+        }));
+      }),
   }))
 );

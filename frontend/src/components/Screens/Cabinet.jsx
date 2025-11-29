@@ -297,8 +297,14 @@ function HalfView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Rail }
 }
 
 function SlotView({ slots, cabinetViewFrontBack, rackUnits }) {
+  const hasAnchor = slots.some((s) => s.anchor === true);
+
+  if (hasAnchor) {
+    return <AnchoredSlotView slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />;
+  }
+  return <NonAnchoredSlotView slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />;
+
   const count = slots.length;
-  console.log(slots);
 
   const sorted = [...slots].sort((a, b) => {
     const numA = Number(a.slotLabel);
@@ -321,6 +327,9 @@ function SlotView({ slots, cabinetViewFrontBack, rackUnits }) {
   const slotBoxClass =
     "flex flex-col items-center justify-center text-center border rounded px-1 py-1 " +
     "min-w-[3rem] max-w-[4rem] h-[6rem] text-base bg-slate-50 text-black";
+
+  // if anchor true split between two and bottom
+  // else each slot is its own
 
   return (
     <div className={containerBase}>
@@ -355,4 +364,49 @@ function SlotView({ slots, cabinetViewFrontBack, rackUnits }) {
       )}
     </div>
   );
+}
+
+function AnchoredSlotView({ slots }) {
+  const sorted = [...slots].sort((a, b) => a.slotNumber - b.slotNumber);
+
+  const count = sorted.length;
+  const half = count / 2;
+
+  const top = sorted.slice(0, half);
+  const bottom = sorted.slice(half);
+
+  const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden";
+
+  const slotRowClass = "flex flex-row gap-1";
+
+  const slotBoxClass =
+    "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-slate-50 text-black";
+
+  return (
+    <div className={containerBase}>
+      <div className={slotRowClass}>
+        {top.map((slot, idx) => {
+          const paired = bottom[idx];
+          return (
+            <div key={slot.modelChassisSlotId} className="flex flex-col items-center gap-2">
+              <div className={slotBoxClass}>
+                <span>{slot.slotLabel}</span>
+                {slot.anchor ? <span>A</span> : null}
+              </div>
+
+              <div className={slotBoxClass}>
+                <span>{paired.slotLabel}</span>
+                {paired.anchor ? <span>A</span> : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function NonAnchoredSlotView({ slots, cabinetViewFrontBack, rackUnits }) {
+  return <div>Non-Anchored Slot View - To Be Implemented</div>;
 }

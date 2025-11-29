@@ -4,9 +4,10 @@ import { APIStore } from "../../../store/Store";
 export default function AuditCabinetSideInput({ ui }) {
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const setMessage = APIStore((s) => s.setResponseMessage);
+  const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
 
   const label = "Cabinet Side";
-  const options = ["LEFT", "RIGHT"];
+  const options = ["Left", "Right"];
 
   return (
     <div className={ui.cardOuter}>
@@ -18,6 +19,7 @@ export default function AuditCabinetSideInput({ ui }) {
         <select
           className={ui.select}
           required
+          value={(APIPayloadHolder["radioCabinetSide"] || "").replace(" Side (Based on Cabinet Rear)", "")}
           onChange={(e) => {
             setSingleAPIPayloadHolder("radioCabinetSide", e.target.value || "");
           }}
