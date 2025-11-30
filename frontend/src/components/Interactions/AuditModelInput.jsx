@@ -23,15 +23,24 @@ function AuditModelInput({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [showDrop, setShowDrop] = useState(false);
+  const [suppressOpen, setSuppressOpen] = useState(false);
 
   const inputRef = useRef(null);
 
+  // Refresh models when make changes
   useEffect(() => {
     pullAllModelsFromMake();
   }, [selectedMake, pullAllModelsFromMake]);
 
+  // Open dropdown when typing unless selection triggered the update
   useEffect(() => {
+    if (suppressOpen) {
+      setSuppressOpen(false);
+      return;
+    }
+
     if (query.length < 2) return;
+
     pullAllModelsFromMake();
     setShowDrop(true);
     setResults(modelList);
@@ -92,7 +101,11 @@ function AuditModelInput({
                 className="flex flex-row justify-between mx-2 border-y"
                 style={{ padding: "0.5rem", cursor: "pointer" }}
                 onClick={() => {
+                  // Prevent reopening
+                  setSuppressOpen(true);
+
                   setQuery(item.model);
+                  setShowDrop(false);
 
                   setAPIPayloadHolder({
                     type: objectType,
@@ -106,15 +119,22 @@ function AuditModelInput({
                     value: item.model,
                   });
 
+                  if (item.formFactor) {
+                    setAPIPayloadHolder({
+                      type: objectType,
+                      field: "tiFormFactor",
+                      value: item.formFactor,
+                    });
+                  }
+
                   setSelectedModel(item.model);
                   setSelectedMake(item.make);
-                  setShowDrop(false);
 
                   if (inputRef.current) inputRef.current.blur();
                 }}
               >
-                <span>{item.model}</span>
-                <span>{item.make}</span>
+                <span className="text-black">{item.model}</span>
+                <span className="text-black">{item.make}</span>
               </div>
             ))}
           </div>

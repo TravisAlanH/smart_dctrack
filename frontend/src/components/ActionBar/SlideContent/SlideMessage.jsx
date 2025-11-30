@@ -17,6 +17,8 @@ export default function SlideMessage({ setShow }) {
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
   const resetAPUIPayloadHolder = APIStore((s) => s.resetAPUIPayloadHolder);
   const objectType = ReuseDataStateStore((s) => s.data.objectType);
+  const setZeroUAuditMap = APIStore((s) => s.setZeroUAuditMap);
+  const setBladeAuditMap = APIStore((s) => s.setBladeAuditMap);
 
   function formatMessage(m) {
     if (!m) return null;
@@ -41,7 +43,7 @@ export default function SlideMessage({ setShow }) {
       const name = m.label?.tiName || "";
       const disabledStyle = "bg-gray-600 text-white rounded px-3 py-1 mx-2 cursor-not-allowed";
       const enabledStyle = "bg-red-600 text-white rounded px-3 py-1 mx-2";
-
+      console.log(m.label);
       return (
         <div className="flex flex-col items-center pt-3">
           <div className="flex flex-row">
@@ -62,7 +64,12 @@ export default function SlideMessage({ setShow }) {
             disabled={deleteHold !== name}
             onClick={async () => {
               if (deleteHold !== name) return;
-
+              if (m.label?.tiMounting?.includes("Blade")) {
+                setBladeAuditMap({});
+              }
+              if (m.label?.tiMounting?.includes("ZeroU")) {
+                setZeroUAuditMap({});
+              }
               await deleteAsset(m.label.id);
 
               if (cabinetId) {

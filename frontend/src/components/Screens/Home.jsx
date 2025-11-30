@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
+import ModalButton from "../ActionBar/Modal/ModalButton";
 
 export default function Home() {
   const pullAuditTrail = APIStore((s) => s.pullAuditTrail);
@@ -158,6 +159,7 @@ export default function Home() {
             ))}
         </div>
       </div>
+      <ModalButton />
     </div>
   );
 }

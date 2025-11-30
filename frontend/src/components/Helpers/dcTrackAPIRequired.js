@@ -20,6 +20,7 @@ export const dcTrack_APIREQUIRED = {
     tiAssetTag: false,
     tiSerialNumber: false,
   },
+
   "Device / Standard": {
     cmbCabinet: true,
     cmbLocation: true,
@@ -39,6 +40,7 @@ export const dcTrack_APIREQUIRED = {
     tiAssetTag: false,
     tiSerialNumber: false,
   },
+
   Cabinet: {
     cmbLocation: true,
     cmbMake: true,
@@ -55,5 +57,27 @@ export const dcTrack_APIREQUIRED = {
     tiRackUnits: false,
     tiAssetTag: false,
     tiSerialNumber: false,
+  },
+
+  "Network / Blade": {
+    cmbCabinet: true,
+    cmbLocation: true,
+    cmbMake: true,
+    cmbModel: true,
+    cmbChassis: true,
+    cmbSlotPosition: true,
+    cmbStatus: false,
+    id: false,
+    radioChassisFace: true,
+    tiName: true,
+    tiClass: false,
+    tiDataPortCount: false,
+    tiLocationName: false,
+    tiRUs: false,
+    tiRackUnits: false,
+    tiSubclass: false,
+    tiAssetTag: false,
+    tiSerialNumber: false,
+    tiFormFactor: false,
   },
 };

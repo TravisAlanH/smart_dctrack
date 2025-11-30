@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
+import { MdOutlineHome, MdDataArray, MdOutlineStorage, MdOutlineSettings } from "react-icons/md";
 
 export default function Footer() {
   const pullCabinetData = APIStore((s) => s.pullCabinetData);
@@ -9,14 +10,14 @@ export default function Footer() {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
 
-  const buttonStyle = "bg-blue-600 text-white rounded px-3 py-1";
+  const buttonStyle = "bg-transparent text-white rounded px-3 py-1";
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
   const pullChassisSQL = APIStore((s) => s.pullChassisSQL);
 
   return (
-    <div className="border border-white bg-gray-800 h-[9rem]">
-      <div className="flex flex-row justify-around items-start">
+    <div className="bg-gray-800 h-[4rem]">
+      <div className="flex flex-row justify-around items-center h-full">
         {/* <div>
           <button
             className={buttonStyle}
@@ -34,7 +35,7 @@ export default function Footer() {
               setPageView(0);
             }}
           >
-            Home
+            <MdOutlineHome size={32} />
           </button>
         </div>
         <div>
@@ -45,7 +46,7 @@ export default function Footer() {
               setPageView(3);
             }}
           >
-            Audit
+            <MdDataArray size={32} />
           </button>
         </div>
         <div>
@@ -60,7 +61,7 @@ export default function Footer() {
               setPageView(1);
             }}
           >
-            Cabinet
+            <MdOutlineStorage size={32} />
           </button>
         </div>
         <div>
@@ -70,7 +71,7 @@ export default function Footer() {
               setPageView(2);
             }}
           >
-            Settings
+            <MdOutlineSettings size={32} />
           </button>
         </div>
       </div>

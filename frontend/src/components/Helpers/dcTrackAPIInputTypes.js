@@ -20,6 +20,7 @@ export const dcTrack_INPUTTYPES = {
     tiAssetTag: "QR",
     tiSerialNumber: "QR",
   },
+
   "Device / Standard": {
     cmbCabinet: "CABINET",
     cmbLocation: "LOCATION",
@@ -39,6 +40,7 @@ export const dcTrack_INPUTTYPES = {
     tiAssetTag: "QR",
     tiSerialNumber: "QR",
   },
+
   Cabinet: {
     cmbLocation: "LOCATION",
     cmbMake: "IMGMake",
@@ -55,5 +57,27 @@ export const dcTrack_INPUTTYPES = {
     tiRackUnits: "Number",
     tiAssetTag: "QR",
     tiSerialNumber: "QR",
+  },
+
+  "Network / Blade": {
+    cmbCabinet: "CABINET",
+    cmbLocation: "LOCATION",
+    cmbMake: "IMGMake",
+    cmbModel: "IMGModel",
+    cmbChassis: "CHASSIS",
+    cmbSlotPosition: "SLOTPOSITION",
+    cmbStatus: "String",
+    id: "String",
+    radioChassisFace: "CHASSISFACE",
+    tiName: "ORC",
+    tiClass: "Object",
+    tiDataPortCount: "Number",
+    tiLocationName: "ORC",
+    tiRUs: "Number",
+    tiRackUnits: "Number",
+    tiSubclass: "String",
+    tiAssetTag: "QR",
+    tiSerialNumber: "QR",
+    tiFormFactor: "String",
   },
 };

@@ -14,6 +14,7 @@ import Cabinet from "./components/Screens/Cabinet";
 import Settings from "./components/Screens/Settings";
 import Home from "./components/Screens/Home";
 import LoadingSpinner from "./components/LoadingSpinner/Spinner";
+import Modal from "./components/ActionBar/Modal/Modal";
 
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
@@ -22,6 +23,7 @@ function App() {
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
   const show = APIStore((s) => s.data.openResponseMessage);
   const ContentLoading = APIStore((s) => s.data.ContentLoading);
+  const ModalOpen = ReuseDataStateStore((s) => s.data.ModalOpen);
 
   const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
 
@@ -67,10 +69,11 @@ function App() {
         </div>
       ) : null}
 
-      <div className="h-[5.5rem] z-10">
+      <div className="h-[4rem] z-10">
         <Footer />
       </div>
       {ContentLoading ? <LoadingSpinner /> : null}
+      {ModalOpen === true ? <Modal /> : null}
     </div>
   );
 }

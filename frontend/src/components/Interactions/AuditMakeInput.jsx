@@ -22,9 +22,15 @@ function AuditMakeInput({
   const [results, setResults] = useState([]);
   const [showDrop, setShowDrop] = useState(false);
 
+  // stops dropdown from reopening
+  const selectionRef = useRef(false);
+
   const inputRef = useRef(null);
 
+  // effect 1, fetch makes
   useEffect(() => {
+    if (selectionRef.current) return;
+
     if (query.length >= 3) {
       pullAllMakesFromInstance(query);
     } else {
@@ -33,7 +39,10 @@ function AuditMakeInput({
     }
   }, [query, pullAllMakesFromInstance]);
 
+  // effect 2, filter
   useEffect(() => {
+    if (selectionRef.current) return;
+
     if (query.length < 3) return;
 
     const low = query.toLowerCase();
@@ -43,9 +52,7 @@ function AuditMakeInput({
     setShowDrop(filtered.length > 0);
   }, [makeList, query]);
 
-  const selectedValue = APIPayloadHolder[label] || "";
   const required = trueRequredMaster[objectType][label];
-  const readOnly = false;
 
   return (
     <div className={ui.cardOuter} style={{ position: "relative" }}>
@@ -60,10 +67,10 @@ function AuditMakeInput({
           type="text"
           className={ui.input}
           required={required}
-          readOnly={readOnly}
           placeholder={label}
-          value={query || selectedValue}
+          value={APIPayloadHolder[label] || query}
           onChange={(e) => {
+            selectionRef.current = false;
             const text = e.target.value;
             setQuery(text);
 
@@ -76,7 +83,14 @@ function AuditMakeInput({
             setSelectedMake(text);
           }}
           onFocus={() => {
-            if (results.length > 0) setShowDrop(true);
+            if (results.length > 0 && !selectionRef.current) {
+              setShowDrop(true);
+            }
+          }}
+          onBlur={() => {
+            setTimeout(() => {
+              selectionRef.current = false;
+            }, 150);
           }}
         />
 
@@ -96,9 +110,12 @@ function AuditMakeInput({
           >
             {results.map((item) => (
               <div
-                key={item.id}
+                key={item.value}
                 style={{ padding: "0.5rem", cursor: "pointer" }}
+                className="border-y mx-2"
                 onClick={() => {
+                  selectionRef.current = true;
+
                   setQuery(item.value);
 
                   setAPIPayloadHolder({
@@ -113,7 +130,7 @@ function AuditMakeInput({
                   if (inputRef.current) inputRef.current.blur();
                 }}
               >
-                {item.value}
+                <span className="text-black">{item.value}</span>
               </div>
             ))}
           </div>

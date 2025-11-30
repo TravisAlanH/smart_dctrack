@@ -3,6 +3,8 @@ import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { header } from "../Helpers/HeadersAsObjects";
 import { dcTrack_ENDPOINTS } from "../Helpers/dcTrackAPIReturns";
 import ToggleSwitch from "../Interactions/ToggleSwitch";
+import { dcTrack_COPY_REQUIRED } from "../Helpers/dcTrackCopyRequiredList";
+import { MdDelete, MdFileCopy, MdEditSquare, MdOutlineClose } from "react-icons/md";
 
 export default function CabinetActionBar({ style: button, setShow }) {
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
@@ -20,6 +22,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
+  const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
 
   const Bars = [
     <BaseActionBar
@@ -39,6 +42,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
       setObjectFields={setObjectFields}
       setObjectType={setObjectType}
       setAPIAction={setAPIAction}
+      setAPIPayloadHolder={setAPIPayloadHolder}
     />,
   ];
 
@@ -54,60 +58,140 @@ function AssetActions({
   setObjectFields,
   setObjectType,
   setAPIAction,
+  setAPIPayloadHolder,
 }) {
-  console.log(SelectedInCabinetAsset);
   return (
-    <div className="flex flex-row items-center">
+    <div className="flex flex-row w-full justify-between items-center">
       <div>
         <span className="text-lg font-semibold mx-2">{SelectedInCabinetAsset.tiName}</span>
       </div>
-      <div>
-        <button
-          className="bg-red-600 text-white rounded px-3 py-1 mx-2"
-          onClick={() => {
-            // GETAssetDataByID(SelectedInCabinetAsset.id);
-            const payload = {
-              id: SelectedInCabinetAsset.id,
-              action: "update",
-            };
-            const class_sub = SelectedInCabinetAsset.hasOwnProperty("tiClass")
-              ? SelectedInCabinetAsset["tiClass"]
-              : `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+      <div className="flex flex-row gap-2 justify-end items-center px-2">
+        <div>
+          <button
+            className="bg-red-600 text-white rounded px-3 py-1"
+            onClick={() => {
+              // GETAssetDataByID(SelectedInCabinetAsset.id);
+              const payload = {
+                id: SelectedInCabinetAsset.id,
+                action: "update",
+              };
+              let Type = "";
+              const m = SelectedInCabinetAsset.tiMounting || "";
 
-            console.log(class_sub);
-            setAPIAction("EDIT");
-            setObjectType(class_sub);
-            GETAssetDataByID(payload);
-            setObjectFields(dcTrack_ENDPOINTS[class_sub]);
-            setPageView(3);
-          }}
-        >
-          Edit
-        </button>
-      </div>
-      <div>
-        <button
-          className="bg-red-600 text-white rounded px-3 py-1 mx-2"
-          onClick={() => {
-            setMessage({
-              type: "Delete Asset",
-              text: "Are you sure you want to delete this asset? This action cannot be undone.",
-              label: SelectedInCabinetAsset,
-            });
-          }}
-        >
-          Delete
-        </button>
-      </div>
-      <div>
-        <button
-          className="bg-red-600 text-white rounded px-3 py-1 mx-2"
-          onClick={() => {
-            setCabinetActionBar(0);
-          }}
-        >
-          Close
-        </button>
+              switch (true) {
+                case m.includes("Blade"):
+                  Type = "Network / Blade";
+                  break;
+
+                case m.includes("ZeroU"):
+                  Type = "Rack PDU / AC Power";
+                  break;
+
+                case m.includes("Free Standing"):
+                  Type = "Cabinet";
+                  break;
+
+                case m.includes("Rackable"):
+                  Type = "Device / Standard";
+                  break;
+
+                default:
+                  Type = "Device / Standard";
+              }
+              // const class_sub = SelectedInCabinetAsset.hasOwnProperty("tiClass")
+              //   ? SelectedInCabinetAsset["tiClass"]
+              //   : `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+
+              console.log(Type);
+              setAPIAction("EDIT");
+              setObjectType(Type);
+              GETAssetDataByID(payload);
+              setObjectFields(dcTrack_ENDPOINTS[Type]);
+              setPageView(3);
+            }}
+          >
+            <MdEditSquare className="text-xl" />
+          </button>
+        </div>
+        <div>
+          <button
+            className="bg-red-600 text-white rounded px-3 py-1"
+            onClick={async () => {
+              // GETAssetDataByID(SelectedInCabinetAsset.id);
+              const payload = {
+                id: SelectedInCabinetAsset.id,
+                action: "update",
+              };
+              let Type = "";
+              const m = SelectedInCabinetAsset.tiMounting || "";
+
+              switch (true) {
+                case m.includes("Blade"):
+                  Type = "Network / Blade";
+                  break;
+
+                case m.includes("ZeroU"):
+                  Type = "Rack PDU / AC Power";
+                  break;
+
+                case m.includes("Free Standing"):
+                  Type = "Cabinet";
+                  break;
+
+                case m.includes("Rackable"):
+                  Type = "Device / Standard";
+                  break;
+
+                default:
+                  Type = "Device / Standard";
+              }
+              // const class_sub = SelectedInCabinetAsset.hasOwnProperty("tiClass")
+              //   ? SelectedInCabinetAsset["tiClass"]
+              //   : `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+
+              setAPIAction("ADD");
+              setObjectType(Type);
+              await GETAssetDataByID(payload);
+              Object.entries(dcTrack_COPY_REQUIRED[Type]).forEach(([key, flag]) => {
+                if (flag === true) {
+                  setAPIPayloadHolder({
+                    type: Type,
+                    field: key,
+                    value: "",
+                  });
+                }
+              });
+              setObjectFields(dcTrack_ENDPOINTS[Type]);
+              setPageView(3);
+            }}
+          >
+            <MdFileCopy className="text-xl" />
+          </button>
+        </div>
+        <div>
+          <button
+            className="bg-red-600 text-white rounded px-3 py-1"
+            onClick={() => {
+              setMessage({
+                type: "Delete Asset",
+                text: "Are you sure you want to delete this asset? This action cannot be undone.",
+                label: SelectedInCabinetAsset,
+              });
+            }}
+          >
+            <MdDelete className="text-xl" />
+          </button>
+        </div>
+        <div>
+          <button
+            className="bg-red-600 text-white rounded px-3 py-1"
+            onClick={() => {
+              setCabinetActionBar(0);
+            }}
+          >
+            <MdOutlineClose className="text-xl" />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { dcTrack_READABLE } from "../Helpers/dcTrackAPIReadable";
 import { dcTrack_ENDPOINTS } from "../Helpers/dcTrackAPIReturns";
 import { dcTrack_INPUTTYPES } from "../Helpers/dcTrackAPIInputTypes";
 import { dcTrack_URL } from "../Helpers/dcTrackAPIEndpointURL";
+import { dcTrack_Mounting_Translation } from "../Helpers/dcTrackAPIMountingTranslation";
 import { loadRequiredMaster } from "../Helpers/RequiredMaster";
 
 import AuditMakeInput from "../Interactions/AuditMakeInput";
@@ -19,6 +20,9 @@ import AuditCabinetSideInput from "../Interactions/AuditCabinetSideInput";
 import AuditDepthPositionInput from "../Interactions/AuditDepthPositionInput";
 import AuditRailsUsedInput from "../Interactions/AuditRailsUsedInput";
 import AuditOrientationTypeInput from "../Interactions/AuditOrientationTypeInput";
+import AuditChassisInput from "../Interactions/AuditChassisInput";
+import AuditChassisFaceInput from "../Interactions/AuditChassisFaceInput";
+import AuditSlotInput from "../Interactions/AuditSlotInput";
 
 /* Shared UI */
 export const auditUI = {
@@ -175,6 +179,12 @@ export default function Audit() {
                   return <AuditRailsUsedInput key={index} ui={auditUI} />;
                 case "ORIENTATION":
                   return <AuditOrientationTypeInput key={index} ui={auditUI} />;
+                case "CHASSIS":
+                  return <AuditChassisInput key={index} ui={auditUI} />;
+                case "CHASSISFACE":
+                  return <AuditChassisFaceInput key={index} ui={auditUI} />;
+                case "SLOTPOSITION":
+                  return <AuditSlotInput key={index} ui={auditUI} />;
                 default:
                   return <TextInput key={index} {...props} />;
               }
@@ -209,6 +219,7 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
           name={label}
           required={req}
           readOnly={!edit}
+          placeholder={label}
           type="text"
           className={ui.input}
           value={APIPayloadHolder[label] || ""}
@@ -248,6 +259,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
           type="number"
           required={req}
           readOnly={!edit}
+          placeholder={label}
           className={ui.input}
           value={APIPayloadHolder[label] ?? ""}
           onChange={(e) => {
@@ -296,6 +308,7 @@ function OcrInput({
           type="text"
           required={req}
           readOnly={!edit}
+          placeholder={label}
           className={ui.input}
           value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
@@ -357,6 +370,7 @@ function ImgInput({
           type="text"
           required={req}
           readOnly={!edit}
+          placeholder={label}
           className={ui.input}
           value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
@@ -418,6 +432,7 @@ function QrInput({
           type="text"
           required={req}
           readOnly={!edit}
+          placeholder={label}
           className={ui.input}
           value={APIPayloadHolder[label] || ""}
           onChange={(e) => {
@@ -482,7 +497,7 @@ function ObjectInput({
   return (
     <div className={ui.cardOuter}>
       <div className={ui.cardHeader}>
-        <label className={ui.label}>Object</label>
+        <label className={ui.label}>Mounting Type</label>
       </div>
 
       <div className={ui.cardBody}>
@@ -510,7 +525,7 @@ function ObjectInput({
 
           {Object.keys(dcTrack_ENDPOINTS).map((key) => (
             <option key={key} value={key}>
-              {key}
+              {dcTrack_Mounting_Translation[key]}
             </option>
           ))}
         </select>

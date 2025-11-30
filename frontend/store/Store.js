@@ -41,6 +41,7 @@ let initState = {
     objectFields: "",
     objectType: "",
     settingPassVarified: false,
+    ModalOpen: false,
   },
   DataState: {
     TextData: "",
@@ -116,6 +117,11 @@ export const ReuseDataStateStore = create(
           data: { ...state.data, settingPassVarified: false },
         }));
       }
+    },
+    setModalOpen: (bool) => {
+      set((state) => ({
+        data: { ...state.data, ModalOpen: bool },
+      }));
     },
     setSettingPassVarified: (bool) => {
       set((state) => ({
@@ -396,7 +402,16 @@ export const APIStore = create(
           });
         }
       }),
-
+    setZeroUAuditMap: (map) => {
+      set((state) => ({
+        data: { ...state.data, ZeroUAuditMap: map },
+      }));
+    },
+    setBladeAuditMap: (map) => {
+      set((state) => ({
+        data: { ...state.data, BladeAuditMap: map },
+      }));
+    },
     pullAllAssetFromCabinet: async (cabinetId) =>
       get().runWithLoading(async () => {
         const IP = get().data.IPADDRESS;
@@ -415,60 +430,120 @@ export const APIStore = create(
 
           const items = res.data.cabinetItems || [];
 
-          // ------------------------------------------------
-          // Build signatures for change detection
-          // ------------------------------------------------
-          const newChassisSignature = items
-            .filter((i) => i.formFactor === "Chassis")
-            .map((i) => i.modelId)
-            .join("|");
+          const chassisItems = items.filter((i) => i.formFactor === "Chassis");
+          const bladeItems = items.filter((i) => i.mounting === "Blade");
+          const zeroUItems = items.filter((i) => i.mounting === "ZeroU");
 
-          const newBladeSignature = items
-            .filter((i) => i.mounting === "Blade")
-            .map((i) => i.modelId)
-            .join("|");
+          const zeroUIds = zeroUItems.map((i) => i.id);
+          const bladeIds = bladeItems.map((i) => i.id);
 
-          const { ChassisSignature: oldChassisSignature, BladesSignature: oldBladeSignature } = get().data;
+          const newChassisSignature = chassisItems.map((i) => i.modelId).join("|");
 
-          // ------------------------------------------------
-          // Always update the base cabinet items
-          // ------------------------------------------------
+          const {
+            ChassisSignature: oldChassisSignature,
+            ZeroUAuditMap: oldZeroUAuditMap = {},
+            BladeAuditMap: oldBladeAuditMap = {},
+          } = get().data;
+
           set((state) => ({
-            data: { ...state.data, AssetsInCabinet: res.data },
+            data: {
+              ...state.data,
+              AssetsInCabinet: res.data,
+            },
           }));
 
-          // ------------------------------------------------
-          // Zero U: ALWAYS refresh (as requested)
-          // ------------------------------------------------
-          const ZeroUData = [];
-          for (const item of items) {
-            if (item.mounting === "ZeroU") {
+          let latestZeroUAuditMap = { ...oldZeroUAuditMap };
+          let latestBladeAuditMap = { ...oldBladeAuditMap };
+          let zeroUChanged = false;
+          let bladeChanged = false;
+
+          const idsToWatch = [...zeroUIds, ...bladeIds];
+
+          if (idsToWatch.length > 0) {
+            const auditRes = await get().pullAuditTrailbyIDs(idsToWatch);
+
+            const rows = auditRes?.searchResults?.auditTrail || auditRes?.auditTrail || [];
+
+            const sortedRows = [...rows].sort((a, b) => Number(b.auditTrailId) - Number(a.auditTrailId));
+
+            const latestByEntity = {};
+
+            for (const row of sortedRows) {
+              const eid = row.entityId;
+              if (!latestByEntity[eid]) {
+                latestByEntity[eid] = row.auditTrailId;
+              }
+            }
+
+            latestZeroUAuditMap = {};
+            for (const id of zeroUIds) {
+              if (latestByEntity[id] != null) {
+                latestZeroUAuditMap[id] = latestByEntity[id];
+              }
+            }
+
+            latestBladeAuditMap = {};
+            for (const id of bladeIds) {
+              if (latestByEntity[id] != null) {
+                latestBladeAuditMap[id] = latestByEntity[id];
+              }
+            }
+
+            for (const id of zeroUIds) {
+              const newId = latestZeroUAuditMap[id] ?? null;
+              const oldId = oldZeroUAuditMap[id] ?? null;
+              if (newId !== oldId) {
+                zeroUChanged = true;
+                break;
+              }
+            }
+
+            for (const id of bladeIds) {
+              const newId = latestBladeAuditMap[id] ?? null;
+              const oldId = oldBladeAuditMap[id] ?? null;
+              if (newId !== oldId) {
+                bladeChanged = true;
+                break;
+              }
+            }
+          }
+
+          if (zeroUChanged) {
+            const ZeroUData = [];
+            for (const item of zeroUItems) {
               const data = await get().GETAssetDataByID({
                 id: item.id,
                 action: "get",
               });
               ZeroUData.push(data?.data?.item || null);
             }
+
+            set((state) => ({
+              data: {
+                ...state.data,
+                ZeroUAssetsInCabinet: ZeroUData,
+                ZeroUAuditMap: latestZeroUAuditMap,
+              },
+            }));
           }
 
-          set((state) => ({
-            data: {
-              ...state.data,
-              ZeroUAssetsInCabinet: ZeroUData,
-            },
-          }));
+          if (bladeChanged) {
+            const BladeData = [];
+            for (const item of bladeItems) {
+              const data = await get().GETAssetDataByID({
+                id: item.id,
+                action: "get",
+              });
+              BladeData.push(data?.data?.item || null);
+            }
 
-          // ------------------------------------------------
-          // Blade models: refresh ONLY IF signature changed
-          // ------------------------------------------------
-          if (newBladeSignature !== oldBladeSignature) {
+            const bladeModelIds = new Set();
             const BladeModels = [];
-            const usedBladeModels = new Set();
 
-            for (const item of items) {
-              if (item.mounting === "Blade" && !usedBladeModels.has(item.modelId)) {
+            for (const item of bladeItems) {
+              if (!bladeModelIds.has(item.modelId)) {
                 const data = await get().pullAllAssetData(item.modelId);
-                usedBladeModels.add(item.modelId);
+                bladeModelIds.add(item.modelId);
                 BladeModels.push(data || null);
               }
             }
@@ -476,39 +551,19 @@ export const APIStore = create(
             set((state) => ({
               data: {
                 ...state.data,
+                BladesInCabinet: BladeData,
                 BladesModelsInCabinet: BladeModels,
-                BladesSignature: newBladeSignature,
+                BladeAuditMap: latestBladeAuditMap,
               },
             }));
           }
 
-          const BladeData = [];
-          for (const item of items) {
-            if (item.mounting === "Blade") {
-              const data = await get().GETAssetDataByID({
-                id: item.id,
-                action: "get",
-              });
-              BladeData.push(data?.data?.item || null);
-            }
-          }
-
-          set((state) => ({
-            data: {
-              ...state.data,
-              BladesInCabinet: BladeData,
-            },
-          }));
-
-          // ------------------------------------------------
-          // Chassis models: refresh ONLY IF signature changed
-          // ------------------------------------------------
           if (newChassisSignature !== oldChassisSignature) {
             const CassisModels = [];
             const modelIDs = new Set();
 
-            for (const item of items) {
-              if (item.formFactor === "Chassis" && !modelIDs.has(item.modelId)) {
+            for (const item of chassisItems) {
+              if (!modelIDs.has(item.modelId)) {
                 const data = await get().pullAllAssetData(item.modelId);
                 modelIDs.add(item.modelId);
                 CassisModels.push(data || null);
@@ -763,7 +818,7 @@ export const APIStore = create(
             },
             { name: "model", filter: { contains: selectedModel } },
           ],
-          selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }],
+          selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }, { name: "formFactor" }],
           customFieldByLabel: false,
         };
 
@@ -792,6 +847,50 @@ export const APIStore = create(
             data: err,
           });
 
+          return null;
+        }
+      }),
+    pullAuditTrailbyIDs: async (ids) =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+        const apiURL = `${BACKEND}/api/v2/quicksearch/auditTrail?pageNumber=1&pageSize=0`;
+
+        try {
+          const res = await axios.post(
+            apiURL,
+            {
+              columns: [
+                {
+                  name: "entityType",
+                  filter: { eq: "Item" },
+                },
+                {
+                  name: "entityId",
+                  filter: { in: ids },
+                },
+                {
+                  name: "action",
+                  filter: { in: ["INSERT", "UPDATE", "DELETE"] },
+                },
+              ],
+              selectedColumns: [],
+            },
+            {
+              headers: {
+                "x-dctrack-host": IP,
+                "x-login-details": LOGIN,
+              },
+            }
+          );
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
           return null;
         }
       }),

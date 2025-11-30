@@ -13,6 +13,8 @@ export default function SlideSetCabLoc() {
   const CurrnetLocationID = APIStore((s) => s.data.CurrnetLocationID);
   const LOCATION = APIStore((s) => s.data.LOCATION);
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
+  const setZeroUAuditMap = APIStore((s) => s.setZeroUAuditMap);
+  const setBladeAuditMap = APIStore((s) => s.setBladeAuditMap);
 
   React.useEffect(() => {
     pullLocationData();
@@ -62,6 +64,8 @@ export default function SlideSetCabLoc() {
           className={selectStyle}
           onChange={(e) => {
             setCurrentCabinetID(e.target.value);
+            setZeroUAuditMap({});
+            setBladeAuditMap({});
           }}
         >
           {LOCATIONCODE == null ? <option value={null}>Location Required</option> : <option value={null}>Select Cabinet</option>}

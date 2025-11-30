@@ -274,7 +274,12 @@ function FullView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Cassis
 
       {isChassis && chassisSlots ? (
         <div className="w-full flex-1 overflow-hidden">
-          <SlotView slots={chassisSlots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={item.tiRackUnits} />
+          <SlotView
+            Chassis={item}
+            slots={chassisSlots}
+            cabinetViewFrontBack={cabinetViewFrontBack}
+            rackUnits={item.tiRackUnits}
+          />
         </div>
       ) : null}
     </div>
@@ -296,13 +301,15 @@ function HalfView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Rail }
   );
 }
 
-function SlotView({ slots, cabinetViewFrontBack, rackUnits }) {
+function SlotView({ Chassis, slots, cabinetViewFrontBack, rackUnits }) {
   const hasAnchor = slots.some((s) => s.anchor === true);
 
   if (hasAnchor) {
-    return <AnchoredSlotView slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />;
+    return <AnchoredSlotView Chassis={Chassis} slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />;
   }
-  return <NonAnchoredSlotView slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />;
+  return (
+    <NonAnchoredSlotView Chassis={Chassis} slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />
+  );
 
   const count = slots.length;
 
@@ -366,38 +373,131 @@ function SlotView({ slots, cabinetViewFrontBack, rackUnits }) {
   );
 }
 
-function AnchoredSlotView({ slots }) {
-  const sorted = [...slots].sort((a, b) => a.slotNumber - b.slotNumber);
+function AnchoredSlotView({ Chassis, slots, cabinetViewFrontBack }) {
+  const BladesInCabinet = APIStore((s) => s.data.BladesInCabinet);
+  const BladesInChassis = BladesInCabinet.filter((b) => b.cmbChassis === Chassis.tiName);
+  const BladesInView = BladesInChassis.filter((b) => b.radioChassisFace === cabinetViewFrontBack);
 
-  const count = sorted.length;
-  const half = count / 2;
+  const sorted = [...slots].sort((a, b) => a.slotLabel - b.slotLabel);
+  const half = Math.floor(sorted.length / 2);
 
   const top = sorted.slice(0, half);
   const bottom = sorted.slice(half);
 
-  const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden";
-
+  const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden pb-2";
   const slotRowClass = "flex flex-row gap-1";
 
-  const slotBoxClass =
+  const box =
     "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
     "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-slate-50 text-black";
+
+  const boxRed =
+    "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-red-500 text-white";
+
+  const boxRedFull =
+    "flex flex-col items-center justify-between text-center border rounded px-1 pt-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[16rem] text-base bg-red-500 text-white";
+
+  // helper
+  function isBladeInSlot(label) {
+    return BladesInView.find((b) => String(b.cmbSlotPosition) === String(label));
+  }
+
+  function isBladeInSlotFull(blade) {
+    return blade.tiFormFactor === "Full";
+  }
 
   return (
     <div className={containerBase}>
       <div className={slotRowClass}>
         {top.map((slot, idx) => {
           const paired = bottom[idx];
+
+          const bladeTop = isBladeInSlot(slot.slotLabel);
+          const bladeBottom = isBladeInSlot(paired.slotLabel);
+
+          const bladeTopFull = bladeTop ? isBladeInSlotFull(bladeTop) : false;
+          const bladeBottomFull = bladeBottom ? isBladeInSlotFull(bladeBottom) : false;
+
+          // if (bladeTop) console.log("Top match", slot.slotLabel, bladeTop);
+          // if (bladeBottom) console.log("Bottom match", paired.slotLabel, bladeBottom);
+
           return (
             <div key={slot.modelChassisSlotId} className="flex flex-col items-center gap-2">
-              <div className={slotBoxClass}>
-                <span>{slot.slotLabel}</span>
-                {slot.anchor ? <span>A</span> : null}
-              </div>
+              {/* top slot */}
+              {bladeTopFull || bladeBottomFull ? (
+                <div className={boxRedFull}>
+                  <div className="flex flex-col items-center justify-between w-full flex-1">
+                    <div className="rotate-90 w-[50%] whitespace-nowrap text-center">
+                      <div className=" flex flex-row justify-start">{bladeTop?.tiName || bladeBottom?.tiName || ""}</div>
+                    </div>
+                  </div>
+                  <ActionButtons item={bladeTop || bladeBottom} />
+                </div>
+              ) : (
+                <div>
+                  <div className={bladeTop ? boxRed : box}>
+                    <span>{slot.slotLabel}</span>
+                    {bladeTop ? <ActionButtons item={bladeTop} /> : slot.anchor ? <span>A</span> : null}
+                  </div>
 
-              <div className={slotBoxClass}>
-                <span>{paired.slotLabel}</span>
-                {paired.anchor ? <span>A</span> : null}
+                  {/* bottom slot */}
+                  <div className={bladeBottom ? boxRed : box}>
+                    <span>{paired.slotLabel}</span>
+                    {bladeBottom ? <ActionButtons item={bladeBottom} /> : paired.anchor ? <span>A</span> : null}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function NonAnchoredSlotView({ Chassis, slots, cabinetViewFrontBack }) {
+  const BladesInCabinet = APIStore((s) => s.data.BladesInCabinet);
+  const BladesInChassis = BladesInCabinet.filter((b) => b.cmbChassis === Chassis.tiName);
+  const BladesInView = BladesInChassis.filter((b) => b.radioChassisFace === cabinetViewFrontBack);
+  const sorted = [...slots].sort((a, b) => a.slotLabel - b.slotLabel);
+  const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden pb-2";
+  const slotRowClass = "flex flex-row gap-1";
+
+  const box =
+    "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-slate-50 text-black";
+
+  const boxRed =
+    "flex flex-col items-center justify-between text-center border rounded px-1 pt-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-red-500 text-white";
+
+  // helper
+  function isBladeInSlot(label) {
+    return BladesInView.find((b) => String(b.cmbSlotPosition) === String(label));
+  }
+
+  return (
+    <div className={containerBase}>
+      <div className={slotRowClass}>
+        {sorted.map((slot) => {
+          const bladeTop = isBladeInSlot(slot.slotLabel);
+          return (
+            <div key={slot.modelChassisSlotId} className="flex flex-col justify-between items-center gap-2">
+              {/* top slot */}
+
+              <div className={bladeTop ? boxRed : box}>
+                {bladeTop ? (
+                  <div className="flex flex-col items-center justify-between w-full flex-1">
+                    <div className="rotate-90 w-[50%] whitespace-nowrap text-center">
+                      <div className=" flex flex-row justify-start">{bladeTop?.tiName || ""}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <span>{slot.slotLabel}</span>
+                )}
+                {bladeTop ? <ActionButtons item={bladeTop} /> : slot.anchor ? <span>A</span> : null}
               </div>
             </div>
           );
@@ -407,6 +507,20 @@ function AnchoredSlotView({ slots }) {
   );
 }
 
-function NonAnchoredSlotView({ slots, cabinetViewFrontBack, rackUnits }) {
-  return <div>Non-Anchored Slot View - To Be Implemented</div>;
+function ActionButtons({ item }) {
+  const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
+  const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        className="border border-green-700 px-2 bg-green-500 rounded-md h-10 w-full text-base text-black"
+        onClick={() => {
+          setSelectedInCabinetAsset(item);
+          setCabinetActionBar(1);
+        }}
+      >
+        Act
+      </button>
+    </div>
+  );
 }

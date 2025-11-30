@@ -20,6 +20,7 @@ export const dcTrack_EDITABLE = {
     tiAssetTag: true,
     tiSerialNumber: true,
   },
+
   "Device / Standard": {
     cmbCabinet: true,
     cmbLocation: true,
@@ -39,6 +40,7 @@ export const dcTrack_EDITABLE = {
     tiAssetTag: true,
     tiSerialNumber: true,
   },
+
   Cabinet: {
     cmbLocation: true,
     cmbMake: true,
@@ -55,5 +57,27 @@ export const dcTrack_EDITABLE = {
     tiRackUnits: false,
     tiAssetTag: true,
     tiSerialNumber: true,
+  },
+
+  "Network / Blade": {
+    cmbCabinet: true,
+    cmbLocation: true,
+    cmbMake: true,
+    cmbModel: true,
+    cmbChassis: true,
+    cmbSlotPosition: true,
+    cmbStatus: true,
+    id: true,
+    radioChassisFace: true,
+    tiClass: false,
+    tiDataPortCount: false,
+    tiLocationName: true,
+    tiName: true,
+    tiRUs: false,
+    tiRackUnits: false,
+    tiSubclass: false,
+    tiAssetTag: true,
+    tiSerialNumber: true,
+    tiFormFactor: false,
   },
 };

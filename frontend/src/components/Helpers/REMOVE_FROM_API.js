@@ -46,4 +46,5 @@ const REMOVED_ITEM_TEMPLATE = {
   tiPortNamePrefix: "PS",
   tiProcesses: 0,
   tiRAM: 0,
+  cbPropagate: "",
 };
