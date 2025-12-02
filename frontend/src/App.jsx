@@ -73,7 +73,7 @@ function App() {
         <Footer />
       </div>
       {ContentLoading ? <LoadingSpinner /> : null}
-      {ModalOpen === true ? <Modal /> : null}
+      {ModalOpen.open === true ? <Modal /> : null}
     </div>
   );
 }

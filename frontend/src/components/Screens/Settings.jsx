@@ -10,6 +10,10 @@ export default function Settings() {
   const LocationsOnInstance = APIStore((s) => s.data.LocationsOnInstance);
   const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
   const setCurrentLocationID = APIStore((s) => s.setCurrentLocationID);
+  const pullCustomFields = APIStore((s) => s.pullCustomFields);
+  const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
+
+  console.log(CustomFieldsOnInstance);
 
   React.useEffect(() => {
     loadSettingsIntoStore();
@@ -84,6 +88,7 @@ export default function Settings() {
     setStored(current);
     loadSettingsIntoStore();
     pullLocationData();
+    pullCustomFields();
   }
   //#endregion
 

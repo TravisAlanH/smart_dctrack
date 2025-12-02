@@ -80,6 +80,7 @@ export default function Audit() {
   function handleFormSubmit(e) {
     e.preventDefault();
     setPayload(APIPayloadHolder);
+    setAuditURL(dcTrack_URL[objectType]);
 
     if (APIAction === "ADD") {
       sendAPIPush();

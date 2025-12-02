@@ -23,28 +23,33 @@ function AuditModelInput({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [showDrop, setShowDrop] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [suppressOpen, setSuppressOpen] = useState(false);
 
   const inputRef = useRef(null);
 
-  // Refresh models when make changes
+  // refresh list when make changes
   useEffect(() => {
     pullAllModelsFromMake();
   }, [selectedMake, pullAllModelsFromMake]);
 
-  // Open dropdown when typing unless selection triggered the update
+  // open dropdown when typing unless selection suppressed it
   useEffect(() => {
     if (suppressOpen) {
       setSuppressOpen(false);
       return;
     }
 
-    if (query.length < 2) return;
+    if (query.length < 2) {
+      setShowDrop(false);
+      return;
+    }
 
     pullAllModelsFromMake();
-    setShowDrop(true);
     setResults(modelList);
-  }, [query, pullAllModelsFromMake]);
+    setShowDrop(true);
+    console.log("AuditModel 2nd");
+  }, [query, suppressOpen]);
 
   const selectedValue = APIPayloadHolder[label] || "";
   const required = trueRequredMaster[objectType][label];
@@ -63,7 +68,12 @@ function AuditModelInput({
           placeholder={label}
           className={ui.input}
           required={required}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
           value={query || selectedValue}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           onChange={(e) => {
             const text = e.target.value;
             setQuery(text);
@@ -76,12 +86,9 @@ function AuditModelInput({
 
             setSelectedModel(text);
           }}
-          onFocus={() => {
-            if (results.length > 0) setShowDrop(true);
-          }}
         />
 
-        {showDrop && (
+        {showDrop && focused && (
           <div
             style={{
               position: "absolute",
@@ -100,8 +107,8 @@ function AuditModelInput({
                 key={item.id}
                 className="flex flex-row justify-between mx-2 border-y"
                 style={{ padding: "0.5rem", cursor: "pointer" }}
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  // Prevent reopening
                   setSuppressOpen(true);
 
                   setQuery(item.model);
@@ -130,7 +137,7 @@ function AuditModelInput({
                   setSelectedModel(item.model);
                   setSelectedMake(item.make);
 
-                  if (inputRef.current) inputRef.current.blur();
+                  inputRef.current?.blur();
                 }}
               >
                 <span className="text-black">{item.model}</span>
@@ -146,7 +153,6 @@ function AuditModelInput({
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(1);
-
             const el = document.getElementById("CameraModal");
             if (el) el.style.display = "block";
           }}

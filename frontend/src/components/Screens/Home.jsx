@@ -159,7 +159,7 @@ export default function Home() {
             ))}
         </div>
       </div>
-      <ModalButton />
+      <ModalButton child={"new_Model"} />
     </div>
   );
 }

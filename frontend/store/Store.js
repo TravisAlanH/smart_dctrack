@@ -4,7 +4,7 @@ import { dcTrack_URL } from "../src/components/Helpers/dcTrackAPIEndpointURL";
 import { loadSettingsMaster } from "../src/components/Helpers/SettingsMaster";
 import axios from "axios";
 
-const BACKEND = import.meta.env.DEV ? "https://192.168.68.58:10000" : import.meta.env.VITE_BACKEND_URL;
+const BACKEND = import.meta.env.DEV ? "https://192.168.68.62:10000" : import.meta.env.VITE_BACKEND_URL;
 
 let initState = {
   NAMESTATE: {
@@ -41,7 +41,7 @@ let initState = {
     objectFields: "",
     objectType: "",
     settingPassVarified: false,
-    ModalOpen: false,
+    ModalOpen: { open: false, child: null },
   },
   DataState: {
     TextData: "",
@@ -80,6 +80,13 @@ let initState = {
     LOCATION: "",
     LOCATIONCODE: "",
     SelectedModelUR: 0,
+    CreateModel: {
+      holdMake: "",
+      holdModel: "",
+      url: "",
+      payload: {},
+    },
+    CustomFieldsOnInstance: {},
   },
 };
 
@@ -118,9 +125,15 @@ export const ReuseDataStateStore = create(
         }));
       }
     },
-    setModalOpen: (bool) => {
+    setModalOpen: (payload) => {
       set((state) => ({
-        data: { ...state.data, ModalOpen: bool },
+        data: {
+          ...state.data,
+          ModalOpen: {
+            open: payload.open,
+            child: payload.child,
+          },
+        },
       }));
     },
     setSettingPassVarified: (bool) => {
@@ -785,7 +798,10 @@ export const APIStore = create(
 
           const list = res.data?.make ?? [];
           const top10 = list.slice(0, 10);
-
+          if (ReuseDataStateStore.getState().data.ModalOpen.open) {
+            console.log(list);
+            return list;
+          }
           set((state) => ({
             data: {
               ...state.data,
@@ -798,7 +814,98 @@ export const APIStore = create(
           return null;
         }
       }),
+    pullCustomFields: async () =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
 
+        const apiURL = `${BACKEND}/api/v2/settings/lists/customFields`;
+
+        try {
+          const res = await axios.get(apiURL, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+          let CustomFieldList = res.data?.listContents || [];
+          let StoreData = {};
+          if (CustomFieldList.length > 0) {
+            CustomFieldList.forEach((Item) => {
+              console.log(Item);
+              const Subclass = {};
+              const Class = {};
+              Item.cmbSubclass.value.forEach((id_value) => {
+                Subclass[id_value.id] = id_value.value;
+              });
+              Item.cmbClass.value.forEach((id_value) => {
+                Class[id_value.id] = id_value.value;
+              });
+              let data = {
+                cmbSubclass: Subclass,
+                cmbClass: Class,
+                InputType: Item.tiType.value.value,
+              };
+              console.log(data);
+              StoreData[Item.tiLabel.value] = data;
+            });
+          }
+
+          set((state) => ({
+            data: {
+              ...state.data,
+              CustomFieldsOnInstance: StoreData,
+            },
+          }));
+          return;
+        } catch (err) {
+          return null;
+        }
+      }),
+    pullAllModelsInstance: async () =>
+      get().runWithLoading(async () => {
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const selectedMake = "";
+        const selectedModel = get().data.CreateModel.holdModel;
+
+        const url = `/v2/quicksearch/models?pageNumber=1&pageSize=10`;
+        const apiURL = `${BACKEND}/api${url}`;
+
+        const payload = {
+          columns: [
+            {
+              name: "make",
+              filter: { contains: selectedMake },
+            },
+            { name: "model", filter: { contains: selectedModel } },
+          ],
+          // selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }, { name: "formFactor" }],
+          customFieldByLabel: false,
+        };
+
+        try {
+          const res = await axios.post(apiURL, payload, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          return res.data;
+        } catch (err) {
+          const status = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          get().setResponseCode(status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: err,
+          });
+
+          return null;
+        }
+      }),
     pullAllModelsFromMake: async () =>
       get().runWithLoading(async () => {
         const IP = get().data.IPADDRESS;
@@ -1043,6 +1150,84 @@ export const APIStore = create(
             LOCATIONCODE: stored.LOCATIONCODE || "",
           },
         }));
+      }),
+    setCreateModel: ({ make, model, url, payload, setting }) => {
+      if (setting === "Reset") {
+        set((state) => ({
+          data: {
+            ...state.data,
+            CreateModel: {
+              holdMake: "",
+              holdModel: "",
+              url: "",
+              payload: {},
+            },
+          },
+        }));
+      }
+      if (setting === "Make_Model") {
+        set((state) => ({
+          data: {
+            ...state.data,
+            CreateModel: {
+              ...state.data.CreateModel,
+              holdMake: make,
+              holdModel: model,
+            },
+          },
+        }));
+      }
+      if (setting === "Payload") {
+        set((state) => ({
+          data: {
+            ...state.data,
+            CreateModel: {
+              ...state.data.CreateModel,
+              url: url,
+              payload: payload,
+            },
+          },
+        }));
+      }
+    },
+    createModel: () =>
+      get().runWithLoading(async () => {
+        const { url, payload } = get().data.CreateModel;
+        const IP = get().data.IPADDRESS;
+        const LOGIN = get().data.BASE64USERPASS;
+
+        const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([k]) => k !== "objectType"));
+        console.log("MODEL PAYLOAD SENDING:", cleanPayload);
+        const apiURL = `${BACKEND}/api${url}`;
+
+        try {
+          const res = await axios.post(apiURL, cleanPayload, {
+            headers: {
+              "x-dctrack-host": IP,
+              "x-login-details": LOGIN,
+            },
+          });
+
+          get().setResponseCode(res.status);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: res.data,
+          });
+
+          return res.data;
+        } catch (err) {
+          console.log(err);
+          const code = err.response?.data?.backendData?.httpCode || err.code || "ERR";
+
+          const backend = err.response?.data?.backendData || err.response?.data || err;
+
+          get().setResponseCode(code);
+          get().setResponseMessage({
+            type: "APIResponse",
+            data: backend,
+          });
+          return null;
+        }
       }),
   }))
 );

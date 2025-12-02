@@ -10,7 +10,7 @@ const app = express();
 // CORS
 app.use(
   cors({
-    origin: ["https://192.168.68.58:5173", "http://localhost:5173", "http://127.0.0.1:5173", "https://localhost:5173"],
+    origin: ["https://192.168.68.52:5173", "http://localhost:5173", "http://127.0.0.1:5173", "https://localhost:5173"],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "x-dctrack-host", "x-login-details"],
   })
@@ -168,7 +168,7 @@ const serverOptions = {
 const port = process.env.PORT || 10000;
 
 https.createServer(serverOptions, app).listen(port, () => {
-  console.log("Backend running on https://" + "192.168.68.58" + ":" + port);
+  console.log("Backend running on https://" + "192.168.68.62" + ":" + port);
 });
 
 // openssl genrsa -out server.key 2048
