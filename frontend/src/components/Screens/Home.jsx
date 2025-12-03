@@ -1,10 +1,13 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
 import ModalButton from "../ActionBar/Modal/ModalButton";
+import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
+import CutomFieldRequiredToggles from "../ActionBar/CustomFields/CutomFieldRequiredToggles";
 
 export default function Home() {
   const pullAuditTrail = APIStore((s) => s.pullAuditTrail);
   const GETAssetDataByID = APIStore((s) => s.GETAssetDataByID);
+  const pullCustomFields = APIStore((s) => s.pullCustomFields);
 
   const [auditTrail, setAuditTrail] = React.useState([]);
   const [changedBySet, setChangedBySet] = React.useState(new Set());

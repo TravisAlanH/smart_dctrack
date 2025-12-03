@@ -19,6 +19,7 @@ function AuditModelInput({
   const setSelectedModel = ReuseDataStateStore((s) => s.setSelectedModel);
   const setSelectedMake = ReuseDataStateStore((s) => s.setSelectedMake);
   const selectedMake = ReuseDataStateStore((s) => s.data.SelectedMake);
+  const setCustomFieldSelectedClassandSubclass = APIStore((s) => s.setCustomFieldSelectedClassandSubclass);
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -109,6 +110,7 @@ function AuditModelInput({
                 style={{ padding: "0.5rem", cursor: "pointer" }}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
+                  console.log(item);
                   setSuppressOpen(true);
 
                   setQuery(item.model);
@@ -126,6 +128,9 @@ function AuditModelInput({
                     value: item.model,
                   });
 
+                  if (item.class || item.subclass) {
+                    setCustomFieldSelectedClassandSubclass(item.class || "", item.subclass || "");
+                  }
                   if (item.formFactor) {
                     setAPIPayloadHolder({
                       type: objectType,

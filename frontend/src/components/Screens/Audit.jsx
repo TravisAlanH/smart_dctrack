@@ -23,6 +23,7 @@ import AuditOrientationTypeInput from "../Interactions/AuditOrientationTypeInput
 import AuditChassisInput from "../Interactions/AuditChassisInput";
 import AuditChassisFaceInput from "../Interactions/AuditChassisFaceInput";
 import AuditSlotInput from "../Interactions/AuditSlotInput";
+import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
 
 /* Shared UI */
 export const auditUI = {
@@ -55,6 +56,7 @@ export default function Audit() {
   const setObjectFields = ReuseDataStateStore((s) => s.setObjectFields);
   const objectType = ReuseDataStateStore((s) => s.data.objectType);
   const setObjectType = ReuseDataStateStore((s) => s.setObjectType);
+  const setCustomFieldSelectedClassandSubclass = APIStore((s) => s.setCustomFieldSelectedClassandSubclass);
 
   const APIAction = APIStore((s) => s.data.APIAction);
   const EditAPIPush = APIStore((s) => s.EditAPIPush);
@@ -110,6 +112,7 @@ export default function Audit() {
             setAPIPayloadHolder={setAPIPayloadHolder}
             resetAPUIPayloadHolder={resetAPUIPayloadHolder}
             setAPIAction={setAPIAction}
+            setCustomFieldSelectedClassandSubclass={setCustomFieldSelectedClassandSubclass}
             ui={auditUI}
           />
         </div>
@@ -190,6 +193,7 @@ export default function Audit() {
                   return <TextInput key={index} {...props} />;
               }
             })}
+            <CustomFieldInput_BASE showRequired={showRequired} />
 
             <div className="px-2 pt-2 flex justify-end">
               <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 text-sm">
@@ -493,6 +497,7 @@ function ObjectInput({
   setAPIPayloadHolder,
   resetAPUIPayloadHolder,
   setAPIAction,
+  setCustomFieldSelectedClassandSubclass,
   ui,
 }) {
   return (
@@ -508,6 +513,8 @@ function ObjectInput({
           onChange={(e) => {
             const type = e.target.value;
             if (type === "") return;
+
+            setCustomFieldSelectedClassandSubclass(type, type);
 
             setAPIAction("ADD");
             setObjectFields(dcTrack_ENDPOINTS[type]);

@@ -18,7 +18,6 @@ app.use(
 
 app.use(express.json());
 
-// GET
 app.get("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -52,7 +51,6 @@ app.get("/api/*", async (req, res) => {
   }
 });
 
-// POST
 app.post("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -86,7 +84,6 @@ app.post("/api/*", async (req, res) => {
   }
 });
 
-// DELETE
 app.delete("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -119,7 +116,6 @@ app.delete("/api/*", async (req, res) => {
   }
 });
 
-// PUT
 app.put("/api/*", async (req, res) => {
   try {
     const host = req.headers["x-dctrack-host"];
@@ -153,13 +149,6 @@ app.put("/api/*", async (req, res) => {
   }
 });
 
-// Webhook
-app.post("/dctrack-webhook", (req, res) => {
-  console.log("Webhook received:", req.body);
-  res.status(200).send("OK");
-});
-
-// HTTPS server
 const serverOptions = {
   key: fs.readFileSync("server.key"),
   cert: fs.readFileSync("server.crt"),

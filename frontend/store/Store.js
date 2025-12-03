@@ -3,6 +3,12 @@ import { devtools } from "zustand/middleware";
 import { dcTrack_URL } from "../src/components/Helpers/dcTrackAPIEndpointURL";
 import { loadSettingsMaster } from "../src/components/Helpers/SettingsMaster";
 import axios from "axios";
+import {
+  loadCustomFieldsLocal,
+  saveCustomFieldsLocal,
+  updateSelectedClass,
+  updateSelectedSubclass,
+} from "./../src/components/Helpers/CustomFieldMaster";
 
 const BACKEND = import.meta.env.DEV ? "https://192.168.68.62:10000" : import.meta.env.VITE_BACKEND_URL;
 
@@ -86,7 +92,10 @@ let initState = {
       url: "",
       payload: {},
     },
-    CustomFieldsOnInstance: {},
+    CustomFieldsOnInstance: {
+      SelectedClass: "",
+      SelectedSubclass: "",
+    },
   },
 };
 
@@ -828,40 +837,97 @@ export const APIStore = create(
               "x-login-details": LOGIN,
             },
           });
-          let CustomFieldList = res.data?.listContents || [];
-          let StoreData = {};
-          if (CustomFieldList.length > 0) {
-            CustomFieldList.forEach((Item) => {
-              console.log(Item);
-              const Subclass = {};
-              const Class = {};
-              Item.cmbSubclass.value.forEach((id_value) => {
-                Subclass[id_value.id] = id_value.value;
+
+          const list = res.data?.listContents || [];
+          let out = {};
+
+          if (list.length > 0) {
+            list.forEach((item) => {
+              const subclass = {};
+              const cls = {};
+
+              item.cmbSubclass.value.forEach((v) => {
+                subclass[v.id] = v.value;
               });
-              Item.cmbClass.value.forEach((id_value) => {
-                Class[id_value.id] = id_value.value;
+
+              item.cmbClass.value.forEach((v) => {
+                cls[v.id] = v.value;
               });
-              let data = {
-                cmbSubclass: Subclass,
-                cmbClass: Class,
-                InputType: Item.tiType.value.value,
+
+              out[item.tiLabel.value] = {
+                cmbSubclass: subclass,
+                cmbClass: cls,
+                id: item.contentDetailId,
+                inputType: item.tiType.value.value,
+                listValues: item.listValues,
+                Required: false,
               };
-              console.log(data);
-              StoreData[Item.tiLabel.value] = data;
             });
           }
+
+          const local = loadCustomFieldsLocal({
+            SelectedClass: "",
+            SelectedSubclass: "",
+          });
+
+          out.SelectedClass = local.SelectedClass || "";
+          out.SelectedSubclass = local.SelectedSubclass || "";
+
+          saveCustomFieldsLocal(out);
 
           set((state) => ({
             data: {
               ...state.data,
-              CustomFieldsOnInstance: StoreData,
+              CustomFieldsOnInstance: out,
             },
           }));
+
           return;
         } catch (err) {
           return null;
         }
       }),
+    setCustomFieldRequired: (field) =>
+      set((state) => {
+        const data = state.data.CustomFieldsOnInstance;
+        const updated = {
+          ...data,
+          [field]: {
+            ...data[field],
+            Required: !data[field]?.Required,
+          },
+        };
+        saveCustomFieldsLocal(updated);
+        return {
+          data: {
+            ...state.data,
+            CustomFieldsOnInstance: updated,
+          },
+        };
+      }),
+    setCustomFieldSelectedClassandSubclass: (cls, sub) =>
+      set((state) => {
+        const data = state.data.CustomFieldsOnInstance;
+
+        const updated1 = updateSelectedClass(data, cls || "");
+        const updated2 = updateSelectedSubclass(updated1, sub || "");
+
+        return {
+          data: {
+            ...state.data,
+            CustomFieldsOnInstance: updated2,
+          },
+        };
+      }),
+    replaceAllCustomFieldOnInstance: (data) => {
+      set((state) => ({
+        data: {
+          ...state.data,
+          CustomFieldsOnInstance: data,
+        },
+      }));
+    },
+
     pullAllModelsInstance: async () =>
       get().runWithLoading(async () => {
         const IP = get().data.IPADDRESS;
@@ -881,7 +947,6 @@ export const APIStore = create(
             },
             { name: "model", filter: { contains: selectedModel } },
           ],
-          // selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }, { name: "formFactor" }],
           customFieldByLabel: false,
         };
 
@@ -925,7 +990,7 @@ export const APIStore = create(
             },
             { name: "model", filter: { contains: selectedModel } },
           ],
-          selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }, { name: "formFactor" }],
+          selectedColumns: [{ name: "make" }, { name: "model" }, { name: "class" }, { name: "formFactor" }, { name: "subclass" }],
           customFieldByLabel: false,
         };
 

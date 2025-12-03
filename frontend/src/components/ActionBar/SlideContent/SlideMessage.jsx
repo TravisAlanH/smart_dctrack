@@ -159,6 +159,16 @@ export default function SlideMessage({ setShow }) {
         </div>
       );
     }
+    if (type === "Custom_Field_info_header") {
+      return (
+        <div className="flex flex-col text-left p-2 text-sm">
+          <div className="flex flex-row w-full justify-center">
+            <span className="font-bold">{[m.label]}</span>
+          </div>
+          <div className="mt-2 flex flex-row w-full justify-center">{m.text}</div>
+        </div>
+      );
+    }
 
     return <div className="p-2 text-sm">Unknown result</div>;
   }

@@ -1,6 +1,8 @@
 import React from "react";
 import { loadSettingsMaster, saveSettingsMaster, updateSettingsField } from "../Helpers/SettingsMaster";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
+import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
+import CutomFieldRequiredToggles from "../ActionBar/CustomFields/CutomFieldRequiredToggles";
 
 export default function Settings() {
   //#region STATE_SETTERS
@@ -12,8 +14,6 @@ export default function Settings() {
   const setCurrentLocationID = APIStore((s) => s.setCurrentLocationID);
   const pullCustomFields = APIStore((s) => s.pullCustomFields);
   const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
-
-  console.log(CustomFieldsOnInstance);
 
   React.useEffect(() => {
     loadSettingsIntoStore();
@@ -88,7 +88,6 @@ export default function Settings() {
     setStored(current);
     loadSettingsIntoStore();
     pullLocationData();
-    pullCustomFields();
   }
   //#endregion
 
@@ -296,6 +295,7 @@ export default function Settings() {
               </select>
             </div>
           </div>
+          <CutomFieldRequiredToggles />
         </div>
       )}
       {/* #endregion */}

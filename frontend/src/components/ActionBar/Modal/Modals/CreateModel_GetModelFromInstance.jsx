@@ -17,8 +17,6 @@ export default function CreateModel_GetModelFromInstance({ ui }) {
 
   const [payload, setPayload] = useState({});
 
-  console.log(payload);
-
   React.useEffect(() => {
     if (CreateModel.make === "" && CreateModel.model === "") {
       setPayload({});

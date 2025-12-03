@@ -23,6 +23,8 @@ export default function CabinetActionBar({ style: button, setShow }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
+  const resetAPUIPayloadHolder = APIStore((s) => s.resetAPUIPayloadHolder);
+  const setCustomFieldSelectedClassandSubclass = APIStore((s) => s.setCustomFieldSelectedClassandSubclass);
 
   const Bars = [
     <BaseActionBar
@@ -43,6 +45,8 @@ export default function CabinetActionBar({ style: button, setShow }) {
       setObjectType={setObjectType}
       setAPIAction={setAPIAction}
       setAPIPayloadHolder={setAPIPayloadHolder}
+      resetAPUIPayloadHolder={resetAPUIPayloadHolder}
+      setCustomFieldSelectedClassandSubclass={setCustomFieldSelectedClassandSubclass}
     />,
   ];
 
@@ -59,6 +63,8 @@ function AssetActions({
   setObjectType,
   setAPIAction,
   setAPIPayloadHolder,
+  resetAPUIPayloadHolder,
+  setCustomFieldSelectedClassandSubclass,
 }) {
   return (
     <div className="flex flex-row w-full justify-between items-center">
@@ -77,7 +83,7 @@ function AssetActions({
               };
               let Type = "";
               const m = SelectedInCabinetAsset.tiMounting || "";
-
+              console.log("SelectedInCabinetAsset", SelectedInCabinetAsset);
               switch (true) {
                 case m.includes("Blade"):
                   Type = "Network / Blade";
@@ -101,13 +107,25 @@ function AssetActions({
               // const class_sub = SelectedInCabinetAsset.hasOwnProperty("tiClass")
               //   ? SelectedInCabinetAsset["tiClass"]
               //   : `${SelectedInCabinetAsset.className} / ${SelectedInCabinetAsset.subClassName}`;
+              // !
+              const cls = SelectedInCabinetAsset.className || SelectedInCabinetAsset.tiClass || "";
 
+              const sub = SelectedInCabinetAsset.subClassName || SelectedInCabinetAsset.tiSubclass || "";
+
+              if (cls || sub) {
+                setCustomFieldSelectedClassandSubclass(cls, sub);
+              }
+              resetAPUIPayloadHolder({});
+              // !
               console.log(Type);
               setAPIAction("EDIT");
               setObjectType(Type);
               GETAssetDataByID(payload);
               setObjectFields(dcTrack_ENDPOINTS[Type]);
               setPageView(3);
+              // !
+              // setShow(false);
+              // !
             }}
           >
             <MdEditSquare className="text-xl" />

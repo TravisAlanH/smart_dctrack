@@ -24,11 +24,33 @@ function App() {
   const show = APIStore((s) => s.data.openResponseMessage);
   const ContentLoading = APIStore((s) => s.data.ContentLoading);
   const ModalOpen = ReuseDataStateStore((s) => s.data.ModalOpen);
-
+  const pullCustomFields = APIStore((s) => s.pullCustomFields);
+  const replaceAllCustomFieldOnInstance = APIStore((s) => s.replaceAllCustomFieldOnInstance);
   const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
+  const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
+
+  console.log(CustomFieldsOnInstance);
 
   React.useEffect(() => {
-    loadSettingsIntoStore();
+    async function run() {
+      await loadSettingsIntoStore();
+
+      const raw = localStorage.getItem("custom_fields_state");
+
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          replaceAllCustomFieldOnInstance(parsed);
+        } catch {
+          await pullCustomFields();
+        }
+      } else {
+        await pullCustomFields();
+      }
+      console.log("test");
+    }
+
+    run();
   }, []);
 
   return (
