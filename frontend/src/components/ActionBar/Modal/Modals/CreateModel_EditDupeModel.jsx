@@ -212,7 +212,8 @@ export default function CreateModel_EditDupeModel({ ui }) {
                 {key === "datasheet" ? (
                   <button
                     className={ui.infoButton + " ml-2"}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       const make = CloneModelData.payload.make;
                       const model = CloneModelData.payload.model;
                       const terms = `${make} ${model} filetype:pdf`;
@@ -228,10 +229,29 @@ export default function CreateModel_EditDupeModel({ ui }) {
             </div>
           );
         })}
-        <div className="flex flex-row justify-end w-full mt-3">
+        <div className="flex flex-row justify-between w-full mt-3">
+          <button
+            className={"rounded bg-red-500 px-2 mr-2 text-white"}
+            type="button"
+            onClick={() => {
+              setCreateModel({
+                payload: {},
+                url: "/v2/models",
+                setting: "Reset",
+              });
+            }}
+          >
+            Reset
+          </button>
           <button className={ui.mainButton} type="submit">
             Create
           </button>
+
+          {/* setCreateModel({
+      payload: ordered,
+      url: "/v2/models",
+      setting: "Payload",
+    }); */}
         </div>
       </form>
     </div>

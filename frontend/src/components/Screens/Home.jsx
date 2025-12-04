@@ -1,18 +1,16 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
-import ModalButton from "../ActionBar/Modal/ModalButton";
-import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
-import CutomFieldRequiredToggles from "../ActionBar/CustomFields/CutomFieldRequiredToggles";
+import { MdAddCircleOutline, MdEdit, MdDelete, MdAddCircle } from "react-icons/md";
 
 export default function Home() {
   const pullAuditTrail = APIStore((s) => s.pullAuditTrail);
   const GETAssetDataByID = APIStore((s) => s.GETAssetDataByID);
-  const pullCustomFields = APIStore((s) => s.pullCustomFields);
 
   const [auditTrail, setAuditTrail] = React.useState([]);
   const [changedBySet, setChangedBySet] = React.useState(new Set());
   const [viewAudit, setViewAduit] = React.useState("ALL");
   const [changedByAssets, setChangedByAssets] = React.useState([]);
+  const [numberOfAuditTrailView, setNumberOfAuditTrailView] = React.useState(50);
 
   async function handleAuditTrailRefresh() {
     const data = await pullAuditTrail();
@@ -21,6 +19,7 @@ export default function Home() {
     // Map latest by user
     const byMap = new Map();
     for (const entry of results) {
+      if (entry.action === "DELETE") continue;
       byMap.set(entry.changedBy, entry);
     }
     setChangedBySet(byMap);
@@ -62,9 +61,7 @@ export default function Home() {
       dedup.push(e);
     }
 
-    // Last 50 newest first
-    const last = dedup.slice(-50).reverse();
-    console.log(last);
+    const last = dedup.slice(-numberOfAuditTrailView).reverse();
 
     setAuditTrail(last);
   }
@@ -74,7 +71,8 @@ export default function Home() {
   // MATCHES CABINET BUTTON STYLE
   const buttonStyle = "border border-gray-400 bg-slate-800 text-white px-3 py-1 rounded text-base hover:bg-slate-700";
 
-  const cardOuter = "flex flex-col bg-slate-700 border border-gray-500 rounded-lg w-full mt-4 p-3 text-white";
+  const cardOuter = "flex flex-col bg-slate-600 border border-gray-500 rounded-lg w-full mt-4 p-1 text-white";
+  const cardInner = "flex flex-col bg-slate-700 border border-gray-500 rounded-lg w-full mt-4 p-3 text-white";
 
   const listItem = "w-full bg-white border border-gray-400 rounded-md flex flex-row items-center h-14 px-2 text-black";
 
@@ -85,84 +83,119 @@ export default function Home() {
 
   return (
     <div className={pageWrapper}>
-      {/* Refresh button */}
-      <div className="w-full flex justify-center mt-4">
-        <button className={buttonStyle} onClick={handleAuditTrailRefresh}>
-          Refresh
-        </button>
-      </div>
-
-      {/* Last Known Cabinet */}
       <div className={cardOuter}>
-        <h3 className="text-base font-bold mb-2">Last Known Cabinet</h3>
+        {/* Refresh button */}
+        <div className="w-full flex justify-between items-center mt-4">
+          <span className="text-xl font-bold pl-2">Audit Trail Viewer</span>
+          <button className={buttonStyle} onClick={handleAuditTrailRefresh}>
+            Refresh
+          </button>
+        </div>
 
-        <div className="flex flex-col gap-2 max-h-[22rem] overflow-y-auto">
-          {[...changedBySet].map((entry, index) => {
-            const data = entry[1];
-            return (
-              <div key={index} className={listItem}>
-                <div className={leftTag}>{data.action === "INSERT" ? "I" : data.action === "UPDATE" ? "U" : "D"}</div>
+        {/* Last Known Cabinet */}
+        <div className={cardInner}>
+          <h3 className="text-base font-bold mb-2">User At Cabinet (last known)</h3>
 
-                <div className="flex flex-col flex-1 px-2 justify-center text-black">
-                  <div className="flex flex-row w-full justify-between items-center gap-2">
-                    <span className={rowText}>{data.changedBy}</span>
-                    <span className="text-base text-right truncate max-w-[40%] text-black">
-                      {changedByAssets[index]?.cmbCabinet ?? ""}
-                    </span>
+          <div className="flex flex-col gap-2 max-h-[22rem] overflow-y-auto">
+            {[...changedBySet].map((entry, index) => {
+              const data = entry[1];
+              return (
+                <div key={index} className={listItem}>
+                  <div className={leftTag}>
+                    {data.action === "INSERT" ? (
+                      <MdAddCircle size={20} />
+                    ) : data.action === "UPDATE" ? (
+                      <MdEdit size={20} />
+                    ) : (
+                      <MdDelete size={20} />
+                    )}
                   </div>
 
-                  <span className="text-sm text-black">{data.changedDate}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                  <div className="flex flex-col flex-1 px-2 justify-center text-black">
+                    <div className="flex flex-row w-full justify-between items-center gap-2">
+                      <span className={rowText}>{data.changedBy}</span>
+                      <span className="text-base text-right truncate max-w-[40%] text-black">
+                        {changedByAssets[index]?.cmbCabinet ?? ""}
+                      </span>
+                    </div>
 
-      {/* Audit Trail */}
-      <div className={cardOuter}>
-        <h3 className="text-base font-bold mb-3">Audit Trail</h3>
-
-        {/* Filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-3">
-          <button className={buttonStyle} onClick={() => setViewAduit("ALL")}>
-            All
-          </button>
-          <button className={buttonStyle} onClick={() => setViewAduit("INSERT")}>
-            Creates
-          </button>
-          <button className={buttonStyle} onClick={() => setViewAduit("UPDATE")}>
-            Updates
-          </button>
-          <button className={buttonStyle} onClick={() => setViewAduit("DELETE")}>
-            Deletes
-          </button>
-        </div>
-
-        {/* Rows */}
-        <div className="flex flex-col gap-2 max-h-[32rem] overflow-y-auto">
-          {auditTrail
-            .filter((e) => (viewAudit === "ALL" ? true : e.action === viewAudit))
-            .map((entry, index) => (
-              <div key={index} className={listItem}>
-                <div className={leftTag}>{entry.action === "INSERT" ? "I" : entry.action === "UPDATE" ? "U" : "D"}</div>
-
-                <div className="flex flex-col flex-1 px-2 justify-center text-black">
-                  <span className="text-sm text-black">{entry.changedDate}</span>
-
-                  <div className="flex flex-row w-full justify-between gap-2">
-                    <span className={rowText}>{entry.changedBy}</span>
-
-                    <span className="text-base text-right truncate max-w-[50%] text-black">
-                      {entry.action === "DELETE" ? entry.changedFrom : entry.entityName}
-                    </span>
+                    <span className="text-sm text-black">{data.changedDate}</span>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Audit Trail */}
+        <div className={cardInner}>
+          <div className="flex flex-row justify-between pb-2">
+            <h3 className="text-base font-bold mb-3">Audit Trail</h3>
+            <div className="flex flex-row justify-center items-center gap-2">
+              <span className="text-white mr-2">Rows:</span>
+              <select
+                className=" text-black h-[2rem] w-[4rem] rounded"
+                value={numberOfAuditTrailView}
+                onChange={(e) => {
+                  setNumberOfAuditTrailView(e.target.value);
+                }}
+              >
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+                <option value={200}>200</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap justify-center gap-2 mb-3">
+            <button className={buttonStyle} onClick={() => setViewAduit("ALL")}>
+              All
+            </button>
+            <button className={buttonStyle} onClick={() => setViewAduit("INSERT")}>
+              Creates
+            </button>
+            <button className={buttonStyle} onClick={() => setViewAduit("UPDATE")}>
+              Updates
+            </button>
+            <button className={buttonStyle} onClick={() => setViewAduit("DELETE")}>
+              Deletes
+            </button>
+          </div>
+
+          {/* Rows */}
+          <div className="flex flex-col gap-2 max-h-[32rem] overflow-y-auto">
+            {auditTrail
+              .filter((e) => (viewAudit === "ALL" ? true : e.action === viewAudit))
+              .map((entry, index) => (
+                <div key={index} className={listItem}>
+                  <div className={leftTag}>
+                    {entry.action === "INSERT" ? (
+                      <MdAddCircle size={20} />
+                    ) : entry.action === "UPDATE" ? (
+                      <MdEdit size={20} />
+                    ) : (
+                      <MdDelete size={20} />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col flex-1 px-2 justify-center text-black">
+                    <span className="text-sm text-black">{entry.changedDate}</span>
+
+                    <div className="flex flex-row w-full justify-between gap-2">
+                      <span className={rowText}>{entry.changedBy}</span>
+
+                      <span className="text-base text-right truncate max-w-[50%] text-black">
+                        {entry.action === "DELETE" ? entry.changedFrom : entry.entityName}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
         </div>
       </div>
-      <ModalButton child={"new_Model"} />
     </div>
   );
 }

@@ -1,11 +1,16 @@
 import React from "react";
 import { ReuseDataStateStore } from "../../../store/Store";
 
-function ToggleSwitch({ checked, onChange, label }) {
+function ToggleSwitch({ checked, onChange, label, lableColor }) {
+  console.log(lableColor);
   const setRequiredToggleWatcher = ReuseDataStateStore((s) => s.setRequireToggleWatcher);
   const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
   return (
-    <label className="flex items-center gap-2 cursor-pointer select-none">
+    <label
+      className={`flex items-center gap-2 cursor-pointer select-none ${
+        lableColor !== null || lableColor !== undefined ? `text-${lableColor}` : "text-black"
+      }`}
+    >
       {label && <span>{label}</span>}
       <div
         className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${checked ? "bg-green-500" : "bg-gray-300"}`}

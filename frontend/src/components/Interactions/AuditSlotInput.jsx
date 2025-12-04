@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
+import { MdInfoOutline } from "react-icons/md";
 
 export default function AuditSlotInput({ objectType, ui }) {
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
@@ -103,7 +104,7 @@ export default function AuditSlotInput({ objectType, ui }) {
             setMessage({ type: "info_header", text, label: label });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>

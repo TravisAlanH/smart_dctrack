@@ -10,7 +10,7 @@ const app = express();
 // CORS
 app.use(
   cors({
-    origin: ["https://192.168.68.52:5173", "http://localhost:5173", "http://127.0.0.1:5173", "https://localhost:5173"],
+    origin: ["https://192.168.68.62:5173", "http://localhost:5173", "http://127.0.0.1:5173", "https://localhost:5173"],
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "x-dctrack-host", "x-login-details"],
   })

@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
+import { MdInfoOutline } from "react-icons/md";
 
 export default function AuditChassisInput({ ui }) {
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
@@ -52,7 +53,7 @@ export default function AuditChassisInput({ ui }) {
             setMessage({ type: "info_header", text, label: label });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>

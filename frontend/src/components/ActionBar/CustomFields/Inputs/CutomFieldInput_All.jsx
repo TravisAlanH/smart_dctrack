@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../../../store/Store";
+import { MdInfoOutline } from "react-icons/md";
 
 export default function CutomFieldInput_All({ ui, data, label }) {
   const setMessage = APIStore((s) => s.setResponseMessage);
@@ -61,7 +62,7 @@ function TextInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloa
             setMessage({ type: "Custom_Field_info_header", text, label: label });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>
@@ -117,7 +118,7 @@ function CheckboxInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPa
             });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>
@@ -156,7 +157,7 @@ function DateInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloa
             });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>
@@ -192,7 +193,7 @@ function NumberInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
             setMessage({ type: "Custom_Field_info_header", text, label: label });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>
@@ -248,7 +249,7 @@ function SelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
             });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>
@@ -303,7 +304,7 @@ function MultiSelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAP
             });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
+import { MdInfoOutline } from "react-icons/md";
 
 export default function AuditChassisFaceInput({ ui }) {
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
@@ -51,7 +52,7 @@ export default function AuditChassisFaceInput({ ui }) {
             setMessage({ type: "info_header", text, label: api });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>

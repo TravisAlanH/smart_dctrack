@@ -1,5 +1,6 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
+import { MdInfoOutline } from "react-icons/md";
 
 export default function AuditOrientationTypeInput({ ui }) {
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
@@ -43,7 +44,7 @@ export default function AuditOrientationTypeInput({ ui }) {
             setMessage({ type: "info_header", text, label: api });
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>

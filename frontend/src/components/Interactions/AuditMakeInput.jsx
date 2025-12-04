@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { dcTrack_DISCRIPTIONS } from "../Helpers/dcTrackAPIDiscriptions";
+import { MdCameraAlt } from "react-icons/md";
+import { MdInfoOutline } from "react-icons/md";
 
 function AuditMakeInput({
   label,
@@ -147,7 +149,7 @@ function AuditMakeInput({
             if (el) el.style.display = "block";
           }}
         >
-          Scan
+          <MdCameraAlt size={20} />
         </button>
 
         <button
@@ -163,7 +165,7 @@ function AuditMakeInput({
             setShow(1);
           }}
         >
-          ?
+          <MdInfoOutline size={20} />
         </button>
       </div>
     </div>

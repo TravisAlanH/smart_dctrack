@@ -29,10 +29,9 @@ function App() {
   const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
   const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
 
-  console.log(CustomFieldsOnInstance);
-
   React.useEffect(() => {
     async function run() {
+      console.log("running");
       await loadSettingsIntoStore();
 
       const raw = localStorage.getItem("custom_fields_state");

@@ -228,11 +228,16 @@ function BaseActionBar({
   }
   return (
     <div className="bg-transparent flex flex-row justify-between w-full px-4">
-      <ToggleSwitch checked={ShowEmptyUPToggleWatcher} onChange={setShowEmptyUPToggleWatcher} label={"Hide Empty"} />
-      <ToggleSwitch checked={showPDUToggleWatcher} onChange={setPDUToggleWatcher} label={"PDU"} />
-      <button className="px-2 py-0.5 bg-green-500 rounded-md" onClick={() => setCurrentCabinetID("")}>
-        Cabinet Select
+      <button className="px-2 py-1 bg-red-500 rounded-md text-white" onClick={() => setCurrentCabinetID("")}>
+        Change Cabinet
       </button>
+      <ToggleSwitch
+        checked={ShowEmptyUPToggleWatcher}
+        onChange={setShowEmptyUPToggleWatcher}
+        label={"Hide Empty"}
+        lableColor="white"
+      />
+      <ToggleSwitch checked={showPDUToggleWatcher} onChange={setPDUToggleWatcher} label={"PDU"} lableColor="white" />
     </div>
   );
 }
