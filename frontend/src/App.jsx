@@ -54,7 +54,7 @@ function App() {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#292929] text-black">
+    <div className="fixed inset-0 flex flex-col  bg-[#292929] text-black">
       <div className="flex-1 overflow-auto">
         <div className={pageView === 3 ? "block h-full  overflow-auto" : "hidden"}>
           {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Audit />}
