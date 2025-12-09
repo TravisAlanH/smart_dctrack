@@ -6,6 +6,9 @@ const cors = require("cors");
 
 const app = express();
 
+// srv/t
+// sudo nano index.js
+
 app.use(
   cors({
     origin: ["https://resonant-mochi-a37322.netlify.app", "http://localhost:5173", "https://localhost:5173"],
