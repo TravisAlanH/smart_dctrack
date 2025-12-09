@@ -40,7 +40,6 @@ export default function CreateModel_EditDupeModel({ ui }) {
     "mounting",
     "class",
     "subclass",
-
     "formFactor",
     "companyStandard",
     "ruHeight",

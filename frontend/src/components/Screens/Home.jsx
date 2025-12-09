@@ -12,6 +12,8 @@ export default function Home() {
   const [changedByAssets, setChangedByAssets] = React.useState([]);
   const [numberOfAuditTrailView, setNumberOfAuditTrailView] = React.useState(50);
 
+  console.log(auditTrail);
+
   async function handleAuditTrailRefresh() {
     const data = await pullAuditTrail();
     const results = data.searchResults?.auditTrail || [];
@@ -66,18 +68,19 @@ export default function Home() {
     setAuditTrail(last);
   }
 
-  const pageWrapper = "w-full h-full overflow-y-auto px-3 pb-24 text-white";
+  const pageWrapper = "w-full h-full overflow-y-auto p-3 pb-24 text-white";
 
   // MATCHES CABINET BUTTON STYLE
-  const buttonStyle = "border border-gray-400 bg-slate-800 text-white px-3 py-1 rounded text-base hover:bg-slate-700";
+  const buttonStyle = " bg-slate-800 text-white px-3 py-1 rounded text-base hover:bg-slate-700";
+  const buttonActiveStyle = " bg-blue-600 text-white px-3 py-1 rounded text-base hover:bg-blue-500";
 
-  const cardOuter = "flex flex-col bg-slate-600 border border-gray-500 rounded-lg w-full mt-4 p-1 text-white";
-  const cardInner = "flex flex-col bg-slate-700 border border-gray-500 rounded-lg w-full mt-4 p-3 text-white";
+  const cardOuter = "flex flex-col gap-2 bg-slate-600 border border-gray-500 rounded-lg w-full p-1 text-white";
+  const cardInner = "flex flex-col gap-2 bg-slate-700 border border-gray-500 rounded-lg w-full p-3 text-white";
 
-  const listItem = "w-full bg-white border border-gray-400 rounded-md flex flex-row items-center h-14 px-2 text-black";
+  const listItem = "w-full bg-white rounded-md flex flex-row items-center h-14 pr-2 text-black";
 
   const leftTag =
-    "w-12 min-w-[3rem] h-full flex items-center justify-center bg-slate-200 border-r border-gray-400 text-base font-bold text-black";
+    "rounded-l-md w-12 min-w-[3rem] h-full flex items-center justify-center bg-slate-200 border-r border-gray-400 text-base font-bold text-black";
 
   const rowText = "text-base truncate";
 
@@ -85,9 +88,9 @@ export default function Home() {
     <div className={pageWrapper}>
       <div className={cardOuter}>
         {/* Refresh button */}
-        <div className="w-full flex justify-between items-center mt-4">
+        <div className="w-full flex justify-between items-center mt-2">
           <span className="text-xl font-bold pl-2">Audit Trail Viewer</span>
-          <button className={buttonStyle} onClick={handleAuditTrailRefresh}>
+          <button className={buttonActiveStyle} onClick={handleAuditTrailRefresh}>
             Refresh
           </button>
         </div>
@@ -149,17 +152,32 @@ export default function Home() {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap justify-center gap-2 mb-3">
-            <button className={buttonStyle} onClick={() => setViewAduit("ALL")}>
+          <div className="flex gap-2 mb-3 w-full">
+            <button
+              className={`${viewAudit === "ALL" ? buttonActiveStyle : buttonStyle} flex-1`}
+              onClick={() => setViewAduit("ALL")}
+            >
               All
             </button>
-            <button className={buttonStyle} onClick={() => setViewAduit("INSERT")}>
+
+            <button
+              className={`${viewAudit === "INSERT" ? buttonActiveStyle : buttonStyle} flex-1`}
+              onClick={() => setViewAduit("INSERT")}
+            >
               Creates
             </button>
-            <button className={buttonStyle} onClick={() => setViewAduit("UPDATE")}>
+
+            <button
+              className={`${viewAudit === "UPDATE" ? buttonActiveStyle : buttonStyle} flex-1`}
+              onClick={() => setViewAduit("UPDATE")}
+            >
               Updates
             </button>
-            <button className={buttonStyle} onClick={() => setViewAduit("DELETE")}>
+
+            <button
+              className={`${viewAudit === "DELETE" ? buttonActiveStyle : buttonStyle} flex-1`}
+              onClick={() => setViewAduit("DELETE")}
+            >
               Deletes
             </button>
           </div>

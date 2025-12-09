@@ -15,6 +15,7 @@ import Settings from "./components/Screens/Settings";
 import Home from "./components/Screens/Home";
 import LoadingSpinner from "./components/LoadingSpinner/Spinner";
 import Modal from "./components/ActionBar/Modal/Modal";
+import DataNeeded from "./components/Screens/DataNeeded";
 
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
@@ -28,10 +29,11 @@ function App() {
   const replaceAllCustomFieldOnInstance = APIStore((s) => s.replaceAllCustomFieldOnInstance);
   const loadSettingsIntoStore = APIStore((s) => s.loadSettingsIntoStore);
   const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
+  const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
+  const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
 
   React.useEffect(() => {
     async function run() {
-      console.log("running");
       await loadSettingsIntoStore();
 
       const raw = localStorage.getItem("custom_fields_state");
@@ -46,7 +48,6 @@ function App() {
       } else {
         await pullCustomFields();
       }
-      console.log("test");
     }
 
     run();
@@ -55,20 +56,20 @@ function App() {
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#292929] text-black">
       <div className="flex-1 overflow-auto">
-        <div className={pageView === 3 ? "block" : "hidden"}>
-          <Audit />
+        <div className={pageView === 3 ? "block h-full" : "hidden"}>
+          {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Audit />}
         </div>
 
-        <div className={pageView === 1 ? "block" : "hidden"}>
-          <Cabinet pageView={pageView} />
+        <div className={pageView === 1 ? "block h-full" : "hidden"}>
+          {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Cabinet pageView={pageView} />}
         </div>
 
-        <div className={pageView === 2 ? "block" : "hidden"}>
+        <div className={pageView === 2 ? "block  h-full" : "hidden"}>
           <Settings pageView={pageView} />
         </div>
 
-        <div className={pageView === 0 ? "block" : "hidden"}>
-          <Home pageView={pageView} />
+        <div className={pageView === 0 ? "block  h-full" : "hidden"}>
+          {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Home pageView={pageView} />}
         </div>
       </div>
 

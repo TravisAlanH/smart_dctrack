@@ -131,9 +131,10 @@ export default function Settings() {
   //#endregion
 
   return (
-    <div>
+    <div className="w-full h-full flex flex-col justify-center gap-3">
       {/* #region LOGIN_INPUT */}
-      {stored.SETTINGPASS && (
+
+      {stored.SETTINGPASS && !settingPassVarified && (
         <div className="m-4 bg-gray-700 rounded-lg shadow-lg">
           <form
             className="p-4 gap-4 flex flex-col text-white"

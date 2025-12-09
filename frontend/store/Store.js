@@ -10,7 +10,9 @@ import {
   updateSelectedSubclass,
 } from "./../src/components/Helpers/CustomFieldMaster";
 
-const BACKEND = import.meta.env.DEV ? "https://192.168.68.62:10000" : import.meta.env.VITE_BACKEND_URL;
+// const BACKEND = import.meta.env.DEV ? "https://192.168.68.62:10000" : import.meta.env.VITE_BACKEND_URL;
+// const BACKEND = import.meta.env.DEV ? "https://10.34.5.85:10000/api" : import.meta.env.VITE_BACKEND_URL;
+const BACKEND = "https://10.34.5.85:10000";
 
 let initState = {
   NAMESTATE: {
