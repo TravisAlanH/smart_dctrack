@@ -3,6 +3,7 @@ import { loadSettingsMaster, saveSettingsMaster, updateSettingsField } from "../
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
 import CutomFieldRequiredToggles from "../ActionBar/CustomFields/CutomFieldRequiredToggles";
+import SOPButton from "../Interactions/Buttons/SOPButton";
 
 export default function Settings() {
   //#region STATE_SETTERS
@@ -132,7 +133,9 @@ export default function Settings() {
 
   return (
     <div>
-      <div className="mx-4 mt-4 text-xl text-white font-bold">SETTINGS</div>
+      <div className="mx-4 mt-4 flex flex-row wi-full justify-between">
+        <span className=" text-xl text-white font-bold">SETTINGS</span> <SOPButton />
+      </div>
       <div className="w-full h-full flex flex-col justify-center gap-3">
         {/* #region LOGIN_INPUT */}
 

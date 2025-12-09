@@ -1,6 +1,7 @@
 import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdAddCircleOutline, MdEdit, MdDelete, MdAddCircle } from "react-icons/md";
+import SOPButton from "../Interactions/Buttons/SOPButton";
 
 export default function Home() {
   const pullAuditTrail = APIStore((s) => s.pullAuditTrail);
@@ -86,6 +87,10 @@ export default function Home() {
 
   return (
     <div className={pageWrapper}>
+      <div className="flex flex-row justify-between w-full">
+        <h1 className="text-2xl font-bold mb-4">Home Dashboard</h1>
+        <SOPButton />
+      </div>
       <div className={cardOuter}>
         {/* Refresh button */}
         <div className="w-full flex justify-between items-center mt-2">

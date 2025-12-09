@@ -4,6 +4,10 @@ import Test from "./Modals/Test";
 import { ReuseDataStateStore } from "../../../../store/Store";
 import NewModel from "./Modals/CreateModel_GetModelFromInstance";
 import CreateModel from "./Modals/CreateModel";
+import SOP_Audit from "../Modal/Modals/SOPModal/SOP_Audit";
+import SOP_Cabinet from "../Modal/Modals/SOPModal/SOP_Cabinet";
+import SOP_Settings from "../Modal/Modals/SOPModal/SOP_Settings";
+import SOP_Home from "../Modal/Modals/SOPModal/SOP_Home";
 
 /* Shared UI */
 export const auditUI = {
@@ -25,9 +29,13 @@ export const auditUI = {
 export default function Modal() {
   const setModalOpen = ReuseDataStateStore((s) => s.setModalOpen);
   const ModalOpen = ReuseDataStateStore((s) => s.data.ModalOpen);
+  const pageView = ReuseDataStateStore((s) => s.data.pageView);
+
+  const SOPPages = [<SOP_Home />, <SOP_Cabinet />, <SOP_Settings />, <SOP_Audit />];
 
   const Modals = {
     new_Model: <CreateModel ui={auditUI} />,
+    sop_Modal: SOPPages[pageView],
   };
 
   return (

@@ -25,6 +25,7 @@ import AuditChassisFaceInput from "../Interactions/AuditChassisFaceInput";
 import AuditSlotInput from "../Interactions/AuditSlotInput";
 import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
 import { MdDocumentScanner, MdInfoOutline, MdOutlineQrCode } from "react-icons/md";
+import SOPButton from "../Interactions/Buttons/SOPButton";
 
 /* Shared UI */
 export const auditUI = {
@@ -97,6 +98,7 @@ export default function Audit() {
       <div className="flex-none">
         <div className="flex flex-row items-center justify-between px-4 pt-2 pb-1">
           <h2 className="font-bold text-lg">Audit</h2>
+          <SOPButton />
         </div>
 
         <div className="z-20">

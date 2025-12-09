@@ -1,6 +1,7 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import PDUVIew from "./PDUVIew";
+import SOPButton from "../Interactions/Buttons/SOPButton";
 
 export default function Cabinet({ pageView }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
@@ -39,7 +40,12 @@ export default function Cabinet({ pageView }) {
   }, [currentCabinetID, pullAllAssetFromCabinet]);
 
   if (!LOCATIONCODE || !currentCabinetID) {
-    return <div className="text-base text-white p-4">Please select a location and cabinet.</div>;
+    return (
+      <div className="flex flex-row justify-between p-4">
+        <span className="text-base text-white">Please select a location and cabinet</span>
+        <SOPButton />
+      </div>
+    );
   }
 
   if (showPDUToggleWatcher) {
@@ -70,19 +76,21 @@ export default function Cabinet({ pageView }) {
   return (
     <div className="w-full h-full flex flex-col overflow-hidden text-white">
       <div className="flex flex-row items-center justify-between px-4 pt-2 pb-1">
-        <h2 className="font-bold text-base truncate max-w-[65%]">{CurrentCabinetName}</h2>
-
-        <button
-          className="text-base border border-gray-400 rounded px-2 py-1 bg-slate-800"
-          onClick={() => {
-            const railArray = ["Front", "Back"];
-            const currentRail = railArray.indexOf(cabinetViewFrontBack);
-            const nextRail = currentRail + 1 >= railArray.length ? 0 : currentRail + 1;
-            setCabinetViewFrontBack(railArray[nextRail]);
-          }}
-        >
-          {cabinetViewFrontBack} Rail
-        </button>
+        <h2 className="font-bold text-base truncate max-w-[65%] text-white">{CurrentCabinetName}</h2>
+        <div className="flex flex-row gap-2 items-center">
+          <button
+            className="text-base border border-gray-400 rounded px-2 py-1 bg-slate-800"
+            onClick={() => {
+              const railArray = ["Front", "Back"];
+              const currentRail = railArray.indexOf(cabinetViewFrontBack);
+              const nextRail = currentRail + 1 >= railArray.length ? 0 : currentRail + 1;
+              setCabinetViewFrontBack(railArray[nextRail]);
+            }}
+          >
+            {cabinetViewFrontBack} Rail
+          </button>
+          <SOPButton />
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 pb-24">
