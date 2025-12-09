@@ -54,21 +54,21 @@ function App() {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-[#292929] text-black">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-[#292929] text-black">
       <div className="flex-1 overflow-auto">
-        <div className={pageView === 3 ? "block h-full" : "hidden"}>
+        <div className={pageView === 3 ? "block h-full  overflow-auto" : "hidden"}>
           {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Audit />}
         </div>
 
-        <div className={pageView === 1 ? "block h-full" : "hidden"}>
+        <div className={pageView === 1 ? "block h-full  overflow-auto" : "hidden"}>
           {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Cabinet pageView={pageView} />}
         </div>
 
-        <div className={pageView === 2 ? "block  h-full" : "hidden"}>
+        <div className={pageView === 2 ? "block  h-full  overflow-auto" : "hidden"}>
           <Settings pageView={pageView} />
         </div>
 
-        <div className={pageView === 0 ? "block  h-full" : "hidden"}>
+        <div className={pageView === 0 ? "block  h-full  overflow-auto" : "hidden "}>
           {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Home pageView={pageView} />}
         </div>
       </div>
