@@ -32,22 +32,30 @@ function App() {
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
 
+  // React.useEffect(() => {
+  //   async function run() {
+  //     await loadSettingsIntoStore();
+
+  //     const raw = localStorage.getItem("custom_fields_state");
+
+  //     if (raw) {
+  //       try {
+  //         const parsed = JSON.parse(raw);
+  //         replaceAllCustomFieldOnInstance(parsed);
+  //       } catch {
+  //         await pullCustomFields();
+  //       }
+  //     } else {
+  //       await pullCustomFields();
+  //     }
+  //   }
+
+  //   run();
+  // }, []);
+
   React.useEffect(() => {
     async function run() {
       await loadSettingsIntoStore();
-
-      const raw = localStorage.getItem("custom_fields_state");
-
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw);
-          replaceAllCustomFieldOnInstance(parsed);
-        } catch {
-          await pullCustomFields();
-        }
-      } else {
-        await pullCustomFields();
-      }
     }
 
     run();

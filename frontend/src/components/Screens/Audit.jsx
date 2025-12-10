@@ -27,24 +27,9 @@ import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldI
 import { MdDocumentScanner, MdInfoOutline, MdOutlineQrCode } from "react-icons/md";
 import SOPButton from "../Interactions/Buttons/SOPButton";
 
-/* Shared UI */
-export const auditUI = {
-  cardOuter: "flex flex-col bg-slate-600 rounded-md mx-2",
-  cardHeader: "px-3 pt-2 pb-1 text-xs sm:text-sm font-semibold text-white",
-  cardBody: "w-full flex flex-row items-center gap-2 px-3 pb-2",
+import { Modes_Styles } from "../../../Styles";
+import { AuditLayoutStyles } from "../../../Styles";
 
-  label: "text-sm sm:text-sm",
-  labelRequired: "text-sm sm:text-sm text-red-400 font-bold",
-
-  // iOS zoom fix: use text-base
-  input: "border border-gray-400 rounded px-2 py-1 text-base w-full bg-white text-black",
-  select: "border border-gray-400 rounded px-2 py-1 text-base w-full bg-white text-black",
-
-  mainButton: "bg-blue-600 text-white rounded px-3 py-1 text-sm sm:text-sm whitespace-nowrap",
-  infoButton: "bg-green-600 text-white rounded px-2 py-1 text-sm sm:text-sm whitespace-nowrap",
-};
-
-/* MAIN COMPONENT */
 export default function Audit() {
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
@@ -66,20 +51,34 @@ export default function Audit() {
   const setAPIAction = APIStore((s) => s.setAPIAction);
 
   const showRequired = ReuseDataStateStore((s) => s.data.ShowRequiredAudit);
-
   const setCameraStatus = ReuseDataStateStore((s) => s.setCameraStatus);
   const setCameraRequiredToProcess = ReuseDataStateStore((s) => s.setCameraRequiredToProcess);
 
   const [trueRequredMaster, setTrueRequiredMaster] = useState(loadRequiredMaster(dcTrack_APIREQUIRED));
   const requireWatcher = ReuseDataStateStore((s) => s.data.RequireToggleWatcher);
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+
+  const [auditUI, setAuditUI] = useState({});
 
   useEffect(() => {
     setTrueRequiredMaster(loadRequiredMaster(dcTrack_APIREQUIRED));
   }, [requireWatcher]);
 
   useEffect(() => {
-    setTrueRequiredMaster(loadRequiredMaster(dcTrack_APIREQUIRED));
-  }, []);
+    const theme = darkMode ? Modes_Styles.DarkMode : Modes_Styles.LightMode;
+
+    setAuditUI({
+      cardOuter: `${AuditLayoutStyles.cardOuter} ${theme.cardOuter}`,
+      cardHeader: `${AuditLayoutStyles.cardHeader} ${theme.cardHeader}`,
+      cardBody: `${AuditLayoutStyles.cardBody} ${theme.cardBody}`,
+      label: `${AuditLayoutStyles.label} ${theme.label}`,
+      labelRequired: `${AuditLayoutStyles.labelRequired} ${theme.labelRequired}`,
+      input: `${AuditLayoutStyles.input} ${theme.input}`,
+      select: `${AuditLayoutStyles.select} ${theme.select}`,
+      mainButton: `${AuditLayoutStyles.mainButton} ${theme.mainButton}`,
+      infoButton: `${AuditLayoutStyles.infoButton} ${theme.infoButton}`,
+    });
+  }, [darkMode]);
 
   function handleFormSubmit(e) {
     e.preventDefault();
@@ -196,6 +195,7 @@ export default function Audit() {
                   return <TextInput key={index} {...props} />;
               }
             })}
+
             <CustomFieldInput_BASE showRequired={showRequired} />
 
             <div className="px-2 pt-2 flex justify-end bg-transparent">
@@ -209,8 +209,6 @@ export default function Audit() {
     </div>
   );
 }
-
-/* INPUT CARDS */
 
 function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui }) {
   const req = trueRequredMaster[objectType][label];
@@ -476,7 +474,6 @@ function QrInput({
   );
 }
 
-/* OPERATION INPUT */
 function OperationInput({ APIAction, ui }) {
   return (
     <div className={ui.cardOuter}>
@@ -491,7 +488,6 @@ function OperationInput({ APIAction, ui }) {
   );
 }
 
-/* OBJECT INPUT */
 function ObjectInput({
   objectType,
   setObjectFields,
@@ -518,7 +514,6 @@ function ObjectInput({
             if (type === "") return;
 
             setCustomFieldSelectedClassandSubclass(type, type);
-
             setAPIAction("ADD");
             setObjectFields(dcTrack_ENDPOINTS[type]);
             setObjectType(type);

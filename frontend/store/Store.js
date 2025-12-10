@@ -50,6 +50,7 @@ let initState = {
     objectType: "",
     settingPassVarified: false,
     ModalOpen: { open: false, child: null },
+    DarkMode: true,
   },
   DataState: {
     TextData: "",
@@ -135,6 +136,11 @@ export const ReuseDataStateStore = create(
           data: { ...state.data, settingPassVarified: false },
         }));
       }
+    },
+    setDarkMode: () => {
+      set((state) => ({
+        data: { ...state.data, DarkMode: !state.data.DarkMode },
+      }));
     },
     setModalOpen: (payload) => {
       set((state) => ({
