@@ -159,7 +159,7 @@ export default function Settings() {
 
         {settingPassVarified && (
           <div>
-            <div className={`${ui.cardOuter} m-4 pt-4`}>
+            <div className={`${ui.cardOuter} m-4 p-4 flex flex-col gap-2`}>
               <span className={`${ui.cardHeader}`}>
                 LogonBox Install <span className="font-normal text-sm">(Required VPN)</span>
               </span>
@@ -181,7 +181,7 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className={`${ui.cardOuter} m-4 pt-4`}>
+            <div className={`${ui.cardOuter} m-4 p-4 flex flex-col gap-2`}>
               <span className={ui.cardHeader}>
                 Backend Connection <span className="font-normal text-sm">(When Instance changes)</span>
               </span>
@@ -195,7 +195,7 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className={`${ui.cardOuter} m-4 pt-4`}>
+            <div className={`${ui.cardOuter} m-4 p-4 flex flex-col gap-2`}>
               <span className={ui.cardHeader}>Set Up Target Instance</span>
 
               <form
@@ -205,45 +205,45 @@ export default function Settings() {
                   submitSettings();
                 }}
               >
-                <div className="flex flex-row gap-2 items-center">
-                  <label className={ui.label}>IP Address</label>
+                <div className="flex flex-row gap-2 items-center w-full">
+                  <label className={ui.label + " w-[30%]"}>IP Address</label>
                   <input
-                    className={ui.input}
+                    className={ui.input + " w-[70%]"}
                     type="text"
                     value={form.IP_ADDRESS}
                     onChange={(e) => updateField("IP_ADDRESS", e.target.value)}
                   />
                 </div>
 
-                <div className="flex flex-row gap-2 items-center">
-                  <label className={ui.label}>User Name</label>
+                <div className="flex flex-row gap-2 items-center w-full">
+                  <label className={ui.label + " w-[30%]"}>User Name</label>
                   <input
-                    className={ui.input}
+                    className={ui.input + " w-[70%]"}
                     type="text"
                     value={form.USERNAME}
                     onChange={(e) => updateField("USERNAME", e.target.value)}
                   />
                 </div>
 
-                <div className="flex flex-row gap-2 items-center">
-                  <label className={ui.label}>Password</label>
+                <div className="flex flex-row gap-2 items-center w-full">
+                  <label className={ui.label + " w-[30%]"}>Password</label>
 
-                  <div className="w-[75%] flex flex-row gap-2 items-center">
+                  <div className="w-[70%] flex flex-row gap-2 items-center">
                     <input
-                      className={ui.input}
+                      className={ui.input + " w-[80%]"}
                       type={showPass ? "text" : "password"}
                       value={form.PASSWORD}
                       onChange={(e) => updateField("PASSWORD", e.target.value)}
                     />
-                    <button type="button" className={ui.infoButton} onClick={() => setShowPass((prev) => !prev)}>
+                    <button type="button" className={ui.infoButton + " w-[20%]"} onClick={() => setShowPass((prev) => !prev)}>
                       {showPass ? "Hide" : "Show"}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex flex-row gap-2 items-center">
-                  <label className={ui.label}>Encode</label>
-                  <input className={ui.input} type="text" readOnly value={form.BASE64USERPASS || ""} />
+                <div className="flex flex-row gap-2 items-center w-full">
+                  <label className={ui.label + " w-[30%]"}>Encode</label>
+                  <input className={ui.input + " w-[70%]"} type="text" readOnly value={form.BASE64USERPASS || ""} />
                 </div>
 
                 <button type="submit" className={ui.mainButton}>
@@ -252,7 +252,7 @@ export default function Settings() {
               </form>
             </div>
 
-            <div className={`${ui.cardOuter} m-4 p-4`}>
+            <div className={`${ui.cardOuter} m-4 p-4 flex flex-col gap-2`}>
               <div className="flex flex-row gap-2 items-center">
                 <label className={ui.label}>Location</label>
 
@@ -321,7 +321,7 @@ export default function Settings() {
         )}
 
         {!stored.SETTINGPASS && (
-          <div className={`${ui.cardOuter} m-4`}>
+          <div className={`${ui.cardOuter} m-4 p-2 flex flex-col gap-2`}>
             <form
               className={`${ui.cardBody} flex flex-col gap-4`}
               onSubmit={(e) => {
