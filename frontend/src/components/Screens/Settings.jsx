@@ -217,10 +217,11 @@ export default function Settings() {
                 </div>
               </div>
             </div>
-            <div className="m-4 pt-4 rounded-lg shadow-lg" style={{ ...ui.CardBackGround, ...ui.text }}>
+            <div className="m-4 pt-4 rounded-lg shadow-lg flex flex-col" style={{ ...ui.CardBackGround, ...ui.text }}>
               <span className="px-4 font-bold " style={ui.text}>
                 Backend Connection <span className="pl-2 font-normal text-sm">(When Instance changes)</span>
               </span>
+              <span className="px-4 text-xs">"Cannot GET /" is good status for Authorization</span>
               <div className="p-4 flex flex-row justify-between w-full " style={ui.text}>
                 <span>Authorize Backend</span>
                 <a

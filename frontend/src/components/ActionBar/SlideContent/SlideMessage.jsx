@@ -145,10 +145,21 @@ export default function SlideMessage({ setShow }) {
       );
     }
 
-    if (type === "APIResponse" && backend.success !== false) {
+    if (type === "APIResponse" && backend.success !== false && backend.message !== "Network Error") {
       return (
         <div className="flex flex-col text-left p-2 text-sm">
           <div className="font-bold">Success</div>
+        </div>
+      );
+    }
+
+    if (type === "APIResponse" && backend.success !== false && backend.message === "Network Error") {
+      return (
+        <div className="flex flex-col text-left p-2 text-sm">
+          <div className="font-bold">Connection Failed</div>
+          <div className="">1. Check VPN Connection</div>
+          <div className="">2. Check Backend Authorization in Settings</div>
+          <div className="">3. Check dcTrack Instance in Settings</div>
         </div>
       );
     }

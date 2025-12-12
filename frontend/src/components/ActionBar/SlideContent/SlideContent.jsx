@@ -42,9 +42,11 @@ export default function SlideContent({}) {
             />
           ) : null}
         </div>
-        <button className=" rounded px-3 py-1" onClick={() => setShow(false)} style={ui.closeButton}>
-          Close
-        </button>
+        {msg.type !== "setCabLocInfo" ? (
+          <button className=" rounded px-3 py-1" onClick={() => setShow(false)} style={ui.closeButton}>
+            Close
+          </button>
+        ) : null}
       </div>
       <SlideMessage setShow={setShow} />
     </div>
