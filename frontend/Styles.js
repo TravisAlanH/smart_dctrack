@@ -66,7 +66,7 @@ export const Modes_Styles = {
 
     // Settings
     settingsWrapper: "bg-slate-900 text-white",
-    settingsMessageBox: "bg-gray-700 rounded-lg shadow-lg text-white",
+    settingsMessageBox: "bg-gray-700 rounded-lg shadow-lg text-white py-4",
     settingsDangerButton: "bg-red-600 text-white rounded px-3 py-2",
     settingsLinkButton: "bg-gray-800 text-white rounded px-2 py-1",
   },
@@ -107,8 +107,8 @@ export const Modes_Styles = {
     slotBoxRed: "bg-red-500 text-white border-gray-400",
 
     // Settings
-    settingsWrapper: "bg-slate-100 text-black",
-    settingsMessageBox: "bg-gray-200 rounded-lg shadow-lg text-black",
+    settingsWrapper: "bg-slate-300 text-black",
+    settingsMessageBox: "bg-gray-300 rounded-lg shadow-lg text-black py-4",
     settingsDangerButton: "bg-red-400 text-white rounded px-3 py-2",
     settingsLinkButton: "bg-gray-300 text-black rounded px-2 py-1",
   },
