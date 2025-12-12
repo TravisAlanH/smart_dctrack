@@ -19,7 +19,7 @@ export const auditUI = {
   infoButton: "bg-green-600 text-white rounded px-2 py-1 text-sm sm:text-sm whitespace-nowrap",
 };
 
-export default function CustomFieldInput_BASE({ showRequired }) {
+export default function CustomFieldInput_BASE({ showRequired, style }) {
   const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
 
   const selectedClass = CustomFieldsOnInstance.SelectedClass || "";
@@ -59,7 +59,7 @@ export default function CustomFieldInput_BASE({ showRequired }) {
           if (showRequired && !data.Required) return null;
           return (
             <div key={`customfield-${key}_${index}`}>
-              <CutomFieldInput_All ui={auditUI} data={data} label={key} index={index} />
+              <CutomFieldInput_All ui={auditUI} data={data} label={key} index={index} style={style} />
             </div>
           );
         })}

@@ -1,8 +1,12 @@
 import React from "react";
 import { APIStore } from "../../../../../store/Store";
 import CreateModel_GetMake from "./CreateModel_GetMake";
+import { ReuseDataStateStore } from "../../../../../store/Store";
+import { getStyles } from "../../../../../Styles";
 
 export default function CreateModel_EditDupeModel({ ui }) {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const style = getStyles();
   const CloneModelData = APIStore((s) => s.data.CreateModel);
   const setCreateModel = APIStore((s) => s.setCreateModel);
   const createModel = APIStore((s) => s.createModel);
@@ -101,7 +105,7 @@ export default function CreateModel_EditDupeModel({ ui }) {
   const readOnlyKeys = ["dimHeight", "mounting", "class", "formFactor", "subclass"];
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" style={style.text}>
       <div className="flex flex-row justify-start gap-2 px-2">
         <span className="font-bold">Cloning From:</span>
         <div className="flex flex-row gap-2">
@@ -140,7 +144,7 @@ export default function CreateModel_EditDupeModel({ ui }) {
       >
         {Object.entries(CloneModelData.payload).map(([key, value]) => {
           return (
-            <div key={key} className="flex flex-row justify-between bg-slate-600 rounded-md p-1 h-full">
+            <div key={key} className="flex flex-row justify-between rounded-md p-1 h-full" style={style.CardBackGround}>
               <div className="flex flex-col justify-center h-[2rem] items-center pl-1">
                 <label className="text-white text-sm">
                   {(() => {
@@ -169,7 +173,8 @@ export default function CreateModel_EditDupeModel({ ui }) {
                   </select>
                 ) : numberKeys.includes(key) ? (
                   <input
-                    className={ui.input + (readOnlyKeys.includes(key) ? " bg-gray-500 text-white" : "")}
+                    className={ui.input}
+                    style={readOnlyKeys.includes(key) ? style.inputDark : style.input}
                     type="tel"
                     value={value}
                     readOnly={readOnlyKeys.includes(key) ? true : false}
@@ -194,7 +199,8 @@ export default function CreateModel_EditDupeModel({ ui }) {
                   <CreateModel_GetMake ui={ui} />
                 ) : (
                   <input
-                    className={ui.input + (readOnlyKeys.includes(key) ? " bg-gray-500 text-white" : "")}
+                    className={ui.input}
+                    style={readOnlyKeys.includes(key) ? style.inputDark : style.input}
                     type="text"
                     placeholder={key === "datasheet" ? "" : ""}
                     value={value}
@@ -211,6 +217,7 @@ export default function CreateModel_EditDupeModel({ ui }) {
                 {key === "datasheet" ? (
                   <button
                     className={ui.infoButton + " ml-2"}
+                    style={style.baseButton}
                     onClick={(e) => {
                       e.preventDefault();
                       const make = CloneModelData.payload.make;
@@ -230,7 +237,8 @@ export default function CreateModel_EditDupeModel({ ui }) {
         })}
         <div className="flex flex-row justify-between w-full mt-3">
           <button
-            className={"rounded bg-red-500 px-2 mr-2 text-white"}
+            className={"rounded"}
+            style={style.cautionButton}
             type="button"
             onClick={() => {
               setCreateModel({
@@ -242,7 +250,7 @@ export default function CreateModel_EditDupeModel({ ui }) {
           >
             Reset
           </button>
-          <button className={ui.mainButton} type="submit">
+          <button className={ui.mainButton} type="submit" style={style.baseButton}>
             Create
           </button>
 

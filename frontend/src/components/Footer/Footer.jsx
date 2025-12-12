@@ -1,26 +1,29 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { MdOutlineHome, MdDataArray, MdOutlineStorage, MdOutlineSettings } from "react-icons/md";
+import { getStyles } from "../../../Styles";
 
 export default function Footer() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   const pullCabinetData = APIStore((s) => s.pullCabinetData);
   const pullLocationData = APIStore((s) => s.pullLocationData);
   const pullAllAssetFromCabinet = APIStore((s) => s.pullAllAssetFromCabinet);
   const pullAllMakesFromInstance = APIStore((s) => s.pullAllMakesFromInstance);
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const setPageView = ReuseDataStateStore((s) => s.setPageView);
+  const pageView = ReuseDataStateStore((s) => s.data.pageView);
 
-  const buttonStyle = "bg-transparent text-white rounded px-3 py-1";
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
   const pullChassisSQL = APIStore((s) => s.pullChassisSQL);
 
   return (
-    <div className="bg-gray-800 h-[4rem]">
+    <div className="h-[4rem]" style={ui.footerBackground}>
       <div className="flex flex-row justify-around items-center h-full">
         {/* <div>
           <button
-            className={buttonStyle}
+            
             onClick={() => {
               pullCabinetData(4);
             }}
@@ -30,7 +33,7 @@ export default function Footer() {
         </div> */}
         <div>
           <button
-            className={buttonStyle}
+            style={pageView === 0 ? ui.footerActiveIcon : ui.footerIcon}
             onClick={() => {
               setPageView(0);
             }}
@@ -40,8 +43,8 @@ export default function Footer() {
         </div>
         <div>
           <button
-            className={buttonStyle}
             disabled={LOCATIONCODE === "" || BASE64USERPASS === ""}
+            style={pageView === 3 ? ui.footerActiveIcon : ui.footerIcon}
             onClick={() => {
               setPageView(3);
             }}
@@ -51,8 +54,8 @@ export default function Footer() {
         </div>
         <div>
           <button
-            className={buttonStyle}
             disabled={LOCATIONCODE === "" || BASE64USERPASS === ""}
+            style={pageView === 1 ? ui.footerActiveIcon : ui.footerIcon}
             onClick={() => {
               if (currentCabinetID !== null) {
                 pullAllAssetFromCabinet(currentCabinetID);
@@ -66,7 +69,7 @@ export default function Footer() {
         </div>
         <div>
           <button
-            className={buttonStyle}
+            style={pageView === 2 ? ui.footerActiveIcon : ui.footerIcon}
             onClick={() => {
               setPageView(2);
             }}

@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function CutomFieldInput_All({ ui, data, label }) {
+export default function CutomFieldInput_All({ ui, data, label, style }) {
   const setMessage = APIStore((s) => s.setResponseMessage);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
@@ -17,6 +17,7 @@ export default function CutomFieldInput_All({ ui, data, label }) {
     setAPIPayloadHolder,
     APIPayloadHolder,
     objectType,
+    style,
   };
 
   const type = {
@@ -33,11 +34,11 @@ export default function CutomFieldInput_All({ ui, data, label }) {
 
 const CustomFieldLable = "tiCustomField_";
 
-function TextInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType }) {
+function TextInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType, style }) {
   const req = data.Required;
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{CustomFieldLable + label}</label>
       </div>
 
@@ -57,6 +58,7 @@ function TextInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloa
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Custom field Created on dcTrack instance.";
             setMessage({ type: "Custom_Field_info_header", text, label: label });
@@ -69,7 +71,7 @@ function TextInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloa
   );
 }
 
-function CheckboxInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType }) {
+function CheckboxInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType, style }) {
   const req = data.Required;
   const cardBody = "w-full flex flex-row items-center justify-between gap-2 px-3 pb-2";
 
@@ -84,8 +86,8 @@ function CheckboxInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPa
   }, []);
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{CustomFieldLable + label}</label>
       </div>
 
@@ -109,6 +111,7 @@ function CheckboxInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPa
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Custom field created on dcTrack instance.";
             setMessage({
@@ -125,11 +128,11 @@ function CheckboxInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPa
   );
 }
 
-function DateInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType }) {
+function DateInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType, style }) {
   const req = data.Required;
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{CustomFieldLable + label}</label>
       </div>
 
@@ -148,6 +151,7 @@ function DateInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloa
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Custom field created on dcTrack instance.";
             setMessage({
@@ -164,11 +168,11 @@ function DateInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloa
   );
 }
 
-function NumberInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType }) {
+function NumberInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType, style }) {
   const req = data.Required;
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{CustomFieldLable + label}</label>
       </div>
 
@@ -188,6 +192,7 @@ function NumberInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Custom field Created on dcTrack instance.";
             setMessage({ type: "Custom_Field_info_header", text, label: label });
@@ -200,7 +205,7 @@ function NumberInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
   );
 }
 
-function SelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType }) {
+function SelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType, style }) {
   const req = data.Required;
   const options = data.listValues;
   const field = CustomFieldLable + label;
@@ -208,8 +213,8 @@ function SelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
   const current = APIPayloadHolder[field] || [];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{field}</label>
       </div>
 
@@ -240,6 +245,7 @@ function SelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Custom field Created on dcTrack instance.";
             setMessage({
@@ -256,7 +262,7 @@ function SelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayl
   );
 }
 
-function MultiSelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType }) {
+function MultiSelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAPIPayloadHolder, objectType, style }) {
   const req = data.Required;
   const options = data.listValues;
   const field = CustomFieldLable + label;
@@ -264,8 +270,8 @@ function MultiSelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAP
   const current = APIPayloadHolder[field] || [];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{field}</label>
       </div>
 
@@ -295,6 +301,7 @@ function MultiSelectInput({ setMessage, ui, data, label, APIPayloadHolder, setAP
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Custom field created on dcTrack instance.";
             setMessage({

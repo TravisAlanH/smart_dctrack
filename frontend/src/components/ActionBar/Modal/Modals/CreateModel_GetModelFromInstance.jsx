@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { APIStore } from "../../../../../store/Store";
+import { ReuseDataStateStore } from "../../../../../store/Store";
+import { getStyles } from "../../../../../Styles";
 
 export default function CreateModel_GetModelFromInstance({ ui }) {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const style = getStyles();
   const CreateModel = APIStore((s) => s.data.CreateModel);
   const setCreateModel = APIStore((s) => s.setCreateModel);
   const pullAllModelsInstance = APIStore((s) => s.pullAllModelsInstance);
@@ -76,8 +80,8 @@ export default function CreateModel_GetModelFromInstance({ ui }) {
       </div>
 
       {/* Make (disabled, from CreateModel.holdMake) */}
-      <div className={ui.cardOuter} style={{ position: "relative" }}>
-        <div className={ui.cardHeader}>
+      <div className={ui.cardOuter} style={{ position: "relative", ...style.CardBackGround }}>
+        <div className={ui.cardHeader} style={style.text}>
           <label className={ui.label}>Make</label>
         </div>
 
@@ -86,6 +90,7 @@ export default function CreateModel_GetModelFromInstance({ ui }) {
             name="Make"
             type="text"
             placeholder="Auto-Fill with Model Search"
+            style={style.input}
             className={ui.input}
             required
             value={CreateModel.holdMake || ""}
@@ -95,8 +100,8 @@ export default function CreateModel_GetModelFromInstance({ ui }) {
       </div>
 
       {/* Model search with dropdown */}
-      <div className={ui.cardOuter} style={{ position: "relative" }}>
-        <div className={ui.cardHeader}>
+      <div className={ui.cardOuter} style={{ position: "relative", ...style.CardBackGround }}>
+        <div className={ui.cardHeader} style={style.text}>
           <label className={ui.label}>Model</label>
         </div>
 
@@ -107,6 +112,7 @@ export default function CreateModel_GetModelFromInstance({ ui }) {
             type="text"
             placeholder="Model Search"
             className={ui.input}
+            style={style.input}
             required
             autoComplete="off"
             autoCorrect="off"
@@ -171,6 +177,7 @@ export default function CreateModel_GetModelFromInstance({ ui }) {
         <div>Model Data Preview:</div>
         <button
           className={ui.infoButton}
+          style={style.baseButton}
           onClick={() => {
             setCreateModel({
               payload: payload,

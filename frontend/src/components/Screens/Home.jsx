@@ -81,7 +81,7 @@ export default function Home() {
   const cardOuter = "flex flex-col gap-2 border rounded-lg w-full p-1 text-white ";
   const cardInner = "flex flex-col gap-2 border rounded-lg w-full p-3 text-white ";
 
-  const listItem = "w-full bg-white rounded-md flex flex-row items-center h-14 pr-2 text-black";
+  const listItem = "w-full border rounded-md flex flex-row items-center h-14 pr-2 text-black";
 
   const leftTag = "rounded-l-md w-12 min-w-[3rem] h-full flex items-center justify-center border-r text-base font-bold";
 
@@ -98,7 +98,9 @@ export default function Home() {
       <div className={cardOuter} style={ui.CardBackGround}>
         {/* Refresh button */}
         <div className="w-full flex justify-between items-center mt-2">
-          <span className="text-xl font-bold pl-2">Audit Trail Viewer</span>
+          <span className="text-xl font-bold pl-2" style={ui.text}>
+            Audit Trail Viewer
+          </span>
           <button className={buttonActiveStyle} style={ui.baseButton} onClick={handleAuditTrailRefresh}>
             Refresh
           </button>
@@ -106,7 +108,9 @@ export default function Home() {
 
         {/* Last Known Cabinet */}
         <div className={cardInner} style={ui.CardSectionBackGround}>
-          <h3 className="text-base font-bold mb-2">User At Cabinet (last known)</h3>
+          <h3 className="text-base font-bold mb-2" style={ui.text}>
+            User At Cabinet (last known)
+          </h3>
 
           <div className="flex flex-col gap-2 max-h-[22rem] overflow-y-auto">
             {[...changedBySet].map((entry, index) => {
@@ -143,10 +147,10 @@ export default function Home() {
 
         {/* Audit Trail */}
         <div className={cardInner} style={ui.CardSectionBackGround}>
-          <div className="flex flex-row justify-between pb-2">
+          <div className="flex flex-row justify-between pb-2" style={ui.text}>
             <h3 className="text-base font-bold mb-3">Audit Trail</h3>
             <div className="flex flex-row justify-center items-center gap-2">
-              <span className="text-white mr-2">Rows:</span>
+              <span className=" mr-2">Rows:</span>
               <select
                 className=" text-black h-[2rem] w-[4rem] rounded"
                 value={numberOfAuditTrailView}

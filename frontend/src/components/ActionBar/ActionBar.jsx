@@ -2,16 +2,18 @@ import React from "react";
 import APIPushActionBar from "./APIPushActionBar";
 import CabinetActionBar from "./CabinetActionBar";
 import { ReuseDataStateStore } from "../../../store/Store";
+import { getStyles } from "../../../Styles";
 
 export default function ActionBar({}) {
-  const button = "bg-blue-600 text-white rounded text-lg px-3 py-.5";
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const style = getStyles();
   const pageView = ReuseDataStateStore((s) => s.data.pageView);
 
   const ActionBarTemplate = [
     <BlankActionBar />,
-    <CabinetActionBar style={button} />,
+    <CabinetActionBar style={style} />,
     <BlankActionBar />,
-    <APIPushActionBar style={button} />,
+    <APIPushActionBar style={style} />,
   ];
 
   return <div className="bg-transparent">{ActionBarTemplate[pageView]}</div>;

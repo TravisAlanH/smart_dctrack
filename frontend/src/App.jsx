@@ -34,10 +34,21 @@ function App() {
   const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
   const LOCATIONCODE = APIStore((s) => s.data.LOCATIONCODE);
   const BASE64USERPASS = APIStore((s) => s.data.BASE64USERPASS);
+  const setDarkModeValue = ReuseDataStateStore((s) => s.setDarkModeValue);
 
   React.useEffect(() => {
     async function run() {
       await loadSettingsIntoStore();
+      // check Local Storage for Darkmode setting
+      const darkModeRaw = localStorage.getItem("dark_mode");
+      if (darkModeRaw) {
+        try {
+          const darkModeParsed = JSON.parse(darkModeRaw);
+          setDarkModeValue(darkModeParsed);
+        } catch {
+          setDarkModeValue(false);
+        }
+      }
 
       const raw = localStorage.getItem("custom_fields_state");
 

@@ -6,7 +6,7 @@ import ToggleSwitch from "../Interactions/ToggleSwitch";
 import { dcTrack_COPY_REQUIRED } from "../Helpers/dcTrackCopyRequiredList";
 import { MdDelete, MdFileCopy, MdEditSquare, MdOutlineClose } from "react-icons/md";
 
-export default function CabinetActionBar({ style: button, setShow }) {
+export default function CabinetActionBar({ style }) {
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
   const SelectedInCabinetAsset = ReuseDataStateStore((s) => s.data.SelectedInCabinetAsset);
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
@@ -34,6 +34,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
       currentCabinetID={currentCabinetID}
       showPDUToggleWatcher={showPDUToggleWatcher}
       setPDUToggleWatcher={setPDUToggleWatcher}
+      style={style}
     />,
     <AssetActions
       setMessage={setMessage}
@@ -47,6 +48,7 @@ export default function CabinetActionBar({ style: button, setShow }) {
       setAPIPayloadHolder={setAPIPayloadHolder}
       resetAPUIPayloadHolder={resetAPUIPayloadHolder}
       setCustomFieldSelectedClassandSubclass={setCustomFieldSelectedClassandSubclass}
+      style={style}
     />,
   ];
 
@@ -65,6 +67,7 @@ function AssetActions({
   setAPIPayloadHolder,
   resetAPUIPayloadHolder,
   setCustomFieldSelectedClassandSubclass,
+  style,
 }) {
   return (
     <div className="flex flex-row w-full justify-between items-center">
@@ -74,7 +77,8 @@ function AssetActions({
       <div className="flex flex-row gap-2 justify-end items-center px-2">
         <div>
           <button
-            className="bg-red-600 text-white rounded px-3 py-1"
+            className="rounded px-3 py-1"
+            style={style.baseButton}
             onClick={() => {
               // GETAssetDataByID(SelectedInCabinetAsset.id);
               const payload = {
@@ -222,6 +226,7 @@ function BaseActionBar({
   currentCabinetID,
   showPDUToggleWatcher,
   setPDUToggleWatcher,
+  style,
 }) {
   if (currentCabinetID === null || currentCabinetID === "") {
     return null;

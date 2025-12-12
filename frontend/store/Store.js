@@ -50,7 +50,7 @@ let initState = {
     objectType: "",
     settingPassVarified: false,
     ModalOpen: { open: false, child: null },
-    DarkMode: false,
+    DarkMode: true,
   },
   DataState: {
     TextData: "",
@@ -137,6 +137,22 @@ export const ReuseDataStateStore = create(
         }));
       }
     },
+    setDarkMode: () => {
+      set((state) => {
+        const next = !state.data.DarkMode;
+        localStorage.setItem("dark_mode", JSON.stringify(next));
+
+        return {
+          data: { ...state.data, DarkMode: next },
+        };
+      });
+    },
+    setDarkModeValue: (bool) => {
+      set((state) => ({
+        data: { ...state.data, DarkMode: bool },
+      }));
+    },
+    // set local Storage
     setModalOpen: (payload) => {
       set((state) => ({
         data: {

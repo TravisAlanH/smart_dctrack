@@ -1,7 +1,10 @@
 import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
+import { getStyles } from "../../../Styles";
 
 export default function PDUVIew() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const style = getStyles();
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
   const cabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
   const ZeroUAssetsInCabinet = APIStore((s) => s.data.ZeroUAssetsInCabinet);
@@ -36,12 +39,14 @@ export default function PDUVIew() {
   return (
     <div>
       <div className="flex flex-row justify-between px-4 m-4">
-        <h2 className="font-bold text-lg">{CurrentCabinetName}</h2>
+        <h2 className="font-bold text-lg" style={style.pageHeaderText}>
+          {CurrentCabinetName}
+        </h2>
       </div>
 
       <div className={wrapper}>
-        <div className={leftColumn}>
-          <div className={headerRow}>
+        <div className={leftColumn} style={style.CardBackGround}>
+          <div className={headerRow} style={style.text}>
             <span className={headerText}>Left</span>
           </div>
 
@@ -57,14 +62,15 @@ export default function PDUVIew() {
                   item={item}
                   setCabinetActionBar={setCabinetActionBar}
                   setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+                  style={style}
                 />
               );
             })}
           </div>
         </div>
 
-        <div className={rightColumn}>
-          <div className={headerRow}>
+        <div className={rightColumn} style={style.CardBackGround}>
+          <div className={headerRow} style={style.text}>
             <span className={headerText}>Right</span>
           </div>
 
@@ -80,6 +86,7 @@ export default function PDUVIew() {
                   item={item}
                   setCabinetActionBar={setCabinetActionBar}
                   setSelectedInCabinetAsset={setSelectedInCabinetAsset}
+                  style={style}
                 />
               );
             })}
@@ -90,18 +97,16 @@ export default function PDUVIew() {
   );
 }
 
-const boxStyleEmpty = "flex flex-row items-center bg-slate-400 mx-3 rounded-md py-1 h-9";
+const boxStyleEmpty = "flex flex-row items-center mx-3 rounded-md py-1 h-9";
 const labelDivStyle = "flex flex-col h-10 w-10 justify-center items-center";
 const labelStyle = "text-sm";
 const innerBoxStyleEmpty = "w-full h-full flex flex-row gap-2 pr-2";
-const innerBoxStyle =
-  "w-[2.5rem] h-full flex flex-col justify-between gap-2 pr-2 border border-gray-400 rounded px-2 py-1 bg-white";
-const inputStyle = "border border-gray-400 rounded px-2 py-1 text-sm w-full bg-white";
-const inputStyleEmpty = "border border-gray-400 rounded px-2 py-1 text-sm w-full bg-gray-400";
+const innerBoxStyle = "w-[2.5rem] h-full flex flex-col justify-between gap-2 pr-2 border rounded px-2 py-1";
+const inputStyleEmpty = "border rounded px-2 py-1 text-sm w-full";
 
-function PositionItems({ pos, item, idx, setSelectedInCabinetAsset, setCabinetActionBar }) {
+function PositionItems({ pos, item, idx, setSelectedInCabinetAsset, setCabinetActionBar, style }) {
   return (
-    <div key={idx} className="flex flex-col justify-between border">
+    <div key={idx} className="flex flex-col justify-between border py-1 my-2" style={style.CardSectionBackGround}>
       <div className="flex flex-row justify-around">
         <span className="text-white">{pos.depth[0]}</span>
       </div>
@@ -120,7 +125,8 @@ function PositionItems({ pos, item, idx, setSelectedInCabinetAsset, setCabinetAc
             </div>
 
             <button
-              className="border px-2 bg-green-500 rounded-md h-10 w-full"
+              className="border px-2 rounded-md h-10 w-full"
+              style={style.baseButton}
               onClick={() => {
                 setSelectedInCabinetAsset(item);
                 setCabinetActionBar(1);
@@ -130,8 +136,11 @@ function PositionItems({ pos, item, idx, setSelectedInCabinetAsset, setCabinetAc
             </button>
           </div>
         ) : (
-          <div className="w-[3rem] h-full border-gray-400 rounded flex flex-col items-center justify-between p-1 gap-2">
-            <div className="flex flex-col items-center justify-between w-full flex-1  bg-slate-400 rounded px-2 py-1">
+          <div className="w-[3rem] h-full rounded flex flex-col items-center justify-between p-1 gap-2">
+            <div
+              className="flex flex-col items-center justify-between w-full flex-1 rounded px-2 py-1"
+              style={style.CardInnerBackGround}
+            >
               <div className="rotate-90 w-[50%] whitespace-nowrap text-center">
                 <div className=" flex flex-row justify-start">Empty</div>
               </div>

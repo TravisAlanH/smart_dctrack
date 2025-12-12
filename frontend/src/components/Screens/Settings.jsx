@@ -1,13 +1,15 @@
 import React from "react";
 import { loadSettingsMaster, saveSettingsMaster, updateSettingsField } from "../Helpers/SettingsMaster";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
-import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
+// import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
 import CutomFieldRequiredToggles from "../ActionBar/CustomFields/CutomFieldRequiredToggles";
 import SOPButton from "../Interactions/Buttons/SOPButton";
 import { getStyles } from "../../../Styles";
+import ToggleSwitch from "../Interactions/ToggleSwitch";
 
 export default function Settings() {
   const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const setDarkMode = ReuseDataStateStore((s) => s.setDarkMode);
   const ui = getStyles();
   //#region STATE_SETTERS
   const settingPassVarified = ReuseDataStateStore((s) => s.data.settingPassVarified);
@@ -164,7 +166,7 @@ export default function Settings() {
                   onChange={(e) => setSettingPassword(e.target.value)}
                 />
               </div>
-              <button type="submit" className="bg-blue-600 text-white rounded px-3 py-2 mt-4">
+              <button type="submit" className="rounded px-3 py-2 mt-4" style={ui.baseButton}>
                 Login
               </button>
             </form>
@@ -176,7 +178,9 @@ export default function Settings() {
         {!settingPassVarified && (
           <div className="m-4 rounded-lg shadow-lg h-[8rem]" style={{ ...ui.CardBackGround, ...ui.text }}>
             <div className="flex flex-row justify-center items-center h-full w-full " style={ui.text}>
-              <span className="text-white">Input Pass to view settings</span>
+              <span className="" style={ui.text}>
+                Input Pass to view settings
+              </span>
             </div>
           </div>
         )}
@@ -411,11 +415,24 @@ export default function Settings() {
 
         {/* #region RESET */}
         {stored.SETTINGPASS && (
-          <div className="m-4 rounded-lg shadow-lg flex flex-row justify-center" style={{ ...ui.CardBackGround, ...ui.text }}>
-            <button type="button" className=" rounded px-3 py-2 m-4" onClick={resetAllData} style={ui.cautionButton}>
-              Reset All Passwords and Settings
-            </button>
-          </div>
+          <>
+            <div
+              className="mx-4 p-4 rounded-lg shadow-lg flex flex-row justify-center"
+              style={{ ...ui.CardBackGround, ...ui.text }}
+            >
+              <div className="flex flex-row justify-between w-full">
+                <label className="" style={ui.text}>
+                  DarkMode
+                </label>
+                <ToggleSwitch checked={darkMode} onChange={setDarkMode} label="" />
+              </div>
+            </div>
+            <div className="mx-4 rounded-lg shadow-lg flex flex-row justify-center" style={{ ...ui.CardBackGround, ...ui.text }}>
+              <button type="button" className=" rounded px-3 py-2 m-4" onClick={resetAllData} style={ui.cautionButton}>
+                Reset All Passwords and Settings
+              </button>
+            </div>
+          </>
         )}
         {/* #endregion */}
       </div>
