@@ -31,10 +31,10 @@
 export const Modes_Styles = {
   DarkMode: {
     // Audit
-    cardOuter: "bg-slate-600 rounded-md",
-    cardHeader: "text-white font-bold",
-    cardBody: "flex flex-row",
-    label: "text-white",
+    cardOuter: "bg-slate-600",
+    cardHeader: "text-white",
+    cardBody: "",
+    label: "",
     labelRequired: "text-red-400",
     input: "border-gray-400 bg-white text-black",
     select: "border-gray-400 bg-white text-black",
@@ -74,9 +74,9 @@ export const Modes_Styles = {
   LightMode: {
     // Audit
     cardOuter: "bg-slate-300",
-    cardHeader: "text-black font-bold",
-    cardBody: "flex flex-row",
-    label: "text-black",
+    cardHeader: "text-black",
+    cardBody: "",
+    label: "",
     labelRequired: "text-red-400",
     input: "border-gray-400 bg-white text-black",
     select: "border-gray-400 bg-white text-black",
@@ -116,7 +116,7 @@ export const Modes_Styles = {
 
 export const AuditLayoutStyles = {
   cardOuter: "flex flex-col rounded-md mx-2",
-  cardHeader: "px-3 py-2 pb-1 text-xs sm:text-sm font-semibold",
+  cardHeader: "px-3 pt-2 pb-1 text-xs sm:text-sm font-semibold",
   cardBody: "w-full flex flex-row items-center gap-2 px-3 pb-2",
 
   label: "text-sm sm:text-sm",
