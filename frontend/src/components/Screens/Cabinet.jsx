@@ -2,7 +2,6 @@ import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import PDUVIew from "./PDUVIew";
 import SOPButton from "../Interactions/Buttons/SOPButton";
-import { Modes_Styles } from "../../../Styles";
 
 export default function Cabinet({ pageView }) {
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
@@ -19,22 +18,6 @@ export default function Cabinet({ pageView }) {
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
   const cabinetViewFrontBack = ReuseDataStateStore((s) => s.data.cabinetViewFrontBack);
   const setCabinetViewFrontBack = ReuseDataStateStore((s) => s.setCabinetViewFrontBack);
-  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
-
-  const theme = darkMode ? Modes_Styles.DarkMode : Modes_Styles.LightMode;
-
-  const ui = {
-    wrapper: theme.cabinetWrapper,
-    headerText: theme.cabinetHeader,
-    emptyU: theme.emptyU,
-    emptyUInput: theme.emptyUInput,
-    filledU: theme.filledU,
-    filledInner: theme.filledUInner,
-    actButton: theme.actButton,
-    halfView: theme.halfView,
-    slotBox: theme.slotBox,
-    slotBoxRed: theme.slotBoxRed,
-  };
 
   React.useEffect(() => {
     const missing = !LOCATIONCODE || !currentCabinetID;
@@ -58,8 +41,8 @@ export default function Cabinet({ pageView }) {
 
   if (!LOCATIONCODE || !currentCabinetID) {
     return (
-      <div className="flex flex-row justify-between p-4 text-white">
-        <span className="text-base">Please select a location and cabinet</span>
+      <div className="flex flex-row justify-between p-4">
+        <span className="text-base text-white">Please select a location and cabinet</span>
         <SOPButton />
       </div>
     );
@@ -91,9 +74,9 @@ export default function Cabinet({ pageView }) {
   });
 
   return (
-    <div className={`w-full h-full flex flex-col overflow-hidden ${ui.wrapper}`}>
+    <div className="w-full h-full flex flex-col overflow-hidden text-white">
       <div className="flex flex-row items-center justify-between px-4 pt-2 pb-1">
-        <h2 className={`font-bold text-base truncate max-w-[65%] ${ui.headerText}`}>{CurrentCabinetName}</h2>
+        <h2 className="font-bold text-base truncate max-w-[65%] text-white">{CurrentCabinetName}</h2>
         <div className="flex flex-row gap-2 items-center">
           <button
             className="text-base border border-gray-400 rounded px-2 py-1 bg-slate-800"
@@ -128,7 +111,6 @@ export default function Cabinet({ pageView }) {
                     key={ru}
                     ru={ru}
                     item={startMap[ruNum]}
-                    ui={ui}
                     setSelectedInCabinetAsset={setSelectedInCabinetAsset}
                     setCabinetActionBar={setCabinetActionBar}
                     cabinetViewFrontBack={cabinetViewFrontBack}
@@ -141,7 +123,7 @@ export default function Cabinet({ pageView }) {
                 return null;
               }
 
-              return <EmptyUPosition key={ru} ru={ru} ui={ui} />;
+              return <EmptyUPosition key={ru} ru={ru} />;
             })}
         </div>
       </div>
@@ -149,15 +131,20 @@ export default function Cabinet({ pageView }) {
   );
 }
 
-function EmptyUPosition({ ru, ui }) {
+function EmptyUPosition({ ru }) {
   return (
-    <div className={`flex flex-row items-center rounded-md h-10 px-2 ${ui.emptyU}`}>
+    <div className="flex flex-row items-center bg-slate-500 rounded-md h-10 px-2">
       <div className="flex flex-col h-full w-10 justify-center items-center">
         <label className="text-base">{ru}</label>
       </div>
 
       <div className="flex-1 h-full flex items-center">
-        <input type="text" className={`border rounded px-2 py-1 text-base w-full ${ui.emptyUInput}`} value="Empty" readOnly />
+        <input
+          type="text"
+          className="border border-gray-400 rounded px-2 py-1 text-base w-full bg-gray-300 text-black"
+          value="Empty"
+          readOnly
+        />
       </div>
     </div>
   );
@@ -166,7 +153,6 @@ function EmptyUPosition({ ru, ui }) {
 function FilledUPosition({
   ru,
   item,
-  ui,
   setSelectedInCabinetAsset,
   setCabinetActionBar,
   cabinetViewFrontBack,
@@ -180,7 +166,6 @@ function FilledUPosition({
         return (
           <HalfView
             item={item}
-            ui={ui}
             setSelectedInCabinetAsset={setSelectedInCabinetAsset}
             setCabinetActionBar={setCabinetActionBar}
             Rail="Back"
@@ -190,7 +175,6 @@ function FilledUPosition({
       return (
         <FullView
           item={item}
-          ui={ui}
           setSelectedInCabinetAsset={setSelectedInCabinetAsset}
           setCabinetActionBar={setCabinetActionBar}
           CassisModelsInCabinet={CassisModelsInCabinet}
@@ -204,7 +188,6 @@ function FilledUPosition({
         return (
           <HalfView
             item={item}
-            ui={ui}
             setSelectedInCabinetAsset={setSelectedInCabinetAsset}
             setCabinetActionBar={setCabinetActionBar}
             Rail="Front"
@@ -214,7 +197,6 @@ function FilledUPosition({
       return (
         <FullView
           item={item}
-          ui={ui}
           setSelectedInCabinetAsset={setSelectedInCabinetAsset}
           setCabinetActionBar={setCabinetActionBar}
           CassisModelsInCabinet={CassisModelsInCabinet}
@@ -226,7 +208,6 @@ function FilledUPosition({
     return (
       <FullView
         item={item}
-        ui={ui}
         setSelectedInCabinetAsset={setSelectedInCabinetAsset}
         setCabinetActionBar={setCabinetActionBar}
         CassisModelsInCabinet={CassisModelsInCabinet}
@@ -236,7 +217,7 @@ function FilledUPosition({
   };
 
   return (
-    <div className={`flex flex-row items-stretch rounded-md px-2 py-1 ${ui.filledU}`} style={{ minHeight }}>
+    <div className="flex flex-row items-stretch bg-slate-600 rounded-md px-2 py-1" style={{ minHeight }}>
       <div className="flex flex-col w-10 justify-around items-center">
         {[...Array(item.tiRackUnits)].map((_, idx) => {
           const start = Number(ru);
@@ -254,7 +235,7 @@ function FilledUPosition({
 
       <div className="w-16 flex justify-center items-center pl-1">
         <button
-          className={`px-2 rounded-md h-8 text-base ${ui.actButton}`}
+          className="border border-green-700 px-2 bg-green-500 rounded-md h-8 text-base text-black"
           onClick={() => {
             setSelectedInCabinetAsset(item);
             setCabinetActionBar(1);
@@ -267,7 +248,7 @@ function FilledUPosition({
   );
 }
 
-function FullView({ item, ui, setSelectedInCabinetAsset, setCabinetActionBar, CassisModelsInCabinet, cabinetViewFrontBack }) {
+function FullView({ item, setSelectedInCabinetAsset, setCabinetActionBar, CassisModelsInCabinet, cabinetViewFrontBack }) {
   function trimName(str) {
     if (!str) return "";
     if (str.length > 27) return str.slice(0, 27) + "...";
@@ -289,8 +270,8 @@ function FullView({ item, ui, setSelectedInCabinetAsset, setCabinetActionBar, Ca
   }
 
   return (
-    <div className={`w-full h-full flex flex-col gap-1 border rounded px-2 py-1 overflow-hidden ${ui.filledInner}`}>
-      <div className="w-full flex flex-row items-center justify-between gap-2">
+    <div className="w-full h-full flex flex-col gap-1 border border-gray-400 bg-white text-black rounded px-2 py-1 overflow-hidden">
+      <div className={`w-full flex flex-row items-center justify-between gap-2 ${isChassis ? "min-h-[2.5rem]" : ""}`}>
         <span className="text-base truncate max-w-[50%]">{item.tiName}</span>
 
         <div className="flex flex-row text-xs gap-1 justify-end w-1/2">
@@ -306,7 +287,6 @@ function FullView({ item, ui, setSelectedInCabinetAsset, setCabinetActionBar, Ca
             slots={chassisSlots}
             cabinetViewFrontBack={cabinetViewFrontBack}
             rackUnits={item.tiRackUnits}
-            ui={ui}
           />
         </div>
       ) : null}
@@ -314,11 +294,11 @@ function FullView({ item, ui, setSelectedInCabinetAsset, setCabinetActionBar, Ca
   );
 }
 
-function HalfView({ item, ui, setSelectedInCabinetAsset, setCabinetActionBar, Rail }) {
+function HalfView({ item, setSelectedInCabinetAsset, setCabinetActionBar, Rail }) {
   return (
     <div className="flex flex-row w-full h-full items-center">
       <div
-        className={`flex flex-row flex-1 h-full justify-center items-center px-2 py-1 rounded ${ui.halfView}`}
+        className="flex flex-row flex-1 h-full justify-center items-center px-2 py-1 rounded"
         style={{
           backgroundImage: "repeating-linear-gradient(45deg, #737373 0 2px, transparent 2px 6px)",
         }}
@@ -329,28 +309,14 @@ function HalfView({ item, ui, setSelectedInCabinetAsset, setCabinetActionBar, Ra
   );
 }
 
-function SlotView({ Chassis, slots, cabinetViewFrontBack, rackUnits, ui }) {
+function SlotView({ Chassis, slots, cabinetViewFrontBack, rackUnits }) {
   const hasAnchor = slots.some((s) => s.anchor === true);
 
   if (hasAnchor) {
-    return (
-      <AnchoredSlotView
-        Chassis={Chassis}
-        slots={slots}
-        cabinetViewFrontBack={cabinetViewFrontBack}
-        rackUnits={rackUnits}
-        ui={ui}
-      />
-    );
+    return <AnchoredSlotView Chassis={Chassis} slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />;
   }
   return (
-    <NonAnchoredSlotView
-      Chassis={Chassis}
-      slots={slots}
-      cabinetViewFrontBack={cabinetViewFrontBack}
-      rackUnits={rackUnits}
-      ui={ui}
-    />
+    <NonAnchoredSlotView Chassis={Chassis} slots={slots} cabinetViewFrontBack={cabinetViewFrontBack} rackUnits={rackUnits} />
   );
 
   const count = slots.length;
@@ -373,11 +339,9 @@ function SlotView({ Chassis, slots, cabinetViewFrontBack, rackUnits, ui }) {
 
   const slotRowClass = "flex flex-row gap-1";
 
-  const slotBoxClassBase =
+  const slotBoxClass =
     "flex flex-col items-center justify-center text-center border rounded px-1 py-1 " +
-    "min-w-[3rem] max-w-[4rem] h-[6rem] text-base";
-
-  const slotBoxClass = `${slotBoxClassBase} ${ui.slotBox}`;
+    "min-w-[3rem] max-w-[4rem] h-[6rem] text-base bg-slate-50 text-black";
 
   // if anchor true split between two and bottom
   // else each slot is its own
@@ -417,7 +381,7 @@ function SlotView({ Chassis, slots, cabinetViewFrontBack, rackUnits, ui }) {
   );
 }
 
-function AnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
+function AnchoredSlotView({ Chassis, slots, cabinetViewFrontBack }) {
   const BladesInCabinet = APIStore((s) => s.data.BladesInCabinet);
   const BladesInChassis = BladesInCabinet.filter((b) => b.cmbChassis === Chassis.tiName);
   const BladesInView = BladesInChassis.filter((b) => b.radioChassisFace === cabinetViewFrontBack);
@@ -431,17 +395,19 @@ function AnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
   const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden pb-2";
   const slotRowClass = "flex flex-row gap-1";
 
-  const boxBase =
+  const box =
     "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
-    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base";
-  const boxTallBase =
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-slate-50 text-black";
+
+  const boxRed =
+    "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-red-500 text-white";
+
+  const boxRedFull =
     "flex flex-col items-center justify-between text-center border rounded px-1 pt-1 " +
-    "min-w-[2.5rem] max-w-[2.5rem] h-[16rem] text-base";
+    "min-w-[2.5rem] max-w-[2.5rem] h-[16rem] text-base bg-red-500 text-white";
 
-  const box = `${boxBase} ${ui.slotBox}`;
-  const boxRed = `${boxBase} ${ui.slotBoxRed}`;
-  const boxRedFull = `${boxTallBase} ${ui.slotBoxRed}`;
-
+  // helper
   function isBladeInSlot(label) {
     return BladesInView.find((b) => String(b.cmbSlotPosition) === String(label));
   }
@@ -457,35 +423,38 @@ function AnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
           const paired = bottom[idx];
 
           const bladeTop = isBladeInSlot(slot.slotLabel);
-          const bladeBottom = paired ? isBladeInSlot(paired.slotLabel) : null;
+          const bladeBottom = isBladeInSlot(paired.slotLabel);
 
           const bladeTopFull = bladeTop ? isBladeInSlotFull(bladeTop) : false;
           const bladeBottomFull = bladeBottom ? isBladeInSlotFull(bladeBottom) : false;
 
+          // if (bladeTop) console.log("Top match", slot.slotLabel, bladeTop);
+          // if (bladeBottom) console.log("Bottom match", paired.slotLabel, bladeBottom);
+
           return (
             <div key={slot.modelChassisSlotId} className="flex flex-col items-center gap-2">
+              {/* top slot */}
               {bladeTopFull || bladeBottomFull ? (
                 <div className={boxRedFull}>
                   <div className="flex flex-col items-center justify-between w-full flex-1">
                     <div className="rotate-90 w-[50%] whitespace-nowrap text-center">
-                      <div className="flex flex-row justify-start">{bladeTop?.tiName || bladeBottom?.tiName || ""}</div>
+                      <div className=" flex flex-row justify-start">{bladeTop?.tiName || bladeBottom?.tiName || ""}</div>
                     </div>
                   </div>
-                  <ActionButtons item={bladeTop || bladeBottom} ui={ui} />
+                  <ActionButtons item={bladeTop || bladeBottom} />
                 </div>
               ) : (
                 <div>
                   <div className={bladeTop ? boxRed : box}>
                     <span>{slot.slotLabel}</span>
-                    {bladeTop ? <ActionButtons item={bladeTop} ui={ui} /> : slot.anchor ? <span>A</span> : null}
+                    {bladeTop ? <ActionButtons item={bladeTop} /> : slot.anchor ? <span>A</span> : null}
                   </div>
 
-                  {paired && (
-                    <div className={bladeBottom ? boxRed : box}>
-                      <span>{paired.slotLabel}</span>
-                      {bladeBottom ? <ActionButtons item={bladeBottom} ui={ui} /> : paired.anchor ? <span>A</span> : null}
-                    </div>
-                  )}
+                  {/* bottom slot */}
+                  <div className={bladeBottom ? boxRed : box}>
+                    <span>{paired.slotLabel}</span>
+                    {bladeBottom ? <ActionButtons item={bladeBottom} /> : paired.anchor ? <span>A</span> : null}
+                  </div>
                 </div>
               )}
             </div>
@@ -496,7 +465,7 @@ function AnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
   );
 }
 
-function NonAnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
+function NonAnchoredSlotView({ Chassis, slots, cabinetViewFrontBack }) {
   const BladesInCabinet = APIStore((s) => s.data.BladesInCabinet);
   const BladesInChassis = BladesInCabinet.filter((b) => b.cmbChassis === Chassis.tiName);
   const BladesInView = BladesInChassis.filter((b) => b.radioChassisFace === cabinetViewFrontBack);
@@ -504,13 +473,15 @@ function NonAnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
   const containerBase = "flex flex-col gap-1 w-full max-w-full overflow-x-auto overflow-y-hidden pb-2";
   const slotRowClass = "flex flex-row gap-1";
 
-  const boxBase =
+  const box =
     "flex flex-col items-center justify-between text-center border rounded px-1 py-1 " +
-    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base";
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-slate-50 text-black";
 
-  const box = `${boxBase} ${ui.slotBox}`;
-  const boxRed = `${boxBase} ${ui.slotBoxRed}`;
+  const boxRed =
+    "flex flex-col items-center justify-between text-center border rounded px-1 pt-1 " +
+    "min-w-[2.5rem] max-w-[2.5rem] h-[8rem] text-base bg-red-500 text-white";
 
+  // helper
   function isBladeInSlot(label) {
     return BladesInView.find((b) => String(b.cmbSlotPosition) === String(label));
   }
@@ -522,17 +493,19 @@ function NonAnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
           const bladeTop = isBladeInSlot(slot.slotLabel);
           return (
             <div key={slot.modelChassisSlotId} className="flex flex-col justify-between items-center gap-2">
+              {/* top slot */}
+
               <div className={bladeTop ? boxRed : box}>
                 {bladeTop ? (
                   <div className="flex flex-col items-center justify-between w-full flex-1">
                     <div className="rotate-90 w-[50%] whitespace-nowrap text-center">
-                      <div className="flex flex-row justify-start">{bladeTop?.tiName || ""}</div>
+                      <div className=" flex flex-row justify-start">{bladeTop?.tiName || ""}</div>
                     </div>
                   </div>
                 ) : (
                   <span>{slot.slotLabel}</span>
                 )}
-                {bladeTop ? <ActionButtons item={bladeTop} ui={ui} /> : slot.anchor ? <span>A</span> : null}
+                {bladeTop ? <ActionButtons item={bladeTop} /> : slot.anchor ? <span>A</span> : null}
               </div>
             </div>
           );
@@ -542,13 +515,13 @@ function NonAnchoredSlotView({ Chassis, slots, cabinetViewFrontBack, ui }) {
   );
 }
 
-function ActionButtons({ item, ui }) {
+function ActionButtons({ item }) {
   const setSelectedInCabinetAsset = ReuseDataStateStore((s) => s.setSelectedInCabinetAsset);
   const setCabinetActionBar = ReuseDataStateStore((s) => s.setCabinetActionBar);
   return (
     <div className="flex flex-col gap-2">
       <button
-        className={`px-2 rounded-md h-10 w-full text-base ${ui.actButton}`}
+        className="border border-green-700 px-2 bg-green-500 rounded-md h-10 w-full text-base text-black"
         onClick={() => {
           setSelectedInCabinetAsset(item);
           setCabinetActionBar(1);
