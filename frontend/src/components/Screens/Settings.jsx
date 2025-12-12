@@ -117,33 +117,32 @@ export default function Settings() {
 
   return (
     <div className={ui.settingsWrapper}>
-      <div className="m-4 mt-4 flex flex-row wi-full justify-between">
+      <div className="mx-4 mt-4 flex flex-row wi-full justify-between">
         <span className={`${ui.cardHeader} text-xl font-bold`}>SETTINGS</span>
         <SOPButton />
       </div>
 
       <div className="w-full h-full flex flex-col justify-center gap-3">
         {!settingPassVarified && stored.SETTINGPASS && (
-          <div className={`${ui.settingsMessageBox} mx-4 flex flex-col gap-4`}>
-            <span className={ui.cardHeader + " px-4"}>Enter Password to View Settings</span>
+          <div className={`${ui.settingsMessageBox} mx-4`}>
             <form
-              className={`${ui.cardBody} flex flex-col px-4`}
+              className={`${ui.cardBody} flex flex-col p-4`}
               onSubmit={(e) => {
                 e.preventDefault();
                 handleLogin();
               }}
             >
-              <div className="flex flex-row gap-2 items-center w-full">
-                <label className={ui.label + " w-[30%]"}>Password</label>
+              <div className="flex flex-row gap-2 items-center">
+                <label className={ui.label}>Password</label>
                 <input
-                  className={ui.input + " w-[70%]"}
+                  className={ui.input}
                   type="tel"
                   value={SettingPassword}
                   onChange={(e) => setSettingPassword(e.target.value)}
                 />
               </div>
 
-              <button type="submit" className={ui.mainButton + " mt-4 w-full"}>
+              <button type="submit" className={ui.mainButton}>
                 Login
               </button>
             </form>
@@ -350,7 +349,7 @@ export default function Settings() {
         )}
 
         {stored.SETTINGPASS && (
-          <div className={`${ui.cardOuter} mx-4 flex flex-row justify-center py-4`}>
+          <div className={`${ui.cardOuter} m-4 flex flex-row justify-center`}>
             <button type="button" className={ui.settingsDangerButton} onClick={resetAllData}>
               Reset All Passwords and Settings
             </button>
