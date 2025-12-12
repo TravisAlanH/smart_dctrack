@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function AuditChassisInput({ ui }) {
+export default function AuditChassisInput({ ui, style }) {
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
   const AssetsInCabinet = APIStore((s) => s.data.AssetsInCabinet);
@@ -22,8 +22,8 @@ export default function AuditChassisInput({ ui }) {
   }, [currentCabinetID, AssetsInCabinet]);
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={ui.labelRequired}>Chassis</label>
       </div>
 
@@ -48,6 +48,7 @@ export default function AuditChassisInput({ ui }) {
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Select the chassis asset that this blade belongs to.";
             setMessage({ type: "info_header", text, label: label });

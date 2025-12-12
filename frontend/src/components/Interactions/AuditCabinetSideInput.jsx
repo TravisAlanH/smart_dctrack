@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function AuditCabinetSideInput({ ui }) {
+export default function AuditCabinetSideInput({ ui, style }) {
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const setMessage = APIStore((s) => s.setResponseMessage);
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
@@ -11,8 +11,8 @@ export default function AuditCabinetSideInput({ ui }) {
   const options = ["Left", "Right"];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={ui.labelRequired}>Cabinet Side</label>
       </div>
 
@@ -36,6 +36,7 @@ export default function AuditCabinetSideInput({ ui }) {
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Left or right side of the cabinet where the PDU is mounted.";
             setMessage({ type: "info_header", text, label });

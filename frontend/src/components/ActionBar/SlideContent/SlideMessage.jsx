@@ -2,8 +2,11 @@ import React from "react";
 import { APIStore, ReuseDataStateStore } from "../../../../store/Store";
 import SlideSetCabLoc from "./SlideSetCabLoc";
 import { dcTrack_READABLE } from "../../Helpers/dcTrackAPIReadable";
+import { getStyles } from "../../../../Styles";
 
 export default function SlideMessage({ setShow }) {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   const msg = APIStore((s) => s.data.ResponseMessage);
   const [deleteHold, setDeleteHold] = React.useState("");
   const [resetHold, setResetHold] = React.useState(false);
@@ -41,8 +44,8 @@ export default function SlideMessage({ setShow }) {
 
     if (type === "Delete Asset") {
       const name = m.label?.tiName || "";
-      const disabledStyle = "bg-gray-600 text-white rounded px-3 py-1 mx-2 cursor-not-allowed";
-      const enabledStyle = "bg-red-600 text-white rounded px-3 py-1 mx-2";
+      const disabledStyle = "text-white rounded px-3 py-1 mx-2 cursor-not-allowed";
+      const enabledStyle = "rounded px-3 py-1 mx-2";
       console.log(m.label);
       return (
         <div className="flex flex-col items-center pt-3">
@@ -55,12 +58,13 @@ export default function SlideMessage({ setShow }) {
           <input
             type="text"
             value={deleteHold}
-            className="text-black mt-3 px-2 py-1 rounded"
+            className="mt-3 px-2 py-1 rounded"
             onChange={(e) => setDeleteHold(e.target.value)}
           />
 
           <button
             className={deleteHold === name ? enabledStyle : disabledStyle}
+            style={deleteHold === name ? ui.cautionButton : ui.disabledButton}
             disabled={deleteHold !== name}
             onClick={async () => {
               if (deleteHold !== name) return;
@@ -173,5 +177,5 @@ export default function SlideMessage({ setShow }) {
     return <div className="p-2 text-sm">Unknown result</div>;
   }
 
-  return <div className="w-full bg-black text-white text-center">{formatMessage(msg)}</div>;
+  return <div className="w-full text-center">{formatMessage(msg)}</div>;
 }

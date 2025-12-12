@@ -1,13 +1,17 @@
 import React from "react";
 import { ReuseDataStateStore } from "../../../../store/Store";
 import { MdAdd } from "react-icons/md";
+import { getStyles } from "../../../../Styles";
 
 export default function ModalButton({ child: Component_Name }) {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   const setModalOpen = ReuseDataStateStore((s) => s.setModalOpen);
   return (
     <div>
       <div
-        className="bg-orange-600 text-white rounded px-2 py-1"
+        className=" rounded px-2 py-1"
+        style={ui.baseButton}
         onClick={() => {
           setModalOpen({ open: true, child: Component_Name });
         }}

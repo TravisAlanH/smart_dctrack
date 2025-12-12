@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function AuditLocationInput({ ui }) {
+export default function AuditLocationInput({ ui, style }) {
   const LOCATION = APIStore((s) => s.data.LOCATION);
   const setMessage = APIStore((s) => s.setResponseMessage);
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
@@ -14,8 +14,8 @@ export default function AuditLocationInput({ ui }) {
   }, [LOCATION, setSingleAPIPayloadHolder]);
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={ui.labelRequired}>Location</label>
       </div>
 
@@ -25,6 +25,7 @@ export default function AuditLocationInput({ ui }) {
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text =
               "The parent location such as ROOM-101. Must match a Location defined in the system. Location is set in the Settings screen.";

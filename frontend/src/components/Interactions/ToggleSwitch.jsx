@@ -1,7 +1,10 @@
 import React from "react";
 import { ReuseDataStateStore } from "../../../store/Store";
+import { getStyles } from "../../../Styles";
 
 function ToggleSwitch({ checked, onChange, label, lableColor }) {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   console.log(lableColor);
   const setRequiredToggleWatcher = ReuseDataStateStore((s) => s.setRequireToggleWatcher);
   const setShowEmptyUPToggleWatcher = ReuseDataStateStore((s) => s.setShowEmptyUPToggleWatcher);
@@ -13,7 +16,8 @@ function ToggleSwitch({ checked, onChange, label, lableColor }) {
     >
       {label && <span>{label}</span>}
       <div
-        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${checked ? "bg-green-500" : "bg-gray-300"}`}
+        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors`}
+        style={checked ? ui.toggleOn : ui.toggleOff}
         onClick={() => {
           onChange(!checked);
           if (label !== "Hide Empty") {
@@ -22,9 +26,10 @@ function ToggleSwitch({ checked, onChange, label, lableColor }) {
         }}
       >
         <div
-          className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
+          className={`w-4 h-4 rounded-full shadow-md transform transition-transform ${
             checked ? "translate-x-6" : "translate-x-0"
           }`}
+          style={ui.mainBackground}
         />
       </div>
     </label>

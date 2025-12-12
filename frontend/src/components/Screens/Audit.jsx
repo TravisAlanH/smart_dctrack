@@ -26,26 +26,30 @@ import AuditSlotInput from "../Interactions/AuditSlotInput";
 import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
 import { MdDocumentScanner, MdInfoOutline, MdOutlineQrCode } from "react-icons/md";
 import SOPButton from "../Interactions/Buttons/SOPButton";
+import { getStyles } from "../../../Styles";
 
 /* Shared UI */
 export const auditUI = {
-  cardOuter: "flex flex-col bg-slate-600 rounded-md mx-2",
-  cardHeader: "px-3 pt-2 pb-1 text-xs sm:text-sm font-semibold text-white",
+  cardOuter: "flex flex-col rounded-md mx-2 ",
+  cardHeader: "px-3 pt-2 pb-1 text-xs sm:text-sm font-semibold",
   cardBody: "w-full flex flex-row items-center gap-2 px-3 pb-2",
 
   label: "text-sm sm:text-sm",
-  labelRequired: "text-sm sm:text-sm text-red-400 font-bold",
+  labelRequired: "text-sm sm:text-sm font-bold",
 
   // iOS zoom fix: use text-base
   input: "border border-gray-400 rounded px-2 py-1 text-base w-full bg-white text-black",
   select: "border border-gray-400 rounded px-2 py-1 text-base w-full bg-white text-black",
 
-  mainButton: "bg-blue-600 text-white rounded px-3 py-1 text-sm sm:text-sm whitespace-nowrap",
-  infoButton: "bg-green-600 text-white rounded px-2 py-1 text-sm sm:text-sm whitespace-nowrap",
+  mainButton: "rounded px-3 py-1 text-sm sm:text-sm whitespace-nowrap",
+  infoButton: "rounded px-2 py-1 text-sm sm:text-sm whitespace-nowrap",
 };
 
 /* MAIN COMPONENT */
 export default function Audit() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
+
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
   const setAPIPayloadHolder = APIStore((s) => s.setAPIPayloadHolder);
   const setMessage = APIStore((s) => s.setResponseMessage);
@@ -97,7 +101,9 @@ export default function Audit() {
     <div className="w-full h-full flex flex-col overflow-hidden text-white">
       <div className="flex-none">
         <div className="flex flex-row items-center justify-between px-4 pt-2 pb-1">
-          <h2 className="font-bold text-lg">Audit</h2>
+          <h2 className="font-bold text-lg" style={ui.pageHeaderText}>
+            Audit
+          </h2>
           <SOPButton />
         </div>
 
@@ -106,7 +112,7 @@ export default function Audit() {
         </div>
 
         <div className="px-2 pt-1 pb-2 space-y-2">
-          <OperationInput APIAction={APIAction} ui={auditUI} />
+          <OperationInput APIAction={APIAction} ui={auditUI} style={ui} />
           <ObjectInput
             objectType={objectType}
             setObjectFields={setObjectFields}
@@ -117,6 +123,7 @@ export default function Audit() {
             setAPIAction={setAPIAction}
             setCustomFieldSelectedClassandSubclass={setCustomFieldSelectedClassandSubclass}
             ui={auditUI}
+            style={ui}
           />
         </div>
       </div>
@@ -136,6 +143,7 @@ export default function Audit() {
                 setAPIPayloadHolder,
                 trueRequredMaster,
                 ui: auditUI,
+                style: ui,
               };
 
               switch (type) {
@@ -173,33 +181,33 @@ export default function Audit() {
                 case "IMGModel":
                   return <AuditModelInput key={index} {...props} ui={auditUI} />;
                 case "LOCATION":
-                  return <AuditLocationInput key={index} ui={auditUI} />;
+                  return <AuditLocationInput key={index} ui={auditUI} style={ui} />;
                 case "CABINET":
-                  return <AuditCabinetInput key={index} ui={auditUI} />;
+                  return <AuditCabinetInput key={index} ui={auditUI} style={ui} />;
                 case "UPosition":
-                  return <AuditUPositionInput key={index} objectType={objectType} ui={auditUI} />;
+                  return <AuditUPositionInput key={index} objectType={objectType} ui={auditUI} style={ui} />;
                 case "CABINETSIDE":
-                  return <AuditCabinetSideInput key={index} ui={auditUI} />;
+                  return <AuditCabinetSideInput key={index} ui={auditUI} style={ui} />;
                 case "DEPTHPOSITION":
-                  return <AuditDepthPositionInput key={index} ui={auditUI} />;
+                  return <AuditDepthPositionInput key={index} ui={auditUI} style={ui} />;
                 case "RAILSUSED":
-                  return <AuditRailsUsedInput key={index} ui={auditUI} />;
+                  return <AuditRailsUsedInput key={index} ui={auditUI} style={ui} />;
                 case "ORIENTATION":
-                  return <AuditOrientationTypeInput key={index} ui={auditUI} />;
+                  return <AuditOrientationTypeInput key={index} ui={auditUI} style={ui} />;
                 case "CHASSIS":
-                  return <AuditChassisInput key={index} ui={auditUI} />;
+                  return <AuditChassisInput key={index} ui={auditUI} style={ui} />;
                 case "CHASSISFACE":
-                  return <AuditChassisFaceInput key={index} ui={auditUI} />;
+                  return <AuditChassisFaceInput key={index} ui={auditUI} style={ui} />;
                 case "SLOTPOSITION":
-                  return <AuditSlotInput key={index} ui={auditUI} />;
+                  return <AuditSlotInput key={index} ui={auditUI} style={ui} />;
                 default:
                   return <TextInput key={index} {...props} />;
               }
             })}
-            <CustomFieldInput_BASE showRequired={showRequired} />
+            <CustomFieldInput_BASE showRequired={showRequired} style={ui} />
 
             <div className="px-2 pt-2 flex justify-end bg-transparent">
-              <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 text-sm">
+              <button type="submit" className=" rounded px-4 py-2 text-sm" style={ui.baseButton}>
                 Submit
               </button>
             </div>
@@ -212,13 +220,13 @@ export default function Audit() {
 
 /* INPUT CARDS */
 
-function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui }) {
+function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui, style }) {
   const req = trueRequredMaster[objectType][label];
   const edit = dcTrack_EDITABLE[objectType][label];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
       </div>
 
@@ -239,6 +247,7 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({ type: "info_header", text, label });
@@ -251,13 +260,13 @@ function TextInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayl
   );
 }
 
-function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui }) {
+function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPayloadHolder, trueRequredMaster, ui, style }) {
   const req = trueRequredMaster[objectType][label];
   const edit = dcTrack_EDITABLE[objectType][label];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
       </div>
 
@@ -278,6 +287,7 @@ function NumberInput({ label, objectType, setMessage, setAPIPayloadHolder, APIPa
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({ type: "info_header", text, label });
@@ -300,13 +310,14 @@ function OcrInput({
   setCameraRequiredToProcess,
   trueRequredMaster,
   ui,
+  style,
 }) {
   const req = trueRequredMaster[objectType][label];
   const edit = dcTrack_EDITABLE[objectType][label];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
       </div>
 
@@ -327,6 +338,7 @@ function OcrInput({
         <button
           type="button"
           className={ui.mainButton}
+          style={style.baseButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(0);
@@ -340,6 +352,7 @@ function OcrInput({
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({ type: "info_header", text, label });
@@ -362,13 +375,14 @@ function ImgInput({
   setCameraRequiredToProcess,
   trueRequredMaster,
   ui,
+  style,
 }) {
   const req = trueRequredMaster[objectType][label];
   const edit = dcTrack_EDITABLE[objectType][label];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
       </div>
 
@@ -389,6 +403,7 @@ function ImgInput({
         <button
           type="button"
           className={ui.mainButton}
+          style={style.baseButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(1);
@@ -402,6 +417,7 @@ function ImgInput({
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({ type: "info_header", text, label });
@@ -424,13 +440,14 @@ function QrInput({
   setCameraRequiredToProcess,
   trueRequredMaster,
   ui,
+  style,
 }) {
   const req = trueRequredMaster[objectType][label];
   const edit = dcTrack_EDITABLE[objectType][label];
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={req ? ui.labelRequired : ui.label}>{dcTrack_READABLE[objectType][label]}</label>
       </div>
 
@@ -451,6 +468,7 @@ function QrInput({
         <button
           type="button"
           className={ui.mainButton}
+          style={style.baseButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(2);
@@ -464,6 +482,7 @@ function QrInput({
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({ type: "info_header", text, label });
@@ -477,11 +496,13 @@ function QrInput({
 }
 
 /* OPERATION INPUT */
-function OperationInput({ APIAction, ui }) {
+function OperationInput({ APIAction, ui, style }) {
   return (
-    <div className={ui.cardOuter}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
       <div className={ui.cardHeader}>
-        <label className={ui.label}>Operation</label>
+        <label className={ui.label} style={style.text}>
+          Operation
+        </label>
       </div>
 
       <div className={ui.cardBody}>
@@ -502,11 +523,14 @@ function ObjectInput({
   setAPIAction,
   setCustomFieldSelectedClassandSubclass,
   ui,
+  style,
 }) {
   return (
-    <div className={ui.cardOuter}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
       <div className={ui.cardHeader}>
-        <label className={ui.label}>Mounting Type</label>
+        <label className={ui.label} style={style.text}>
+          Mounting Type
+        </label>
       </div>
 
       <div className={ui.cardBody}>

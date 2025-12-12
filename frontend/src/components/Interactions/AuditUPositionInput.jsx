@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function AuditUPositionInput({ objectType, ui }) {
+export default function AuditUPositionInput({ objectType, ui, style }) {
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const currentCabinetID = APIStore((s) => s.data.CurrentCabinetID);
@@ -26,8 +26,8 @@ export default function AuditUPositionInput({ objectType, ui }) {
   const label = "U Position";
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={ui.labelRequired}>{label}</label>
       </div>
 
@@ -59,6 +59,7 @@ export default function AuditUPositionInput({ objectType, ui }) {
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Open U Position in the selected cabinet where the device is located.";
             setMessage({ type: "info_header", text, label });

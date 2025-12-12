@@ -50,6 +50,7 @@ let initState = {
     objectType: "",
     settingPassVarified: false,
     ModalOpen: { open: false, child: null },
+    DarkMode: false,
   },
   DataState: {
     TextData: "",

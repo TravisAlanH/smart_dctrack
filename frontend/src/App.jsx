@@ -16,10 +16,13 @@ import Home from "./components/Screens/Home";
 import LoadingSpinner from "./components/LoadingSpinner/Spinner";
 import Modal from "./components/ActionBar/Modal/Modal";
 import DataNeeded from "./components/Screens/DataNeeded";
+import { getStyles } from "../Styles";
 
 // import MicrosoftLogin from "./components/MicrosoftLogin/MicrosoftLogin";
 
 function App() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   const pageView = ReuseDataStateStore((s) => s.data.pageView);
   const cabinetActionBar = ReuseDataStateStore((s) => s.data.cabinetActionBar);
   const show = APIStore((s) => s.data.openResponseMessage);
@@ -54,7 +57,7 @@ function App() {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col  bg-[#292929] text-black">
+    <div className="fixed inset-0 flex flex-col" style={ui.mainBackground}>
       <div className="flex-1 overflow-auto">
         <div className={pageView === 3 ? "block h-full  overflow-auto" : "hidden"}>
           {LOCATIONCODE === "" || BASE64USERPASS === "" ? <DataNeeded /> : <Audit />}
@@ -76,9 +79,10 @@ function App() {
       <div
         className={
           show === true
-            ? "absolute bottom-32 left-0 w-full h-60 bg-black text-white transition-all duration-300 translate-y-[5rem] rounded-xl"
-            : "absolute bottom-32 left-0 w-full h-40 bg-black text-white transition-all duration-300 translate-y-[30rem] rounded-xl"
+            ? "absolute bottom-32 left-0 w-full h-60 transition-all duration-300 translate-y-[5rem] rounded-xl"
+            : "absolute bottom-32 left-0 w-full h-40 transition-all duration-300 translate-y-[30rem] rounded-xl"
         }
+        style={{ ...ui.CardBackGround, ...ui.text }}
       >
         <div className="p-4">
           <SlideContent />

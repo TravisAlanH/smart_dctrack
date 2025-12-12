@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function AuditSlotInput({ objectType, ui }) {
+export default function AuditSlotInput({ objectType, ui, style }) {
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
   const setSingleAPIPayloadHolder = APIStore((s) => s.setSingleAPIPayloadHolder);
   const APIPayloadHolder = APIStore((s) => s.data.APIPayloadHolder);
@@ -67,8 +67,8 @@ export default function AuditSlotInput({ objectType, ui }) {
   const APIPayloadCheck = "radioChassisFace";
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={ui.labelRequired}>Slot Position</label>
       </div>
 
@@ -99,6 +99,7 @@ export default function AuditSlotInput({ objectType, ui }) {
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Open U Position in the selected cabinet where the device is located.";
             setMessage({ type: "info_header", text, label: label });

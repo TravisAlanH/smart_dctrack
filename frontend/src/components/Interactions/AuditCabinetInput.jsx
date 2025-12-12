@@ -2,7 +2,7 @@ import React from "react";
 import { APIStore } from "../../../store/Store";
 import { MdInfoOutline } from "react-icons/md";
 
-export default function AuditCabinetInput({ ui }) {
+export default function AuditCabinetInput({ ui, style }) {
   const pullCabinetData = APIStore((s) => s.pullCabinetData);
   const setCurrentCabinetID = APIStore((s) => s.setCurrentCabinetID);
   const CabinetsInLocation = APIStore((s) => s.data.CabinetsInLocation);
@@ -19,8 +19,8 @@ export default function AuditCabinetInput({ ui }) {
   }, [LOCATIONCODE, pullCabinetData]);
 
   return (
-    <div className={ui.cardOuter}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={style.CardBackGround}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={ui.labelRequired}>Cabinet</label>
       </div>
 
@@ -50,6 +50,7 @@ export default function AuditCabinetInput({ ui }) {
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = "Select the cabinet inside the chosen location. The list comes from the system after a location is set.";
             setMessage({ type: "info_header", text, label });

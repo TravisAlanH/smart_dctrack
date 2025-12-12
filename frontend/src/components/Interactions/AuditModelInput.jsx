@@ -16,6 +16,7 @@ function AuditModelInput({
   setCameraRequiredToProcess,
   trueRequredMaster,
   ui,
+  style,
 }) {
   const pullAllModelsFromMake = APIStore((s) => s.pullAllModelsFromMake);
   const modelList = APIStore((s) => s.data.ModelDataFromInstance);
@@ -59,8 +60,8 @@ function AuditModelInput({
   const required = trueRequredMaster[objectType][label];
 
   return (
-    <div className={ui.cardOuter} style={{ position: "relative" }}>
-      <div className={ui.cardHeader}>
+    <div className={ui.cardOuter} style={{ position: "relative", ...style.CardBackGround }}>
+      <div className={ui.cardHeader} style={style.text}>
         <label className={required ? ui.labelRequired : ui.label}>Model</label>
       </div>
 
@@ -160,6 +161,7 @@ function AuditModelInput({
         <button
           type="button"
           className={ui.mainButton}
+          style={style.baseButton}
           onClick={() => {
             setCameraRequiredToProcess(objectType, label);
             setCameraStatus(1);
@@ -173,6 +175,7 @@ function AuditModelInput({
         <button
           type="button"
           className={ui.infoButton}
+          style={style.infoButton}
           onClick={() => {
             const text = dcTrack_DISCRIPTIONS[objectType]?.[label] || "No data";
             setMessage({

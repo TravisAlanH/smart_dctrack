@@ -4,8 +4,11 @@ import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import CustomFieldInput_BASE from "../ActionBar/CustomFields/Inputs/CustomFieldInput_BASE";
 import CutomFieldRequiredToggles from "../ActionBar/CustomFields/CutomFieldRequiredToggles";
 import SOPButton from "../Interactions/Buttons/SOPButton";
+import { getStyles } from "../../../Styles";
 
 export default function Settings() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   //#region STATE_SETTERS
   const settingPassVarified = ReuseDataStateStore((s) => s.data.settingPassVarified);
   const setSettingPassVarified = ReuseDataStateStore((s) => s.setSettingPassVarified);
@@ -134,15 +137,19 @@ export default function Settings() {
   return (
     <div>
       <div className="mx-4 mt-4 flex flex-row wi-full justify-between">
-        <span className=" text-xl text-white font-bold">SETTINGS</span> <SOPButton />
+        <span className=" text-xl font-bold" style={ui.pageHeaderText}>
+          SETTINGS
+        </span>{" "}
+        <SOPButton />
       </div>
       <div className="w-full h-full flex flex-col justify-center gap-3">
         {/* #region LOGIN_INPUT */}
 
         {stored.SETTINGPASS && !settingPassVarified && (
-          <div className=" bg-gray-700 rounded-lg shadow-lg mx-4">
+          <div className="rounded-lg shadow-lg mx-4" style={{ ...ui.CardBackGround, ...ui.text }}>
             <form
-              className="p-4 gap-4 flex flex-col text-white"
+              className="p-4 gap-4 flex flex-col"
+              style={ui.text}
               onSubmit={(e) => {
                 e.preventDefault();
                 handleLogin();
@@ -167,8 +174,8 @@ export default function Settings() {
 
         {/* #region BLOCK_MESSAGE */}
         {!settingPassVarified && (
-          <div className="m-4 bg-gray-700 rounded-lg shadow-lg h-[8rem] text-white">
-            <div className="flex flex-row justify-center items-center h-full w-full text-white">
+          <div className="m-4 rounded-lg shadow-lg h-[8rem]" style={{ ...ui.CardBackGround, ...ui.text }}>
+            <div className="flex flex-row justify-center items-center h-full w-full " style={ui.text}>
               <span className="text-white">Input Pass to view settings</span>
             </div>
           </div>
@@ -178,18 +185,19 @@ export default function Settings() {
         {/* #region SETTINGS_FORM */}
         {settingPassVarified && (
           <div>
-            <div className="m-4 pt-4 bg-gray-700 rounded-lg shadow-lg">
-              <span className="px-4 font-bold text-white">
+            <div className="m-4 pt-4 rounded-lg shadow-lg" style={{ ...ui.CardBackGround, ...ui.text }}>
+              <span className="px-4 font-bold " style={ui.text}>
                 LogonBox Install <span className="pl-2 font-normal text-sm">(Required VPN)</span>
               </span>
-              <div className="p-4 flex flex-row justify-between w-full text-white">
+              <div className="p-4 flex flex-row justify-between w-full ">
                 <span>Install Link</span>
                 <div className="flex flex-row gap-2">
                   <a
                     href="https://apps.apple.com/us/app/logonbox-vpn-client/id1570800936"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 text-white rounded px-2 py-1"
+                    className=" rounded px-2 py-1"
+                    style={ui.baseButton}
                   >
                     iOS
                   </a>
@@ -197,33 +205,38 @@ export default function Settings() {
                     href="https://play.google.com/store/apps/details?id=com.logonbox.vpn&hl=en_US"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 text-white rounded px-2 py-1"
+                    className=" rounded px-2 py-1"
+                    style={ui.baseButton}
                   >
                     Android
                   </a>
                 </div>
               </div>
             </div>
-            <div className="m-4 pt-4 bg-gray-700 rounded-lg shadow-lg">
-              <span className="px-4 font-bold text-white">
+            <div className="m-4 pt-4 rounded-lg shadow-lg" style={{ ...ui.CardBackGround, ...ui.text }}>
+              <span className="px-4 font-bold " style={ui.text}>
                 Backend Connection <span className="pl-2 font-normal text-sm">(When Instance changes)</span>
               </span>
-              <div className="p-4 flex flex-row justify-between w-full text-white">
+              <div className="p-4 flex flex-row justify-between w-full " style={ui.text}>
                 <span>Authorize Backend</span>
                 <a
                   href="https://10.34.5.85:10000"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gray-800 text-white rounded px-2 py-1"
+                  className=" rounded px-2 py-1"
+                  style={ui.baseButton}
                 >
                   Authorize
                 </a>
               </div>
             </div>
-            <div className="m-4 pt-4 bg-gray-700 rounded-lg shadow-lg">
-              <span className="px-4 font-bold text-white">Set Up Target Instance</span>
+            <div className="m-4 pt-4 rounded-lg shadow-lg" style={{ ...ui.CardBackGround, ...ui.text }}>
+              <span className="px-4 font-bold " style={ui.text}>
+                Set Up Target Instance
+              </span>
               <form
-                className="p-4 gap-4 flex flex-col text-white"
+                className="p-4 gap-4 flex flex-col"
+                style={ui.text}
                 onSubmit={(e) => {
                   e.preventDefault();
                   submitSettings();
@@ -260,7 +273,8 @@ export default function Settings() {
                     />
                     <button
                       type="button"
-                      className="bg-gray-800 text-white rounded px-2 py-1"
+                      className=" rounded px-2 py-1"
+                      style={ui.infoButton}
                       onClick={() => setShowPass((prev) => !prev)}
                     >
                       {showPass ? "Hide" : "Show"}
@@ -278,12 +292,12 @@ export default function Settings() {
                   />
                 </div>
 
-                <button type="submit" className="bg-blue-600 text-white rounded px-3 py-2 mt-4">
+                <button type="submit" className=" rounded px-3 py-2 mt-4" style={ui.baseButton}>
                   Apply Changes
                 </button>
               </form>
             </div>
-            <div className="p-4 gap-4 flex flex-col text-white bg-gray-700 m-4 rounded-lg shadow-lg">
+            <div className="p-4 gap-4 flex flex-col m-4 rounded-lg shadow-lg" style={{ ...ui.CardBackGround, ...ui.text }}>
               <div className="flex flex-row gap-2 items-center">
                 <label className="w-[25%]">Location</label>
                 <select
@@ -356,9 +370,10 @@ export default function Settings() {
 
         {/* #region CREATE_PASS */}
         {!stored.SETTINGPASS && (
-          <div className="m-4 bg-gray-700 rounded-lg shadow-lg">
+          <div className="m-4 rounded-lg shadow-lg" style={{ ...ui.CardBackGround, ...ui.text }}>
             <form
-              className="p-4 gap-4 flex flex-col text-white"
+              className="p-4 gap-4 flex flex-col "
+              style={ui.text}
               onSubmit={(e) => {
                 e.preventDefault();
                 verifySettingPass();
@@ -385,7 +400,7 @@ export default function Settings() {
               </div>
 
               <div className="flex flex-row justify-around">
-                <button type="submit" className="bg-blue-600 text-white rounded px-3 py-2 mt-4">
+                <button type="submit" className="rounded px-3 py-2 mt-4" style={ui.baseButton}>
                   Create Password
                 </button>
               </div>
@@ -396,8 +411,8 @@ export default function Settings() {
 
         {/* #region RESET */}
         {stored.SETTINGPASS && (
-          <div className="m-4 bg-gray-700 rounded-lg shadow-lg flex flex-row justify-center">
-            <button type="button" className="bg-blue-600 text-white rounded px-3 py-2 m-4" onClick={resetAllData}>
+          <div className="m-4 rounded-lg shadow-lg flex flex-row justify-center" style={{ ...ui.CardBackGround, ...ui.text }}>
+            <button type="button" className=" rounded px-3 py-2 m-4" onClick={resetAllData} style={ui.cautionButton}>
               Reset All Passwords and Settings
             </button>
           </div>

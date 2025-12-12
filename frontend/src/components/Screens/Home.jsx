@@ -1,9 +1,12 @@
 import React from "react";
-import { APIStore } from "../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../store/Store";
 import { MdAddCircleOutline, MdEdit, MdDelete, MdAddCircle } from "react-icons/md";
 import SOPButton from "../Interactions/Buttons/SOPButton";
+import { getStyles } from "../../../Styles";
 
 export default function Home() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   const pullAuditTrail = APIStore((s) => s.pullAuditTrail);
   const GETAssetDataByID = APIStore((s) => s.GETAssetDataByID);
 
@@ -75,41 +78,42 @@ export default function Home() {
   const buttonStyle = " bg-slate-800 text-white px-3 py-1 rounded text-base hover:bg-slate-700";
   const buttonActiveStyle = " bg-blue-600 text-white px-3 py-1 rounded text-base hover:bg-blue-500";
 
-  const cardOuter = "flex flex-col gap-2 bg-slate-600 border border-gray-500 rounded-lg w-full p-1 text-white";
-  const cardInner = "flex flex-col gap-2 bg-slate-700 border border-gray-500 rounded-lg w-full p-3 text-white";
+  const cardOuter = "flex flex-col gap-2 border rounded-lg w-full p-1 text-white ";
+  const cardInner = "flex flex-col gap-2 border rounded-lg w-full p-3 text-white ";
 
   const listItem = "w-full bg-white rounded-md flex flex-row items-center h-14 pr-2 text-black";
 
-  const leftTag =
-    "rounded-l-md w-12 min-w-[3rem] h-full flex items-center justify-center bg-slate-200 border-r border-gray-400 text-base font-bold text-black";
+  const leftTag = "rounded-l-md w-12 min-w-[3rem] h-full flex items-center justify-center border-r text-base font-bold";
 
   const rowText = "text-base truncate";
 
   return (
     <div className={pageWrapper}>
       <div className="flex flex-row justify-between w-full">
-        <h1 className="text-2xl font-bold mb-4">Home Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-4" style={ui.pageHeaderText}>
+          Home Dashboard
+        </h1>
         <SOPButton />
       </div>
-      <div className={cardOuter}>
+      <div className={cardOuter} style={ui.CardBackGround}>
         {/* Refresh button */}
         <div className="w-full flex justify-between items-center mt-2">
           <span className="text-xl font-bold pl-2">Audit Trail Viewer</span>
-          <button className={buttonActiveStyle} onClick={handleAuditTrailRefresh}>
+          <button className={buttonActiveStyle} style={ui.baseButton} onClick={handleAuditTrailRefresh}>
             Refresh
           </button>
         </div>
 
         {/* Last Known Cabinet */}
-        <div className={cardInner}>
+        <div className={cardInner} style={ui.CardSectionBackGround}>
           <h3 className="text-base font-bold mb-2">User At Cabinet (last known)</h3>
 
           <div className="flex flex-col gap-2 max-h-[22rem] overflow-y-auto">
             {[...changedBySet].map((entry, index) => {
               const data = entry[1];
               return (
-                <div key={index} className={listItem}>
-                  <div className={leftTag}>
+                <div key={index} className={listItem} style={ui.CardInnerBackGround}>
+                  <div className={leftTag} style={{ ...ui.IconBackground, ...ui.text }}>
                     {data.action === "INSERT" ? (
                       <MdAddCircle size={20} />
                     ) : data.action === "UPDATE" ? (
@@ -119,15 +123,17 @@ export default function Home() {
                     )}
                   </div>
 
-                  <div className="flex flex-col flex-1 px-2 justify-center text-black">
+                  <div className="flex flex-col flex-1 px-2 justify-center" style={{ ...ui.text }}>
                     <div className="flex flex-row w-full justify-between items-center gap-2">
                       <span className={rowText}>{data.changedBy}</span>
-                      <span className="text-base text-right truncate max-w-[40%] text-black">
+                      <span className="text-base text-right truncate max-w-[40%]">
                         {changedByAssets[index]?.cmbCabinet ?? ""}
                       </span>
                     </div>
 
-                    <span className="text-sm text-black">{data.changedDate}</span>
+                    <span className="text-sm" style={ui.text}>
+                      {data.changedDate}
+                    </span>
                   </div>
                 </div>
               );
@@ -136,7 +142,7 @@ export default function Home() {
         </div>
 
         {/* Audit Trail */}
-        <div className={cardInner}>
+        <div className={cardInner} style={ui.CardSectionBackGround}>
           <div className="flex flex-row justify-between pb-2">
             <h3 className="text-base font-bold mb-3">Audit Trail</h3>
             <div className="flex flex-row justify-center items-center gap-2">
@@ -160,6 +166,7 @@ export default function Home() {
           <div className="flex gap-2 mb-3 w-full">
             <button
               className={`${viewAudit === "ALL" ? buttonActiveStyle : buttonStyle} flex-1`}
+              style={viewAudit === "ALL" ? ui.activeButton : ui.baseButton}
               onClick={() => setViewAduit("ALL")}
             >
               All
@@ -167,6 +174,7 @@ export default function Home() {
 
             <button
               className={`${viewAudit === "INSERT" ? buttonActiveStyle : buttonStyle} flex-1`}
+              style={viewAudit === "INSERT" ? ui.activeButton : ui.baseButton}
               onClick={() => setViewAduit("INSERT")}
             >
               Creates
@@ -174,6 +182,7 @@ export default function Home() {
 
             <button
               className={`${viewAudit === "UPDATE" ? buttonActiveStyle : buttonStyle} flex-1`}
+              style={viewAudit === "UPDATE" ? ui.activeButton : ui.baseButton}
               onClick={() => setViewAduit("UPDATE")}
             >
               Updates
@@ -181,6 +190,7 @@ export default function Home() {
 
             <button
               className={`${viewAudit === "DELETE" ? buttonActiveStyle : buttonStyle} flex-1`}
+              style={viewAudit === "DELETE" ? ui.activeButton : ui.baseButton}
               onClick={() => setViewAduit("DELETE")}
             >
               Deletes
@@ -192,25 +202,30 @@ export default function Home() {
             {auditTrail
               .filter((e) => (viewAudit === "ALL" ? true : e.action === viewAudit))
               .map((entry, index) => (
-                <div key={index} className={listItem}>
-                  <div className={leftTag}>
+                <div key={index} className={listItem} style={{ ...ui.CardInnerBackGround, ...ui.text }}>
+                  <div className={leftTag} style={{ ...ui.IconBackground, ...ui.text }}>
                     {entry.action === "INSERT" ? (
-                      <MdAddCircle size={20} />
+                      <MdAddCircle size={20} style={ui.text} />
                     ) : entry.action === "UPDATE" ? (
-                      <MdEdit size={20} />
+                      <MdEdit size={20} style={ui.text} />
                     ) : (
-                      <MdDelete size={20} />
+                      <MdDelete size={20} style={ui.text} />
                     )}
                   </div>
 
-                  <div className="flex flex-col flex-1 px-2 justify-center text-black">
-                    <span className="text-sm text-black">{entry.changedDate}</span>
+                  <div className="flex flex-col flex-1 px-2 justify-center">
+                    <span className="text-sm">{entry.changedDate}</span>
 
                     <div className="flex flex-row w-full justify-between gap-2">
                       <span className={rowText}>{entry.changedBy}</span>
 
-                      <span className="text-base text-right truncate max-w-[50%] text-black">
-                        {entry.action === "DELETE" ? entry.changedFrom : entry.entityName}
+                      <span className="text-base text-right overflow-hidden whitespace-nowrap max-w-[50%] shrink">
+                        {(() => {
+                          const raw = entry.action === "DELETE" ? entry.changedFrom : entry.entityName;
+                          if (!raw) return "";
+                          if (raw.length <= 15) return raw;
+                          return raw.slice(0, 12) + "...";
+                        })()}
                       </span>
                     </div>
                   </div>

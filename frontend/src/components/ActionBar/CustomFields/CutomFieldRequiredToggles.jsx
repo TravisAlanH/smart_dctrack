@@ -1,18 +1,22 @@
 import React from "react";
-import { APIStore } from "../../../../store/Store";
+import { APIStore, ReuseDataStateStore } from "../../../../store/Store";
 import ToggleSwitch from "../../Interactions/ToggleSwitch";
+import { getStyles } from "../../../../Styles";
 
 export default function CutomFieldRequiredToggles() {
+  const darkMode = ReuseDataStateStore((s) => s.data.DarkMode);
+  const ui = getStyles();
   const setCustomFieldRequired = APIStore((s) => s.setCustomFieldRequired);
   const CustomFieldsOnInstance = APIStore((s) => s.data.CustomFieldsOnInstance);
   const pullCustomFields = APIStore((s) => s.pullCustomFields);
 
   return (
-    <div className="m-4 rounded-lg shadow-lg  bg-gray-700 text-white">
+    <div className="m-4 rounded-lg shadow-lg  flex flex-col" style={{ ...ui.CardBackGround, ...ui.text }}>
       <div className="flex flex-row justify-between px-4">
         <span className="mt-4 font-bold">Custom Field Required</span>
         <button
-          className="bg-gray-800 px-2 py-1 rounded mt-4"
+          className=" px-2 py-1 rounded mt-4"
+          style={ui.baseButton}
           onClick={() => {
             pullCustomFields();
           }}
@@ -27,7 +31,7 @@ export default function CutomFieldRequiredToggles() {
           if (item === "SelectedSubclass") return null;
           console.log(CustomFieldsOnInstance[item].Required);
           return (
-            <div className="px-4 gap-4 flex flex-row text-white" key={`customfield-required-toggle-${item}_${index}`}>
+            <div className="px-4 gap-4 flex flex-row " key={`customfield-required-toggle-${item}_${index}`} style={ui.text}>
               <div className="flex flex-row w-full gap-2 items-center">
                 <label className="">{`${item}`}</label>
               </div>
