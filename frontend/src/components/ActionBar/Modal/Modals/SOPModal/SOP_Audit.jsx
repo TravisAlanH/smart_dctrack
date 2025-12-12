@@ -1,6 +1,4 @@
 import React from "react";
-import IMG1 from "../../../../../assets/SOP/Audit/IMG1.png";
-import IMG2 from "../../../../../assets/SOP/Audit/IMG2.png";
 
 export default function SOP_Audit() {
   const SOPData = [
@@ -18,33 +16,34 @@ export default function SOP_Audit() {
     },
     {
       Step: 2,
-      Header: "Operation and Mounting Type",
+      Header: "Select the .xlsx file to open",
       BulletPoints: [
         {
-          Main: `Operation`,
+          Main: `Sheet being processed MUST be the "Active" Sheet in the workbook.`,
           Additional: [
-            `The action to be performed on the data set.`,
-            `Default is ADD, delete and edit options are done on the Cabinet Page`,
+            `"Active" Sheet is the sheet you were last using when the workbook was last saved.`,
+            `If workbook contains only one worksheet the "Active" Sheet is defaulted to that single worksheet`,
           ],
         },
-        { Main: "Mounting Type", Additional: ["The type of mounting for the Operation"] },
+        { Main: "Only works with .xlsx file extensions", Additional: "" },
+        { Main: "Resave your Excel file using .xlsx as needed", Additional: "" },
       ],
-      Note: "",
-      img: IMG1,
-      imgNote: "**Selecting a Mount Type will provide data input sections",
+      Note: "*Note: No data is saved or maintained after closing this tool",
+      img: "",
+      imgNote: "",
     },
     {
       Step: 3,
-      Header: "Data Input",
+      Header: "Select the Column that contains the Model Data",
       BulletPoints: [
         {
-          Main: `Required for API processes are highlighted in Red.`,
+          Main: `Select the Orange Column Letter to Select the Column`,
           Additional: "",
         },
-        { Main: "Information Buttons", Additional: "" },
+        { Main: "The Selected Column will Highlight.", Additional: "" },
       ],
       Note: "*Note: Depending on Data size this may take up to 10 Seconds for column to highlight",
-      img: IMG2,
+      img: "",
       imgNote: "",
     },
     {
@@ -59,7 +58,7 @@ export default function SOP_Audit() {
       ],
       Note: "*Note: Duplicate Entries are only removed from the Preview Window, the original data is not altered.",
       img: "",
-      imgNote: "Selecting a Mount ",
+      imgNote: "",
     },
     {
       Step: 5,
@@ -109,15 +108,14 @@ export default function SOP_Audit() {
 
   function StepLayout(index, data) {
     return (
-      <div className="w-[50rem] max-w-full bg-[#f1f5f9] rounded-xl flex flex-col gap-5 p-3 shadow-md text-sm break-words">
-        <div className="flex flex-row gap-3 items-center break-words font-bold">{data.Header}</div>
-
-        <div className="break-words">
+      <div className="w-50rem bg-[#f1f5f9] rounded-xl flex flex-col gap-5 p-3 shadow-md text-sm">
+        <div className="flex flex-row gap-3 items-center">{data.Header}</div>
+        <div>
           {data.BulletPoints.length > 0 ? (
-            <div className="flex flex-col gap-2 break-words">
+            <div className="flex flex-col gap-2">
               {data.BulletPoints.map((line, index) => {
                 return (
-                  <div key={index} className="break-words">
+                  <div key={index}>
                     {StepBulletPoints(line.Main)}
                     {line.Additional != "" ? StepBulletAddition(line.Additional) : null}
                   </div>
@@ -126,14 +124,9 @@ export default function SOP_Audit() {
             </div>
           ) : null}
         </div>
-
-        <div className="break-words">
-          {data.Note != "" ? <div className="flex flex-col gap-2 break-words">{StepNote(data.Note)}</div> : null}
-        </div>
-
+        <div>{data.Note != "" ? <div className="flex flex-col gap-2">{StepNote(data.Note)}</div> : null}</div>
         {data.imgNote != "" ? <div>{StepImageNote(data.imgNote)}</div> : null}
-
-        <div className="flex flex-row justify-center break-words">{data.img != "" ? StepImage(data.img) : null}</div>
+        <div className="flex flex-row justify-center">{data.img != "" ? StepImage(data.img) : null}</div>
       </div>
     );
   }
@@ -156,7 +149,7 @@ export default function SOP_Audit() {
 
   function StepBulletPoints(line) {
     return (
-      <div className="flex flex-row items-center gap-2 pl-[1rem]">
+      <div className="flex flex-row items-center gap-2 pl-[4rem]">
         <div className="w-[.5rem] h-[.5rem] bg-black rounded-full"></div>
         <p>{line}</p>
       </div>
@@ -165,7 +158,7 @@ export default function SOP_Audit() {
 
   function StepNote(line) {
     return (
-      <div className="flex flex-row items-center gap-2 pl-[1rem]">
+      <div className="flex flex-row items-center gap-2 pl-[4rem] w-[44rem]">
         <p>{line}</p>
       </div>
     );
@@ -173,7 +166,7 @@ export default function SOP_Audit() {
 
   function StepImageNote(line) {
     return (
-      <div className="flex flex-row items-center gap-2 pl-[1rem]">
+      <div className="flex flex-row items-center gap-2 pl-[4rem] w-[44rem]">
         <p className="text-sm">{line}</p>
       </div>
     );
@@ -182,17 +175,17 @@ export default function SOP_Audit() {
   function StepImage(img) {
     return (
       <div className="">
-        <img className="rounded-lg" src={img} />
+        <img className="rounded-lg w-[40rem]" src={img} />
       </div>
     );
   }
 
   function StepBulletAddition(Additional) {
     return (
-      <div className="">
+      <div className="w-[40rem]">
         {Additional.map((line, index) => {
           return (
-            <div key={index} className="flex flex-row items-center gap-4 pl-[2rem] pt-2">
+            <div key={index} className="flex flex-row items-center gap-4 pl-[6rem] pt-2">
               <div className="w-[.3rem] h-[.3rem] bg-[#918787] rounded-full"></div>
               <p>{line}</p>
             </div>
